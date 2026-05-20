@@ -1,0 +1,36 @@
+1. HPP 
+agent 개발을 진행하고 싶은 개발자들이 클라우드 자원을 할당 받고 개발 및 배포를 할 수 있는 Ops 플랫폼
+
+2. agentMarket
+    HPP에서 개발을 진행한 agent를 등록하고 관리하는 플랫폼
+    기능 : 
+    <일반 사용자 또는 개발자>
+    1. 등록한 agent를  볼 수 있는 MARKETPLACE
+    2. agent를 등록하기 위한 agent 정보를 입력하고, 등록신청 버튼이 들어있는 화면
+    - Agent 이름(중복확인)
+    - 과제번호, 시스템 계정
+    - 보안성 검토 ID, 부문
+    - agent 설명
+    - 팀명, 담당
+    - agent owner
+    - MPRS 구분, 태크
+    - Agent 카테고리를 선택
+    - 공개설정(agent Market 공개 여부, A2A를 허용 할지 여부)
+
+<admin>
+    1. 전체 agent 현황
+        1-1. 전체 agent (개발 1단계)
+            
+        1-2. 등록 요청 Agent 승인대기 (개발 1단계)
+            - agent를 승인 후 agent에 접근할 수 있는 Gateway Key를 발급하여 일반 사용자/개발자에게 발급 -> 일반 사용자는 발급받은 key를 HPP에 띄워둔 agent서버에 심어서 다시 실행(개발 1단계)
+            - agent validation/health check 수행 (개발 2단계)
+        1-3. 각 agent별 모니터링 (개발 2단계)
+    3. 각 agent들이 사용하고 있는 milvus collection list를 볼 수 있는 탭
+
+
+3. agentChat
+
+    <주요 기능>
+    1. agentMarket에서 등록한 agent를 선택하여 사용할 수 있는 prompt 화면 제공
+    2. agentMarket에서 agent를 등록할때 agent 
+    2. A2A를 허용한 스
