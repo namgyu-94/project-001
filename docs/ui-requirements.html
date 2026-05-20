@@ -484,6 +484,59 @@ tbody tr:hover td { background: #f8f9ff; }
 .user-chip .uc-role { color: #7c9fff; }
 .user-chip .uc-sep  { color: #454878; }
 .user-chip .uc-sec  { }
+
+/* ─── 로그인 오버레이 ─── */
+#loginOverlay {
+  position: fixed; inset: 0; background: rgba(10,12,30,0.88);
+  z-index: 2000; display: flex; align-items: center; justify-content: center;
+}
+.login-card {
+  background: #fff; border-radius: 20px; padding: 40px 44px;
+  width: 420px; box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+}
+.login-logo {
+  font-size: 20px; font-weight: 900; color: #12132a; margin-bottom: 24px;
+  display: flex; align-items: center; gap: 8px;
+}
+.login-logo .la { color: #6c8cff; }
+.login-title { font-size: 22px; font-weight: 800; color: #12132a; margin-bottom: 6px; }
+.login-sub { font-size: 13px; color: #9aa3c0; margin-bottom: 28px; }
+.login-form { display: flex; flex-direction: column; gap: 14px; }
+.login-error {
+  display: none; background: #fde8e8; color: #a01010;
+  border: 1px solid #f5b0b0; border-radius: 8px;
+  padding: 10px 14px; font-size: 12.5px; font-weight: 600;
+}
+.login-error.show { display: block; }
+.login-btn {
+  width: 100%; padding: 12px; background: #4a6cff; color: #fff;
+  border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s; margin-top: 4px;
+}
+.login-btn:hover { background: #3558e8; }
+.login-hint {
+  margin-top: 20px; padding: 12px 14px; background: #f5f7ff;
+  border-radius: 8px; font-size: 11.5px; color: #6a7090; line-height: 1.8;
+  border: 1px solid #e4e8f4;
+}
+.login-hint b { color: #4a6cff; }
+
+/* ─── 계정 정보 카드 (사이드바) ─── */
+.acc-profile {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.acc-avatar {
+  width: 36px; height: 36px; border-radius: 10px; background: #1e2254;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.acc-name  { font-size: 13px; font-weight: 800; color: #e8ecff; }
+.acc-email { font-size: 10.5px; color: #6a6f9a; margin-top: 2px; word-break: break-all; }
+.acc-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.acc-role-badge {
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+  background: #2a2e5a; color: #7c9fff; border: 1px solid #3a4080;
+}
 </style>
 </head>
 <body>
@@ -530,6 +583,9 @@ tbody tr:hover td { background: #f8f9ff; }
 
     <!-- 관리자 전용 -->
     <div id="admin-nav-group" style="display:none">
+      <div class="nav-item" id="nav-admin-status" onclick="show('admin-status')">
+        <span class="ni-icon">📊</span> 내 현황
+      </div>
       <div class="nav-item" id="nav-register" onclick="show('register')">
         <span class="ni-icon">➕</span> Agent 등록
       </div>
@@ -547,20 +603,32 @@ tbody tr:hover td { background: #f8f9ff; }
   </div>
 
   <div class="role-box">
-    <label>ROLE</label>
-    <select id="roleSelect" onchange="switchRole(this.value)">
+    <div class="acc-profile">
+      <div class="acc-avatar" id="accAvatar">👤</div>
+      <div>
+        <div class="acc-name" id="accName">—</div>
+        <div class="acc-email" id="accEmail">—</div>
+      </div>
+    </div>
+    <div class="acc-badges">
+      <span class="acc-role-badge" id="accRoleBadge">—</span>
+      <span class="acc-sec-badge sec-badge" id="accSecBadge">—</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="logout()"
+      style="width:100%;font-size:11.5px;padding:6px 0;color:#9aa3c0;margin-top:2px">
+      🚪 로그아웃
+    </button>
+    <!-- JS 호환용 — 화면에 표시되지 않음 -->
+    <select id="roleSelect" style="display:none" onchange="switchRole(this.value)">
       <option value="user">User</option>
       <option value="dev">Developer</option>
       <option value="admin">Admin</option>
     </select>
-    <div style="margin-top:10px">
-      <label>SECURITY CLEARANCE</label>
-      <select id="clearanceSelect" onchange="changeClearance(this.value)">
-        <option value="L0">L0 · 최고등급</option>
-        <option value="L1">L1</option>
-        <option value="L3">L3 · 일반</option>
-      </select>
-    </div>
+    <select id="clearanceSelect" style="display:none" onchange="changeClearance(this.value)">
+      <option value="L0">L0 · 최고등급</option>
+      <option value="L1">L1</option>
+      <option value="L3">L3 · 일반</option>
+    </select>
   </div>
 </nav>
 
@@ -1873,8 +1941,404 @@ tbody tr:hover td { background: #f8f9ff; }
       </div><!-- /card -->
     </div><!-- /panel-doc-approve -->
 
+    <!-- ════════════════ Admin: 내 현황 ════════════════ -->
+    <div class="panel" id="panel-admin-status">
+      <div class="inner-tabs" id="adminStatusTabs">
+        <div class="inner-tab active" onclick="adminStatusTab(this,'ast-admin')">🛡️ Admin 현황</div>
+        <div class="inner-tab" onclick="adminStatusTab(this,'ast-dev')">💻 Developer 현황</div>
+        <div class="inner-tab" onclick="adminStatusTab(this,'ast-user')">👤 User 현황</div>
+      </div>
+
+      <!-- ── Tab 1: Admin 현황 ── -->
+      <div id="ast-admin">
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="sc-label">🤖 전체 Agent</div>
+            <div class="sc-value">8</div>
+            <div class="sc-sub" style="color:#9aa3c0">승인 완료 5 · 대기 3</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">⏳ 대기 승인</div>
+            <div class="sc-value">3</div>
+            <div class="sc-sub" style="color:#e67e22">검토 필요</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">🔑 활성 Gateway Key</div>
+            <div class="sc-value">2</div>
+            <div class="sc-sub" style="color:#9aa3c0">발급 대기 1</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">🗄 Milvus 컬렉션</div>
+            <div class="sc-value">12</div>
+            <div class="sc-sub">▲ 2 (이번 주)</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📊 플랫폼 전체 사용 현황 <span class="badge badge-gray">이번 달</span></div>
+          <div class="stat-row" style="margin-bottom:0">
+            <div class="stat-card">
+              <div class="sc-label">👥 총 구독자</div>
+              <div class="sc-value">3,297</div>
+              <div class="sc-sub">▲ 427 (이번 달)</div>
+            </div>
+            <div class="stat-card">
+              <div class="sc-label">💬 총 쿼리</div>
+              <div class="sc-value">24.8K</div>
+              <div class="sc-sub">▲ 12% vs 지난달</div>
+            </div>
+            <div class="stat-card">
+              <div class="sc-label">⚡ 총 Token</div>
+              <div class="sc-value">18.4M</div>
+              <div class="sc-sub">▲ 21% vs 지난달</div>
+            </div>
+            <div class="stat-card">
+              <div class="sc-label">🕐 평균 응답속도</div>
+              <div class="sc-value">1.4s</div>
+              <div class="sc-sub" style="color:#27ae60">▼ 0.1s 개선</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🤖 Agent별 현황</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>Agent 이름</th><th>상태</th><th>보안등급</th><th>구독자</th><th>이번달 Token</th><th>평균 응답속도</th><th>Gateway Key</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>legal-review-agent</b></td>
+                  <td><span class="status-pill sp-active">활성</span></td>
+                  <td><span class="sec-badge sec-0">🔴 L0</span></td>
+                  <td><b>1,284</b></td>
+                  <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill" style="width:100%"></div></div><span class="usage-lbl">2.1M</span></div></td>
+                  <td><span class="speed-badge" style="color:#27ae60"><span class="speed-dot" style="background:#27ae60"></span> 1.2s</span></td>
+                  <td><span class="badge badge-green">발급 완료</span></td>
+                </tr>
+                <tr>
+                  <td><b>doc-summary-agent</b></td>
+                  <td><span class="status-pill sp-active">활성</span></td>
+                  <td><span class="sec-badge sec-3">🌐 L3</span></td>
+                  <td><b>843</b></td>
+                  <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill green" style="width:52%"></div></div><span class="usage-lbl">1.1M</span></div></td>
+                  <td><span class="speed-badge" style="color:#27ae60"><span class="speed-dot" style="background:#27ae60"></span> 0.9s</span></td>
+                  <td><span class="badge badge-green">발급 완료</span></td>
+                </tr>
+                <tr>
+                  <td><b>code-review-agent</b></td>
+                  <td><span class="status-pill sp-active">활성</span></td>
+                  <td><span class="sec-badge sec-1">🏢 L1</span></td>
+                  <td><b>562</b></td>
+                  <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill" style="width:34%"></div></div><span class="usage-lbl">0.7M</span></div></td>
+                  <td><span class="speed-badge" style="color:#e67e22"><span class="speed-dot" style="background:#e67e22"></span> 2.1s</span></td>
+                  <td><span class="badge badge-green">발급 완료</span></td>
+                </tr>
+                <tr>
+                  <td><b>hr-guide-agent</b></td>
+                  <td><span class="status-pill sp-pending">검토 중</span></td>
+                  <td><span class="sec-badge sec-1">🏢 L1</span></td>
+                  <td><span style="color:#ccc">—</span></td>
+                  <td><span style="color:#ccc">—</span></td>
+                  <td><span style="color:#ccc">—</span></td>
+                  <td><span class="badge badge-orange">대기</span></td>
+                </tr>
+                <tr>
+                  <td><b>data-insight-agent</b></td>
+                  <td><span class="status-pill sp-pending">검토 중</span></td>
+                  <td><span class="sec-badge sec-0">🔴 L0</span></td>
+                  <td><span style="color:#ccc">—</span></td>
+                  <td><span style="color:#ccc">—</span></td>
+                  <td><span style="color:#ccc">—</span></td>
+                  <td><span class="badge badge-orange">대기</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:14px;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="show('approve')">✅ 등록 승인 →</button>
+            <button class="btn btn-outline btn-sm" onclick="show('gwkey')">🔑 Gateway Key 관리 →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab 2: Developer 현황 ── -->
+      <div id="ast-dev" style="display:none">
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="sc-label">🤖 총 등록 Agent</div>
+            <div class="sc-value">4</div>
+            <div class="sc-sub">▲ 1 (이번 달)</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">✅ 승인 완료</div>
+            <div class="sc-value">2</div>
+            <div class="sc-sub" style="color:#9aa3c0">검토 중 1 · 반려 1</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">👥 총 구독자</div>
+            <div class="sc-value">1,847</div>
+            <div class="sc-sub">▲ 213 (이번 달)</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">⚡ 이번 달 Token</div>
+            <div class="sc-value">3.2M</div>
+            <div class="sc-sub">▲ 18% vs 지난 달</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="inner-tabs">
+            <div class="inner-tab active" onclick="astDevTab(this,'asd-list')">내 신청 목록</div>
+            <div class="inner-tab" onclick="astDevTab(this,'asd-usage')">사용 현황</div>
+          </div>
+          <div id="asd-list">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+              <button class="btn btn-primary btn-sm" onclick="show('apply')">+ 새 등록 신청</button>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr><th>Agent 이름</th><th>카테고리</th><th>공개</th><th>A2A</th><th>승인 상태</th><th>Validation</th><th>구독자</th><th>이번 달 Token</th><th>평균 응답속도</th><th>등록일</th><th>작업</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><b>legal-review-agent</b></td>
+                    <td><span class="badge badge-blue">법무·계약</span></td>
+                    <td>✅</td><td>✅</td>
+                    <td><span class="status-pill sp-active">승인 완료</span></td>
+                    <td><span class="val-badge vb-none">미검증</span></td>
+                    <td><b>—</b></td><td><span style="color:#ccc">—</span></td><td><span style="color:#ccc">—</span></td>
+                    <td>2026-05-10</td>
+                    <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
+                      <button class="btn btn-primary btn-xs" onclick="openValidation('legal-review-agent',true)">🔍 검증 시작</button>
+                      <button class="btn btn-ghost btn-xs">상세</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>doc-summary-agent</b></td>
+                    <td><span class="badge badge-green">문서 요약</span></td>
+                    <td>✅</td><td>—</td>
+                    <td><span class="status-pill sp-active">승인 완료</span></td>
+                    <td><span class="val-badge vb-pass">✅ 검증 완료</span></td>
+                    <td><b>563</b></td>
+                    <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill green" style="width:43%"></div></div><span class="usage-lbl">1.1M</span></div></td>
+                    <td><span class="speed-badge" style="color:#27ae60"><span class="speed-dot" style="background:#27ae60"></span> 0.9s</span></td>
+                    <td>2026-05-01</td>
+                    <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
+                      <button class="btn btn-ghost btn-xs" onclick="openValidation('doc-summary-agent',false)">재검증</button>
+                      <button class="btn btn-ghost btn-xs">상세</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>contract-draft-agent</b></td>
+                    <td><span class="badge badge-blue">법무·계약</span></td>
+                    <td>✅</td><td>✅</td>
+                    <td><span class="status-pill sp-pending">검토 중</span></td>
+                    <td><span class="val-badge vb-none" style="opacity:.45">—</span></td>
+                    <td><span style="color:#ccc">—</span></td><td><span style="color:#ccc">—</span></td><td><span style="color:#ccc">—</span></td>
+                    <td>2026-05-19</td>
+                    <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
+                      <button class="btn btn-ghost btn-xs" disabled style="opacity:.4">검증 시작</button>
+                      <button class="btn btn-ghost btn-xs">상세</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>clause-extractor-agent</b></td>
+                    <td><span class="badge badge-blue">법무·계약</span></td>
+                    <td>—</td><td>—</td>
+                    <td><span class="status-pill sp-rejected">반려</span></td>
+                    <td><span class="val-badge vb-none" style="opacity:.45">—</span></td>
+                    <td><span style="color:#ccc">—</span></td><td><span style="color:#ccc">—</span></td><td><span style="color:#ccc">—</span></td>
+                    <td>2026-04-28</td>
+                    <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
+                      <button class="btn btn-ghost btn-xs">반려 사유</button>
+                      <button class="btn btn-primary btn-xs">재신청</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div id="asd-usage" style="display:none">
+            <div style="margin-bottom:28px">
+              <div style="font-size:13px;font-weight:700;color:#6a7090;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px">구독자 수</div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="usage-bar-wrap">
+                  <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">⚖️ legal-review</div>
+                  <div class="usage-bar" style="height:10px"><div class="usage-fill" style="width:100%"></div></div>
+                  <span class="usage-lbl">1,284명</span>
+                </div>
+                <div class="usage-bar-wrap">
+                  <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">📄 doc-summary</div>
+                  <div class="usage-bar" style="height:10px"><div class="usage-fill" style="width:44%"></div></div>
+                  <span class="usage-lbl">563명</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#6a7090;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px">평균 응답속도 (최근 7일)</div>
+              <div class="tbl-wrap">
+                <table>
+                  <thead><tr><th>Agent</th><th>평균</th><th>최소</th><th>최대</th><th>P95</th><th>상태</th></tr></thead>
+                  <tbody>
+                    <tr><td><b>legal-review-agent</b></td><td><b>1.2s</b></td><td>0.6s</td><td>4.1s</td><td>2.8s</td><td><span class="status-pill sp-active">양호</span></td></tr>
+                    <tr><td><b>doc-summary-agent</b></td><td><b>0.9s</b></td><td>0.4s</td><td>2.2s</td><td>1.6s</td><td><span class="status-pill sp-active">양호</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab 3: User 현황 ── -->
+      <div id="ast-user" style="display:none">
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="sc-label">🤝 구독 중 Agent</div>
+            <div class="sc-value">2</div>
+            <div class="sc-sub" style="color:#9aa3c0">활성 구독</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">💬 이번달 쿼리</div>
+            <div class="sc-value">847</div>
+            <div class="sc-sub">▲ 124 (지난달 대비)</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">⚡ 이번달 Token</div>
+            <div class="sc-value">1.8M</div>
+            <div class="sc-sub">▲ 12% vs 지난달</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">🕐 평균 응답속도</div>
+            <div class="sc-value">1.1s</div>
+            <div class="sc-sub" style="color:#27ae60">전월 대비 ▼ 0.2s</div>
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:700;color:#12132a;margin-bottom:14px">구독 중인 Agent</div>
+
+        <div class="sub-agent-card">
+          <div class="sac-head">
+            <div class="sac-icon" style="background:#e8eeff">⚖️</div>
+            <div>
+              <div class="sac-name">법무 계약 검토 Agent</div>
+              <div class="sac-meta">
+                <span>🏢 법무팀 · 김법무</span>
+                <span>📅 구독일: 2026-04-15</span>
+                <span><span class="sec-badge sec-0" style="padding:2px 8px;font-size:10.5px">🔴 L0</span></span>
+                <span class="a2a-chip" style="font-size:11px;padding:2px 8px">A2A 지원</span>
+              </div>
+            </div>
+            <div class="sac-actions">
+              <span class="badge badge-purple" style="font-size:11px">구독 중</span>
+              <button class="btn btn-ghost btn-sm">구독 취소</button>
+            </div>
+          </div>
+          <div class="sac-body">
+            <div class="sac-stat"><div class="ss-val">523</div><div class="ss-lbl">이번달 쿼리</div></div>
+            <div class="sac-stat"><div class="ss-val">1.2M</div><div class="ss-lbl">이번달 Token</div></div>
+            <div class="sac-stat"><div class="ss-val" style="color:#27ae60">1.2s</div><div class="ss-lbl">평균 응답속도</div></div>
+            <div class="sac-stat"><div class="ss-val">4.9★</div><div class="ss-lbl">내 평점</div></div>
+            <div class="sac-doc">
+              <div class="doc-row"><span class="dr-label">업로드 문서</span><span class="dr-val">3건</span></div>
+              <div class="doc-row">
+                <span class="dr-label">VectorDB 등록</span>
+                <span class="dr-val" style="color:#27ae60">2건 완료</span>
+                <span style="color:#e67e22;font-size:11.5px;font-weight:700;margin-left:6px">· 1건 승인 대기</span>
+              </div>
+            </div>
+          </div>
+          <div class="sac-foot">
+            <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">legal_contracts_v2</code></div>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
+              <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sub-agent-card">
+          <div class="sac-head">
+            <div class="sac-icon" style="background:#e6faf0">📄</div>
+            <div>
+              <div class="sac-name">문서 요약 Agent</div>
+              <div class="sac-meta">
+                <span>🏢 IT추진팀 · 박개발</span>
+                <span>📅 구독일: 2026-05-01</span>
+                <span><span class="sec-badge sec-3" style="padding:2px 8px;font-size:10.5px">🌐 L3</span></span>
+              </div>
+            </div>
+            <div class="sac-actions">
+              <span class="badge badge-purple" style="font-size:11px">구독 중</span>
+              <button class="btn btn-ghost btn-sm">구독 취소</button>
+            </div>
+          </div>
+          <div class="sac-body">
+            <div class="sac-stat"><div class="ss-val">324</div><div class="ss-lbl">이번달 쿼리</div></div>
+            <div class="sac-stat"><div class="ss-val">0.6M</div><div class="ss-lbl">이번달 Token</div></div>
+            <div class="sac-stat"><div class="ss-val" style="color:#27ae60">0.9s</div><div class="ss-lbl">평균 응답속도</div></div>
+            <div class="sac-stat"><div class="ss-val">4.7★</div><div class="ss-lbl">내 평점</div></div>
+            <div class="sac-doc">
+              <div class="doc-row"><span class="dr-label">업로드 문서</span><span class="dr-val">2건</span></div>
+              <div class="doc-row">
+                <span class="dr-label">VectorDB 등록</span>
+                <span class="dr-val" style="color:#27ae60">1건 완료</span>
+                <span style="color:#e67e22;font-size:11.5px;font-weight:700;margin-left:6px">· 1건 승인 대기</span>
+              </div>
+            </div>
+          </div>
+          <div class="sac-foot">
+            <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">doc_summary_corpus</code></div>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
+              <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;padding:24px;border:2px dashed #dde2f0;border-radius:14px;color:#9aa3c0">
+          <div style="font-size:28px;margin-bottom:8px">➕</div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:6px">더 많은 Agent를 구독해보세요</div>
+          <div style="font-size:12.5px;margin-bottom:14px">MARKETPLACE에서 보안등급에 맞는 Agent를 탐색할 수 있습니다</div>
+          <button class="btn btn-outline btn-sm" onclick="show('marketplace')">MARKETPLACE 바로가기</button>
+        </div>
+      </div>
+
+    </div><!-- /panel-admin-status -->
+
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- ═══════════════════════════════ 로그인 오버레이 ═══════════════════════════════ -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">🤖 Agent<span class="la">Market</span></div>
+    <div class="login-title">로그인</div>
+    <div class="login-sub">계정 이메일과 비밀번호를 입력하세요</div>
+    <div class="login-form">
+      <div class="fg">
+        <label>이메일</label>
+        <input type="email" id="loginEmail" placeholder="example@sky.com"
+          onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <div class="fg">
+        <label>비밀번호</label>
+        <input type="password" id="loginPassword" placeholder="비밀번호 입력"
+          onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <div class="login-error" id="loginError">이메일 또는 비밀번호가 올바르지 않습니다.</div>
+      <button class="login-btn" onclick="login()">로그인</button>
+    </div>
+    <div class="login-hint">
+      <b>테스트 계정 (비밀번호: 1234)</b><br>
+      admin@sky.com — Admin / L0 최고등급<br>
+      dev@sky.com &nbsp;&nbsp;— Developer / L1<br>
+      user@sky.com &nbsp;— User / L3 일반
+    </div>
+  </div>
+</div>
 
 <!-- Request Body 미리보기 모달 -->
 <div class="modal-overlay" id="reqBodyModal">
@@ -1961,6 +2425,58 @@ tbody tr:hover td { background: #f8f9ff; }
 </div>
 
 <script>
+/* ─── Mock 계정 ─── */
+const ACCOUNTS = {
+  'admin@sky.com': { password: '1234', name: '관리자',  role: 'admin', clearance: 'L0' },
+  'dev@sky.com':   { password: '1234', name: '박개발',  role: 'dev',   clearance: 'L1' },
+  'user@sky.com':  { password: '1234', name: '홍길동',  role: 'user',  clearance: 'L3' },
+};
+const AVATAR_ICON  = { user: '👤', dev: '💻', admin: '🛡️' };
+const ROLE_DISPLAY = { user: 'User', dev: 'Developer', admin: 'Admin' };
+const SEC_DISPLAY  = { L0: '🔴 L0 최고등급', L1: '🏢 L1', L3: '🌐 L3 일반' };
+const SEC_BADGE_CLS = { L0: 'sec-0', L1: 'sec-1', L3: 'sec-3' };
+
+let _currentAccount = null;
+
+function login() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pw    = document.getElementById('loginPassword').value;
+  const acc   = ACCOUNTS[email];
+  const err   = document.getElementById('loginError');
+
+  if (!acc || acc.password !== pw) {
+    err.classList.add('show');
+    return;
+  }
+  err.classList.remove('show');
+  _currentAccount = { ...acc, email };
+
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('roleSelect').value = acc.role;
+  document.getElementById('clearanceSelect').value = acc.clearance;
+  updateAccountDisplay();
+  switchRole(acc.role);
+}
+
+function logout() {
+  _currentAccount = null;
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginOverlay').style.display = '';
+}
+
+function updateAccountDisplay() {
+  if (!_currentAccount) return;
+  const acc = _currentAccount;
+  document.getElementById('accAvatar').textContent     = AVATAR_ICON[acc.role] || '👤';
+  document.getElementById('accName').textContent       = acc.name;
+  document.getElementById('accEmail').textContent      = acc.email;
+  document.getElementById('accRoleBadge').textContent  = ROLE_DISPLAY[acc.role] || acc.role;
+  const secBadge = document.getElementById('accSecBadge');
+  secBadge.textContent = SEC_DISPLAY[acc.clearance] || acc.clearance;
+  secBadge.className   = 'acc-sec-badge sec-badge ' + (SEC_BADGE_CLS[acc.clearance] || '');
+}
+
 const META = {
   marketplace:  { title: 'MARKETPLACE',    desc: '등록된 Agent를 탐색하고 구독하세요',                         crumb: 'agentMarket > MARKETPLACE' },
   developer:    { title: '내 현황',        desc: '신청한 Agent 상태 및 구독·사용 지표를 확인하세요',           crumb: 'agentMarket > 내 현황' },
@@ -1973,6 +2489,7 @@ const META = {
   approve:      { title: '등록 승인',      desc: '개발자가 신청한 Agent를 검토하고 승인·반려합니다',           crumb: 'agentMarket > 관리자 > 등록 승인' },
   gwkey:        { title: 'Gateway Key',    desc: '승인된 Agent의 접근 키를 발급·관리합니다',                   crumb: 'agentMarket > 관리자 > Gateway Key' },
   milvus:       { title: 'Milvus 컬렉션', desc: 'Agent별 벡터 DB 컬렉션 현황을 조회합니다',                   crumb: 'agentMarket > 관리자 > Milvus' },
+  'admin-status':{ title: '내 현황',     desc: '플랫폼 전체 현황 및 내 Agent · 구독 현황을 확인하세요',      crumb: 'agentMarket > 내 현황' },
 };
 
 function show(id) {
@@ -2042,14 +2559,16 @@ function updateMarketAccess() {
 }
 
 function switchRole(role) {
-  const devGroup   = document.getElementById('dev-nav-group');
-  const adminGroup = document.getElementById('admin-nav-group');
+  const devGroup      = document.getElementById('dev-nav-group');
+  const adminGroup    = document.getElementById('admin-nav-group');
   const userStatusNav = document.getElementById('nav-user-status');
-  devGroup.style.display   = role === 'dev'   ? 'block' : 'none';
-  adminGroup.style.display = role === 'admin' ? 'block' : 'none';
-  if (userStatusNav) userStatusNav.style.display = role === 'user' ? 'flex' : 'none';
 
-  // 역할별 기본 보안등급
+  // 역할 계층: admin ⊃ dev ⊃ user
+  // admin은 admin-status 탭(3-tab)으로 모든 현황을 통합 제공하므로 dev 그룹은 표시 안 함
+  devGroup.style.display      = role === 'dev'   ? 'block' : 'none';
+  adminGroup.style.display    = role === 'admin' ? 'block' : 'none';
+  if (userStatusNav) userStatusNav.style.display = (role === 'user' || role === 'dev') ? 'flex' : 'none';
+
   const defaultSec = { user: 'L3', dev: 'L1', admin: 'L0' };
   _currentClearance = defaultSec[role] || 'L3';
   document.getElementById('clearanceSelect').value = _currentClearance;
@@ -2057,15 +2576,31 @@ function switchRole(role) {
   updateUserChip();
   updateMarketAccess();
 
-  if (role === 'admin') show('approve');
+  if (role === 'admin') show('admin-status');
   else if (role === 'dev') show('developer');
   else show('user-status');
 }
 
 function devTab(el, tabId) {
-  document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  el.closest('.inner-tabs').querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   ['dev-list', 'dev-usage'].forEach(id => {
+    document.getElementById(id).style.display = id === tabId ? 'block' : 'none';
+  });
+}
+
+function adminStatusTab(el, tabId) {
+  el.closest('.inner-tabs').querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['ast-admin', 'ast-dev', 'ast-user'].forEach(id => {
+    document.getElementById(id).style.display = id === tabId ? 'block' : 'none';
+  });
+}
+
+function astDevTab(el, tabId) {
+  el.closest('.inner-tabs').querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['asd-list', 'asd-usage'].forEach(id => {
     document.getElementById(id).style.display = id === tabId ? 'block' : 'none';
   });
 }
@@ -2258,8 +2793,7 @@ function showReqBody(el) {
   document.getElementById('reqBodyModal').classList.add('open');
 }
 
-// 초기화
-switchRole('user');
+// 초기화 — 로그인 후 switchRole 호출됨
 updateMarketAccess();
 
 /* ─── Validation 모달 ─── */
