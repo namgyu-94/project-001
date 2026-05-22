@@ -1,0 +1,231 @@
+@startuml validation-transaction
+
+!theme plain
+skinparam DefaultFontName "Apple SD Gothic Neo, Malgun Gothic, sans-serif"
+skinparam DefaultFontSize 13
+skinparam SequenceMessageAlign center
+skinparam ParticipantPadding 20
+skinparam BoxPadding 12
+skinparam ArrowFontSize 12
+skinparam ArrowColor #4a5568
+skinparam SequenceLifeLineBorderColor #9aa3c0
+skinparam SequenceGroupBorderThickness 1.5
+skinparam SequenceGroupFontSize 12
+skinparam SequenceGroupFontStyle bold
+skinparam NoteBackgroundColor #fffbe6
+skinparam NoteBorderColor #f0c060
+skinparam NoteTextAlignment left
+
+skinparam participant {
+  BackgroundColor #f0f4ff
+  BorderColor     #4a6cff
+  FontColor       #12132a
+  FontStyle       bold
+}
+
+skinparam actor {
+  BackgroundColor #eaeefc
+  BorderColor     #6a7090
+  FontColor       #12132a
+  FontStyle       bold
+}
+
+title
+  <b>Validation Transaction Diagram</b>
+  agentMarket × Kong Gateway 연동 검증 흐름
+end title
+
+' ── 참여자 선언 ──────────────────────────────────────
+actor       Admin     as "Admin\n<size:11>(관리자)</size>"
+actor       Dev       as "Developer\n<size:11>(개발자)</size>"
+participant AM        as "agentMarket\n<size:11>Backend API</size>"
+participant KAdmin    as "Kong Admin API\n<size:11>관리 API</size>"
+participant Kong      as "Kong Gateway\n<size:11>API Gateway</size>"
+participant Pod       as "Agent Pod\n<size:11>Kubernetes</size>"
+
+' ══════════════════════════════════════════════════════
+== Phase 0 　사전 준비 — 승인 및 토큰 주입 ==
+' ══════════════════════════════════════════════════════
+
+Admin  ->  Dev  : 승인 완료 + Kong 인증 토큰 공유
+activate Dev
+
+Dev    ->  Pod  : KONG_AUTH_TOKEN 환경변수 주입\n(HPP Deployment 직접 수정)
+activate Pod
+Pod    ->  Pod  : Rolling Restart
+Pod   -->  Dev  : Pod Ready ✓
+deactivate Pod
+
+Dev    ->  AM   : 재시작 완료 알림
+
+Dev    ->  AM   : Validation Check 버튼 클릭
+activate AM
+
+' ══════════════════════════════════════════════════════
+== Phase 1 　Validation — 6단계 검증 ==
+' ══════════════════════════════════════════════════════
+
+group #ddeeff **V1** : Kong GW 엔드포인트 응답 확인
+  note left of AM
+    Kong Gateway 경유하여
+    Agent Pod까지 실제 요청이
+    도달하는지 확인
+  end note
+  AM    ->  Kong : GET /agents/{name}
+  activate Kong
+  Kong  ->  Pod  : 포워딩
+  activate Pod
+  Pod  -->  Kong : 200 OK
+  deactivate Pod
+  Kong -->  AM   : 200 OK
+  deactivate Kong
+  note right of AM
+    ✓ route 정상 · Pod 응답 확인
+    ✗ 502 Bad Gateway — upstream 미도달
+  end note
+end
+
+|||
+
+group #ddeecc **V2** : Kong Admin API — 리소스 확인
+  note left of AM
+    agent-id 기준으로
+    Service · Route · Plugin
+    등록 및 활성화 여부 확인
+  end note
+  AM      ->  KAdmin : GET /services/agent-id:{id}
+  activate KAdmin
+  AM      ->  KAdmin : GET /routes?service={id}
+  AM      ->  KAdmin : GET /plugins?service={id}
+  KAdmin -->  AM     : Service · Route · Plugin 상태 반환
+  deactivate KAdmin
+  note right of AM
+    ✓ 리소스 정상 등록 · Plugin enabled
+    ✗ 리소스 누락 또는 Plugin 비활성화
+  end note
+end
+
+|||
+
+group #ddeecc **V3** : Upstream 도달 확인
+  note left of AM
+    Kong이 Agent Pod
+    내부 IP · 포트에 실제로
+    도달 가능한지 확인
+  end note
+  AM      ->  KAdmin : GET /upstreams/agent-{name}/health
+  activate KAdmin
+  KAdmin -->  AM     : { "health": "HEALTHY" }
+  deactivate KAdmin
+  note right of AM
+    ✓ upstream target HEALTHY
+    ✗ UNHEALTHY — Pod IP 오류 · 포트 불일치
+  end note
+end
+
+|||
+
+group #ddeeff **V4** : 토큰 유효성 검증
+  note left of AM
+    발급된 Kong 토큰으로
+    실제 인증이 통과되는지
+    확인
+  end note
+  AM    ->  Kong : GET /agents/{name}\nAuthorization: Bearer {kong_token}
+  activate Kong
+  Kong  ->  Pod  : 토큰 검증 후 포워딩
+  activate Pod
+  Pod  -->  Kong : 200 OK
+  deactivate Pod
+  Kong -->  AM   : 200 OK
+  deactivate Kong
+  note right of AM
+    ✓ 토큰 인증 성공
+    ✗ 401 Unauthorized — 토큰 불일치 · 만료
+  end note
+end
+
+|||
+
+group #ddf0ee **V5** : Agent 자체 Health 확인
+  note left of AM
+    Agent Pod의 /health
+    엔드포인트가 정상
+    응답하는지 확인
+  end note
+  AM    ->  Kong : GET /agents/{name}/health\nAuthorization: Bearer {kong_token}
+  activate Kong
+  Kong  ->  Pod  : 포워딩
+  activate Pod
+  Pod  -->  Kong : { "status": "ok" }
+  deactivate Pod
+  Kong -->  AM   : { "status": "ok" }
+  deactivate Kong
+  note right of AM
+    ✓ Agent 정상 동작
+    ✗ 500 / timeout — Agent 내부 오류
+  end note
+end
+
+|||
+
+group #fff0cc **V6** : Agent Card 확인
+  note left of AM
+    A2A 스펙 준수 여부 및
+    Agent 메타데이터
+    유효성 검증
+  end note
+  AM    ->  Kong : GET /agents/{name}/.well-known/agent.json\nAuthorization: Bearer {kong_token}
+  activate Kong
+  Kong  ->  Pod  : 포워딩
+  activate Pod
+  Pod  -->  Kong : agent.json
+  deactivate Pod
+  Kong -->  AM   : agent.json
+  deactivate Kong
+  note right of AM
+    검증 항목
+    · name / description 필드 존재
+    · skills[] 배열 정의
+    · A2A 스펙 버전 호환성
+    · defaultInputModes / defaultOutputModes
+    ——————————————————————
+    ✓ Agent Card 정상 · A2A 스펙 준수
+    ✗ 필수 필드 누락 · 스펙 버전 불일치
+  end note
+end
+
+' ══════════════════════════════════════════════════════
+== Phase 2 　결과 처리 ==
+' ══════════════════════════════════════════════════════
+
+deactivate AM
+
+alt #e6faf0 전체 통과
+  AM    ->  AM    : 상태 → ACTIVE
+  AM   -->  Dev   : ✅ Validation 통과\nMARKETPLACE 공개 활성화
+else #fde8e8 일부 실패
+  AM    ->  AM    : 상태 → VALIDATION_FAILED
+  AM   -->  Dev   : ❌ Validation 실패\n실패 단계 + 원인 메시지 반환
+end
+deactivate Dev
+
+' ══════════════════════════════════════════════════════
+== Optional 　추가 제안 검증 항목 ==
+' ══════════════════════════════════════════════════════
+
+note over AM, Kong
+  **V7. 응답 지연 확인 (Latency SLA)**
+  V1 요청 시 응답 시간 함께 측정 · P95 < 2,000ms 기준
+  초과 시 실패 처리 없이 WARNING 표시
+
+  **V8. TLS / SSL 인증서 확인**
+  HTTPS 사용 Agent의 인증서 유효기간 (30일 이상) · 도메인 일치 여부
+  만료 임박 시 WARNING · 인증서 오류 시 실패
+
+  **V9. 동시 요청 처리 (Concurrency Smoke Test)**
+  소량 동시 요청 (5 req) 발송 후 전체 200 응답 확인
+  단일 요청 통과 후 동시 처리 crash 케이스 사전 탐지
+end note
+
+@enduml
