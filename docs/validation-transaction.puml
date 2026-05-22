@@ -41,7 +41,7 @@ actor       Dev       as "Developer\n<size:11>(개발자)</size>"
 participant AM        as "agentMarket\n<size:11>Backend API</size>"
 participant KAdmin    as "Kong Admin API\n<size:11>관리 API</size>"
 participant Kong      as "Kong Gateway\n<size:11>API Gateway</size>"
-participant Pod       as "Agent Pod\n<size:11>Kubernetes</size>"
+participant Pod       as "Agent"
 
 ' ══════════════════════════════════════════════════════
 == Phase 0 　사전 준비 — 승인 및 토큰 주입 ==
@@ -210,22 +210,5 @@ else #fde8e8 일부 실패
 end
 deactivate Dev
 
-' ══════════════════════════════════════════════════════
-== Optional 　추가 제안 검증 항목 ==
-' ══════════════════════════════════════════════════════
-
-note over AM, Kong
-  **V7. 응답 지연 확인 (Latency SLA)**
-  V1 요청 시 응답 시간 함께 측정 · P95 < 2,000ms 기준
-  초과 시 실패 처리 없이 WARNING 표시
-
-  **V8. TLS / SSL 인증서 확인**
-  HTTPS 사용 Agent의 인증서 유효기간 (30일 이상) · 도메인 일치 여부
-  만료 임박 시 WARNING · 인증서 오류 시 실패
-
-  **V9. 동시 요청 처리 (Concurrency Smoke Test)**
-  소량 동시 요청 (5 req) 발송 후 전체 200 응답 확인
-  단일 요청 통과 후 동시 처리 crash 케이스 사전 탐지
-end note
 
 @enduml
