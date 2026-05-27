@@ -307,6 +307,28 @@ tbody tr:hover td { background: #f8f9ff; }
   border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle;
 }
 
+/* ─── A2A 검증 인터랙티브 ─── */
+.a2a-card-box {
+  background: #f5f7ff; border: 1.5px solid #dce3f8; border-radius: 8px;
+  padding: 12px 14px; margin: 10px 0;
+}
+.skill-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+.skill-chip {
+  padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  background: #e8eeff; color: #4a6cff; border: 1.5px solid #c8d8ff;
+  cursor: pointer; transition: all 0.15s;
+}
+.skill-chip:hover { border-color: #4a6cff; }
+.skill-chip.selected { background: #4a6cff; color: #fff; border-color: #4a6cff; }
+.a2a-input-section {
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid #eaeefc;
+}
+.a2a-test-result {
+  margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
+}
+.a2a-test-result.ok   { background: #e6faf0; color: #1a7a44; border: 1.5px solid #b0ebd0; }
+.a2a-test-result.fail { background: #fde8e8; color: #a01010; border: 1.5px solid #f5b0b0; }
+
 /* validation 뱃지 (테이블 셀) */
 .val-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
 .vb-none   { background: #f2f4fb; color: #9aa3c0; }
@@ -2766,16 +2788,41 @@ tbody tr:hover td { background: #f8f9ff; }
         </div>
       </div>
 
-      <!-- Step 3: A2A 호환성 검증 -->
+      <!-- Step 3: A2A 검증 -->
       <div class="val-step" id="vstep3">
         <div class="vs-header">
           <div class="vs-num">3</div>
-          <div class="vs-label">A2A 호환성 검증</div>
+          <div class="vs-label">A2A 검증</div>
           <div class="vs-status-icon" id="vicon3">○</div>
         </div>
         <div class="vs-detail" id="vdetail3">
-          <div id="vdetail3msg">Agent-to-Agent 프로토콜 메시지 스키마 및 엔드포인트 호환성을 확인합니다.</div>
+          <div id="vdetail3msg">A2A Card와 스킬을 조회한 뒤, 테스트 값을 입력해 응답 여부를 확인합니다.</div>
           <div class="vs-log" id="vlog3"></div>
+          <!-- A2A Card + 스킬 조회 결과 (자동 표시) -->
+          <div id="a2aCardArea" style="display:none">
+            <div class="a2a-card-box">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <span style="font-size:18px">🤖</span>
+                <div>
+                  <div style="font-size:13px;font-weight:800;color:#12132a" id="a2aAgentNameDisp">—</div>
+                  <div style="font-size:11px;color:#9aa3c0;margin-top:1px">A2A Version: <b id="a2aVersionDisp">—</b></div>
+                </div>
+              </div>
+              <div style="font-size:11.5px;font-weight:700;color:#6a7090;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">보유 스킬</div>
+              <div class="skill-chips" id="skillChips"></div>
+            </div>
+            <!-- 스킬 선택 후 Input 입력 -->
+            <div class="a2a-input-section" id="a2aInputSection" style="display:none">
+              <div style="font-size:11.5px;font-weight:700;color:#6a7090;margin-bottom:6px">
+                테스트 Input <span style="font-weight:400;color:#9aa3c0">— 선택한 스킬 기준</span>
+              </div>
+              <textarea class="json-editor" id="a2aTestInput" style="min-height:72px;font-size:11.5px"></textarea>
+              <div style="display:flex;justify-content:flex-end;margin-top:8px">
+                <button class="btn btn-primary btn-sm" id="a2aTestBtn" onclick="runA2ATest()">호출 테스트 →</button>
+              </div>
+              <div id="a2aTestResult" class="a2a-test-result" style="display:none"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -3172,9 +3219,11 @@ updateMarketAccess();
 
 /* ─── Validation 모달 ─── */
 let _valA2A = true;
+let _valAgentName = '';
 
 function openValidation(agentName, hasA2A) {
   _valA2A = hasA2A;
+  _valAgentName = agentName;
   document.getElementById('valModalTitle').textContent = 'Validation — ' + agentName;
   document.getElementById('vEndpoint').textContent = 'https://hpp.internal/' + agentName + '/health';
 
@@ -3183,13 +3232,14 @@ function openValidation(agentName, hasA2A) {
   if (!hasA2A) {
     a2aMsg.innerHTML = '<span style="color:#9aa3c0">이 Agent는 A2A 연동이 비활성화되어 있어 해당 단계를 건너뜁니다.</span>';
   } else {
-    a2aMsg.textContent = 'Agent-to-Agent 프로토콜 메시지 스키마 및 엔드포인트 호환성을 확인합니다.';
+    a2aMsg.textContent = 'A2A Card와 스킬을 조회한 뒤, 테스트 값을 입력해 응답 여부를 확인합니다.';
   }
 
   // 초기화
   [1,2,3].forEach(n => {
     const el = document.getElementById('vstep' + n);
     el.className = 'val-step';
+    el.style.opacity = '';
     document.getElementById('vicon' + n).textContent = '○';
     document.getElementById('vlog' + n).innerHTML = '';
   });
@@ -3198,6 +3248,16 @@ function openValidation(agentName, hasA2A) {
   result.className = 'val-result';
   document.getElementById('valStartBtn').disabled = false;
   document.getElementById('valStartBtn').textContent = '검증 시작';
+
+  // A2A 인터랙티브 영역 초기화
+  document.getElementById('a2aCardArea').style.display = 'none';
+  document.getElementById('a2aInputSection').style.display = 'none';
+  document.getElementById('a2aTestResult').style.display = 'none';
+  document.getElementById('skillChips').innerHTML = '';
+  document.getElementById('a2aTestInput').value = '';
+  const testBtn = document.getElementById('a2aTestBtn');
+  testBtn.disabled = false;
+  testBtn.textContent = '호출 테스트 →';
 
   document.getElementById('valModal').classList.add('open');
 }
@@ -3259,7 +3319,7 @@ function runValidation() {
     setProgress(66);
   });
 
-  // ── Step 3: A2A 호환성 ──
+  // ── Step 3: A2A 검증 ──
   t(4400, () => {
     if (!_valA2A) {
       setStep(3, 'pass');
@@ -3272,19 +3332,20 @@ function runValidation() {
     }
     setStep(3, 'running');
     setProgress(70);
-    appendLog(3, '<span class="log-spin">→</span> A2A 스키마 버전 확인 중...<br>');
+    appendLog(3, '<span class="log-spin">→</span> A2A Card 조회 중...<br>');
   });
-  t(5400, () => {
+  t(5200, () => {
     if (!_valA2A) return;
-    appendLog(3, '<span class="log-spin">→</span> Handshake 메시지 송수신 중...<br>');
+    appendLog(3, '<span class="log-ok">✓</span> A2A Card 수신 완료<br>');
+    appendLog(3, '<span class="log-spin">→</span> 스킬 목록 로드 중...<br>');
   });
-  t(6400, () => {
+  t(6000, () => {
     if (!_valA2A) return;
-    appendLog(3, '<span class="log-ok">✓</span> 스키마 버전 호환: v2.1<br>');
-    appendLog(3, '<span class="log-ok">✓</span> Handshake 성공 — 59ms<br>');
-    setStep(3, 'pass');
-    setProgress(100);
-    t(400, showResult);
+    appendLog(3, '<span class="log-ok">✓</span> 스킬 2개 로드 완료<br>');
+    appendLog(3, '<span style="color:#4a6cff;font-weight:700">→ 스킬을 선택하고 테스트 값을 입력하세요</span><br>');
+    setProgress(85);
+    showA2ACard();
+    // 이후는 Developer 입력 후 runA2ATest() 에서 완료 처리
   });
 }
 
@@ -3296,6 +3357,74 @@ function showResult() {
   document.getElementById('valStartBtn').textContent = '재검증';
   document.getElementById('valStartBtn').disabled = false;
   document.getElementById('valStartBtn').onclick = runValidation;
+}
+
+/* ─── A2A 인터랙티브 검증 ─── */
+const A2A_SKILLS = [
+  {
+    id: 'contract_review', name: '계약서 검토',
+    sample: '{\n  "contract_text": "본 계약은 갑과 을 간의 서비스 이용에 관한 사항을 정합니다. 제1조 (목적) 본 계약은..."\n}'
+  },
+  {
+    id: 'risk_analysis', name: '리스크 분석',
+    sample: '{\n  "document_text": "계약서 내 면책 조항 및 손해배상 조항에 대한 리스크를 분석합니다."\n}'
+  },
+];
+
+function showA2ACard() {
+  document.getElementById('a2aAgentNameDisp').textContent = _valAgentName;
+  document.getElementById('a2aVersionDisp').textContent = '2.1';
+
+  const chips = document.getElementById('skillChips');
+  chips.innerHTML = '';
+  A2A_SKILLS.forEach((skill, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'skill-chip' + (i === 0 ? ' selected' : '');
+    chip.textContent = skill.name;
+    chip.onclick = () => selectA2ASkill(chip, skill);
+    chips.appendChild(chip);
+  });
+
+  document.getElementById('a2aCardArea').style.display = 'block';
+  selectA2ASkill(chips.firstChild, A2A_SKILLS[0]);
+}
+
+function selectA2ASkill(chipEl, skill) {
+  document.querySelectorAll('#skillChips .skill-chip').forEach(c => c.classList.remove('selected'));
+  chipEl.classList.add('selected');
+  document.getElementById('a2aTestInput').value = skill.sample;
+  document.getElementById('a2aInputSection').style.display = 'block';
+  document.getElementById('a2aTestResult').style.display = 'none';
+  const testBtn = document.getElementById('a2aTestBtn');
+  testBtn.disabled = false;
+  testBtn.textContent = '호출 테스트 →';
+}
+
+function runA2ATest() {
+  const btn = document.getElementById('a2aTestBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> 호출 중...';
+  document.getElementById('a2aTestResult').style.display = 'none';
+
+  setTimeout(() => {
+    const selectedChip = document.querySelector('#skillChips .skill-chip.selected');
+    const skillName = selectedChip ? selectedChip.textContent : '—';
+    const selectedSkill = A2A_SKILLS.find(s => s.name === skillName) || A2A_SKILLS[0];
+
+    const result = document.getElementById('a2aTestResult');
+    result.style.display = 'block';
+    result.className = 'a2a-test-result ok';
+    result.innerHTML =
+      `✅ 응답 수신 완료 &nbsp;·&nbsp; 1.3s` +
+      `<div style="font-size:11px;font-weight:400;color:#2a6a3a;font-family:monospace;margin-top:5px;line-height:1.6">` +
+      `{"status":"ok","agent":"${_valAgentName}","skill":"${selectedSkill.id}","result":"..."}` +
+      `</div>`;
+
+    btn.textContent = '✓ 완료';
+    setStep(3, 'pass');
+    setProgress(100);
+    setTimeout(showResult, 600);
+  }, 1800);
 }
 
 // ─── 등록 신청 Wizard ───

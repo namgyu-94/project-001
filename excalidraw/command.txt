@@ -1,0 +1,16 @@
+agent market ui, agent market backend, kong gateway, kong auth, hcp ingress, AIagent(Langgraph)
+
+나는 agent를 생성하고 등록하여 사용하는 market을 설계하고 있다.
+market에 agent를 올리고 나서, kong에서 받은 토큰이 유효한지.
+AGENT 사용에 auth등록이 유효한지
+그리고 agent내부 api들의 기능 요소들이 잘 작동하는지 검증을 하는 로직을 만들려한다.
+밑에는 validation항목을 정의를 두 case로 나눈것이다. 이랬을때 
+
+<agent 등록시에 cube, A2A, gaiachat을 UI에서 선택하고 추후 validation을 하는경우>
+1. agent market F/E에서 validation button event발생
+2. 
+
+
+<agent를 validation 버튼을 누르기전에 validation 선택 토클을 활성화/비활성화 하고 수행하는경우>
+1. agent market F/E에서 validation button event 발생
+
