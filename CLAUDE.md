@@ -31,25 +31,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 역할 정의
 
-| 역할 | 기본 보안등급 | 설명 |
-|------|-------------|------|
-| **User** | L3 | MARKETPLACE 탐색, agent 구독, 문서 업로드 |
-| **Developer** | L1 | agent 등록 신청, 문서 승인, 구독 현황 조회 |
-| **Admin** | L0 | agent 등록 및 승인, Gateway Key 발급, Milvus 컬렉션 관리 |
-
----
-
-## 보안등급 체계
-
-```
-L0 (최고등급) < L1 < L3 (일반)
-숫자가 낮을수록 높은 등급
-canAccess = 사용자등급 숫자 <= agent 요구등급 숫자
-```
-
-- `SEC_RANK = { L0: 0, L1: 1, L3: 3 }` 로 비교
-- agent 카드에 `data-sec-level` 속성으로 요구 등급 표기
-- 등급 부족 시 구독 버튼 비활성화 + 🔒 안내 표시
+| 역할 | 설명 |
+|------|------|
+| **User** | MARKETPLACE 탐색, agent 구독, 문서 업로드 |
+| **Developer** | agent 등록 신청, 문서 승인, 구독 현황 조회 |
+| **Admin** | agent 등록 및 승인, Gateway Key 발급, Milvus 컬렉션 관리 |
 
 ---
 
@@ -59,27 +45,35 @@ canAccess = 사용자등급 숫자 <= agent 요구등급 숫자
 
 ### 사이드바 네비게이션
 
-```
-MARKETPLACE 섹션 (전 역할 공통)
-  🛒 MARKETPLACE
-  📊 내 현황           ← User 전용 (role=user 시에만 표시)
-  📤 문서 업로드
-  📋 내 문서 현황
+아코디언 방식 3개 섹션. 헤더 클릭 시 해당 섹션이 펼쳐지고 나머지는 닫힌다.  
+로그인 시 역할에 따라 해당 섹션이 자동으로 펼쳐진다.
 
-AGENT MARKET 섹션
-  Developer 전용 그룹 (dev-nav-group)
+```
+▶ MY                          ← User 로그인 시 자동 펼침 (id: st-my / stnav-my)
+    🛒 MARKETPLACE
+    📊 내 현황
+    📤 문서 업로드
+    📋 내 문서 현황
+
+▶ DEVELOPER                   ← Developer 로그인 시 자동 펼침 (id: st-developer / stnav-developer)
     📊 내 현황
     🗂 문서 승인
     📝 등록 신청
-  Admin 전용 그룹 (admin-nav-group)
+
+▶ ADMIN                       ← Admin 로그인 시 자동 펼침 (id: st-admin / stnav-admin)
+    📊 내 현황
     ➕ Agent 등록
     ✅ 등록 승인
     🔑 Gateway Key
     🗄 Milvus 컬렉션
 
-역할 선택: roleSelect (User / Developer / Admin)
-보안등급 선택: clearanceSelect (L0 / L1 / L3)
+역할 선택: roleSelect (User / Developer / Admin) — 숨김 처리, JS 내부 호환용
 ```
+
+**아코디언 관련 JS 함수**
+- `sidebarTab(tab)` — 헤더 클릭 시 토글 (열려 있으면 닫힘)
+- `openSidebarTab(tab)` — 지정 섹션을 강제로 열고 나머지 닫음 (로그인 시 사용)
+- `switchRole(role)` — 로그인 후 역할 매핑: `user→my`, `dev→developer`, `admin→admin`
 
 ### 패널 목록 (META 오브젝트로 라우팅)
 

@@ -38,6 +38,26 @@ body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; backgrou
 }
 .nav-divider { border: none; border-top: 1px solid #1e2040; margin: 8px 20px; }
 
+/* ─── 사이드바 아코디언 ─── */
+.acc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 20px; cursor: pointer; font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: #454878;
+  border-left: 3px solid transparent; transition: all 0.15s;
+  user-select: none;
+}
+.acc-header:hover { color: #9aa3c8; background: #161828; }
+.acc-header.open  { color: #7c9fff; border-left-color: #7c9fff; background: #161828; }
+.acc-arrow {
+  font-size: 10px; transition: transform 0.25s; display: inline-block;
+}
+.acc-header.open .acc-arrow { transform: rotate(90deg); }
+.acc-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.28s ease;
+}
+.acc-body.open { max-height: 400px; }
+
 .role-box {
   margin: auto 16px 20px; padding: 12px 14px; background: #1c1e3a;
   border-radius: 10px; font-size: 12px;
@@ -471,41 +491,13 @@ tbody tr:hover td { background: #f8f9ff; }
 }
 .req-body-preview:hover { color: #4a6cff; }
 
-/* ───────────── 보안등급 ───────────── */
-.sec-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11px; font-weight: 800; padding: 3px 10px;
-  border-radius: 20px; letter-spacing: 0.3px; white-space: nowrap;
-}
-.sec-0 { background: #fde8e8; color: #a01010; border: 1px solid #f5b0b0; }  /* L0 — 최고등급 */
-.sec-1 { background: #fff4e0; color: #a05000; border: 1px solid #ffd08a; }  /* L1 */
-.sec-3 { background: #e6faf0; color: #1a7a44; border: 1px solid #b0ebd0; }  /* L3 — 일반 */
-
-/* 접근 불가 카드 */
-.agent-card.locked {
-  opacity: 0.6; cursor: default;
-  background: repeating-linear-gradient(
-    -45deg, #f8f9ff 0px, #f8f9ff 8px, #f2f4fb 8px, #f2f4fb 16px
-  );
-}
-.agent-card.locked:hover { transform: none; box-shadow: none; border-color: #dde2f0; }
-.lock-notice {
-  display: none; align-items: center; gap: 7px;
-  background: #fff0f0; border: 1px solid #f5b0b0; border-radius: 8px;
-  padding: 8px 12px; font-size: 12px; font-weight: 700; color: #a01010;
-  margin-bottom: 12px;
-}
-.agent-card.locked .lock-notice { display: flex; }
-
-/* 현재 유저 보안등급 칩 (topbar) */
+/* 현재 유저 칩 (topbar) */
 .user-chip {
   display: inline-flex; align-items: center; gap: 8px;
   background: #1c1e3a; color: #c8cfe8; border-radius: 8px;
   padding: 5px 12px; font-size: 12px; font-weight: 700;
 }
 .user-chip .uc-role { color: #7c9fff; }
-.user-chip .uc-sep  { color: #454878; }
-.user-chip .uc-sec  { }
 
 /* ─── 등록 신청 Wizard ─── */
 .apply-wizard {
@@ -622,12 +614,15 @@ tbody tr:hover td { background: #f8f9ff; }
 <nav id="sidebar">
   <div class="sidebar-logo">🤖 Agent<span class="logo-accent">Market</span></div>
 
-  <!-- MARKETPLACE -->
-  <div class="nav-section" style="padding-top:16px">
-    <div class="nav-item active" id="nav-marketplace" onclick="show('marketplace')">
+  <!-- MY 아코디언 -->
+  <div class="acc-header" id="st-my" onclick="sidebarTab('my')">
+    MY <span class="acc-arrow">▶</span>
+  </div>
+  <div class="acc-body" id="stnav-my">
+    <div class="nav-item" id="nav-marketplace" onclick="show('marketplace')">
       <span class="ni-icon">🛒</span> MARKETPLACE
     </div>
-    <div class="nav-item" id="nav-user-status" onclick="show('user-status')" style="display:none">
+    <div class="nav-item" id="nav-user-status" onclick="show('user-status')">
       <span class="ni-icon">📊</span> 내 현황
     </div>
     <div class="nav-item" id="nav-doc-upload" onclick="show('doc-upload')">
@@ -638,44 +633,43 @@ tbody tr:hover td { background: #f8f9ff; }
     </div>
   </div>
 
-  <hr class="nav-divider">
-
-  <!-- AGENT MARKET -->
-  <div class="nav-section">
-    <div class="nav-section-label">Agent Market</div>
-
-    <!-- 개발자 전용 -->
-    <div id="dev-nav-group" style="display:none">
-      <div class="nav-item" id="nav-developer" onclick="show('developer')">
-        <span class="ni-icon">📊</span> 내 현황
-      </div>
-      <div class="nav-item" id="nav-doc-approve" onclick="show('doc-approve')">
-        <span class="ni-icon">🗂</span> 문서 승인
-        <span class="nav-badge" id="doc-approve-badge">2</span>
-      </div>
-      <div class="nav-item" id="nav-apply" onclick="show('apply')">
-        <span class="ni-icon">📝</span> 등록 신청
-      </div>
+  <!-- DEVELOPER 아코디언 -->
+  <div class="acc-header" id="st-developer" onclick="sidebarTab('developer')">
+    DEVELOPER <span class="acc-arrow">▶</span>
+  </div>
+  <div class="acc-body" id="stnav-developer">
+    <div class="nav-item" id="nav-developer" onclick="show('developer')">
+      <span class="ni-icon">📊</span> 내 현황
     </div>
+    <div class="nav-item" id="nav-doc-approve" onclick="show('doc-approve')">
+      <span class="ni-icon">🗂</span> 문서 승인
+      <span class="nav-badge" id="doc-approve-badge">2</span>
+    </div>
+    <div class="nav-item" id="nav-apply" onclick="show('apply')">
+      <span class="ni-icon">📝</span> 등록 신청
+    </div>
+  </div>
 
-    <!-- 관리자 전용 -->
-    <div id="admin-nav-group" style="display:none">
-      <div class="nav-item" id="nav-admin-status" onclick="show('admin-status')">
-        <span class="ni-icon">📊</span> 내 현황
-      </div>
-      <div class="nav-item" id="nav-register" onclick="show('register')">
-        <span class="ni-icon">➕</span> Agent 등록
-      </div>
-      <div class="nav-item" id="nav-approve" onclick="show('approve')">
-        <span class="ni-icon">✅</span> 등록 승인
-        <span class="nav-badge">3</span>
-      </div>
-      <div class="nav-item" id="nav-gwkey" onclick="show('gwkey')">
-        <span class="ni-icon">🔑</span> Gateway Key
-      </div>
-      <div class="nav-item" id="nav-milvus" onclick="show('milvus')">
-        <span class="ni-icon">🗄</span> Milvus 컬렉션
-      </div>
+  <!-- ADMIN 아코디언 -->
+  <div class="acc-header" id="st-admin" onclick="sidebarTab('admin')">
+    ADMIN <span class="acc-arrow">▶</span>
+  </div>
+  <div class="acc-body" id="stnav-admin">
+    <div class="nav-item" id="nav-admin-status" onclick="show('admin-status')">
+      <span class="ni-icon">📊</span> 내 현황
+    </div>
+    <div class="nav-item" id="nav-register" onclick="show('register')">
+      <span class="ni-icon">➕</span> Agent 등록
+    </div>
+    <div class="nav-item" id="nav-approve" onclick="show('approve')">
+      <span class="ni-icon">✅</span> 등록 승인
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" id="nav-gwkey" onclick="show('gwkey')">
+      <span class="ni-icon">🔑</span> Gateway Key
+    </div>
+    <div class="nav-item" id="nav-milvus" onclick="show('milvus')">
+      <span class="ni-icon">🗄</span> Milvus 컬렉션
     </div>
   </div>
 
@@ -689,7 +683,6 @@ tbody tr:hover td { background: #f8f9ff; }
     </div>
     <div class="acc-badges">
       <span class="acc-role-badge" id="accRoleBadge">—</span>
-      <span class="acc-sec-badge sec-badge" id="accSecBadge">—</span>
     </div>
     <button class="btn btn-ghost btn-sm" onclick="logout()"
       style="width:100%;font-size:11.5px;padding:6px 0;color:#9aa3c0;margin-top:2px">
@@ -700,11 +693,6 @@ tbody tr:hover td { background: #f8f9ff; }
       <option value="user">User</option>
       <option value="dev">Developer</option>
       <option value="admin">Admin</option>
-    </select>
-    <select id="clearanceSelect" style="display:none" onchange="changeClearance(this.value)">
-      <option value="L0">L0 · 최고등급</option>
-      <option value="L1">L1</option>
-      <option value="L3">L3 · 일반</option>
     </select>
   </div>
 </nav>
@@ -720,8 +708,6 @@ tbody tr:hover td { background: #f8f9ff; }
       <span id="breadcrumbText">agentMarket &gt; MARKETPLACE</span>
       <span class="user-chip">
         <span class="uc-role" id="chipRole">User</span>
-        <span class="uc-sep">|</span>
-        <span class="uc-sec" id="chipSec">Lv.1 PUBLIC</span>
       </span>
     </div>
   </div>
@@ -747,10 +733,9 @@ tbody tr:hover td { background: #f8f9ff; }
 
       <div class="agent-grid">
 
-        <!-- 카드 1: L0 최고등급 -->
-        <div class="agent-card" data-sec-level="L0">
+        <!-- 카드 1 -->
+        <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-1"></div>
-          <div class="lock-notice">🔒 보안 등급 부족 — L0 등급 필요</div>
           <div class="ac-head">
             <div class="ac-icon" style="background:#e8eeff">⚖️</div>
             <div>
@@ -766,18 +751,14 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="ac-meta-item"><div class="m-val">4.8★</div><div class="m-lbl">평점</div></div>
           </div>
           <div class="ac-footer">
-            <div style="display:flex;flex-direction:column;gap:5px">
-              <span class="sec-badge sec-0">🔴 L0 최고등급</span>
-              <span class="a2a-chip">A2A 지원</span>
-            </div>
-            <button class="btn btn-sm sub-btn" id="sub-btn-1">구독</button>
+            <span class="a2a-chip">A2A 지원</span>
+            <button class="btn btn-sub btn-sm" id="sub-btn-1">구독</button>
           </div>
         </div>
 
-        <!-- 카드 2: L3 일반 -->
-        <div class="agent-card" data-sec-level="L3">
+        <!-- 카드 2 -->
+        <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-2"></div>
-          <div class="lock-notice">🔒 보안 등급 부족 — L3 이상 필요</div>
           <div class="ac-head">
             <div class="ac-icon" style="background:#e6faf0">📄</div>
             <div>
@@ -793,15 +774,14 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="ac-meta-item"><div class="m-val">4.6★</div><div class="m-lbl">평점</div></div>
           </div>
           <div class="ac-footer">
-            <span class="sec-badge sec-3">🌐 L3 일반</span>
-            <button class="btn btn-sm sub-btn" id="sub-btn-2">구독</button>
+            <span></span>
+            <button class="btn btn-sub btn-sm" id="sub-btn-2">구독</button>
           </div>
         </div>
 
-        <!-- 카드 3: L1 -->
-        <div class="agent-card" data-sec-level="L1">
+        <!-- 카드 3 -->
+        <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-3"></div>
-          <div class="lock-notice">🔒 보안 등급 부족 — L1 이상 필요</div>
           <div class="ac-head">
             <div class="ac-icon" style="background:#fff4e6">💻</div>
             <div>
@@ -817,18 +797,14 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="ac-meta-item"><div class="m-val">4.5★</div><div class="m-lbl">평점</div></div>
           </div>
           <div class="ac-footer">
-            <div style="display:flex;flex-direction:column;gap:5px">
-              <span class="sec-badge sec-1">🏢 L1</span>
-              <span class="a2a-chip">A2A 지원</span>
-            </div>
-            <button class="btn btn-sm sub-btn" id="sub-btn-3">구독</button>
+            <span class="a2a-chip">A2A 지원</span>
+            <button class="btn btn-sub btn-sm" id="sub-btn-3">구독</button>
           </div>
         </div>
 
-        <!-- 카드 4: L0 최고등급 -->
-        <div class="agent-card" data-sec-level="L0">
+        <!-- 카드 4 -->
+        <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-4"></div>
-          <div class="lock-notice">🔒 보안 등급 부족 — L0 등급 필요</div>
           <div class="ac-head">
             <div class="ac-icon" style="background:#fde8f8">📊</div>
             <div>
@@ -844,15 +820,14 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="ac-meta-item"><div class="m-val">4.3★</div><div class="m-lbl">평점</div></div>
           </div>
           <div class="ac-footer">
-            <span class="sec-badge sec-0">🔴 L0 최고등급</span>
-            <button class="btn btn-sm sub-btn" id="sub-btn-4">구독</button>
+            <span></span>
+            <button class="btn btn-sub btn-sm" id="sub-btn-4">구독</button>
           </div>
         </div>
 
-        <!-- 카드 5: L1 -->
-        <div class="agent-card" data-sec-level="L1">
+        <!-- 카드 5 -->
+        <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-5"></div>
-          <div class="lock-notice">🔒 보안 등급 부족 — L1 이상 필요</div>
           <div class="ac-head">
             <div class="ac-icon" style="background:#e8fff4">🧑‍💼</div>
             <div>
@@ -868,8 +843,8 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="ac-meta-item"><div class="m-val">4.7★</div><div class="m-lbl">평점</div></div>
           </div>
           <div class="ac-footer">
-            <span class="sec-badge sec-1">🏢 L1</span>
-            <button class="btn btn-sm sub-btn" id="sub-btn-5">구독</button>
+            <span></span>
+            <button class="btn btn-sub btn-sm" id="sub-btn-5">구독</button>
           </div>
         </div>
 
@@ -1194,15 +1169,6 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="fg">
               <label>태그</label>
               <input type="text" placeholder="쉼표로 구분 (예: 법무, 계약, 리스크)">
-            </div>
-            <div class="fg">
-              <label>보안 등급 <span class="req">*</span></label>
-              <select>
-                <option value="L3">L3 — 일반 (기본)</option>
-                <option value="L1">L1 — 중간</option>
-                <option value="L0">L0 — 최고등급</option>
-              </select>
-              <div style="font-size:11.5px;color:#9aa3c0;margin-top:5px">해당 등급 이상의 사용자만 구독 가능합니다.</div>
             </div>
           </div>
           <div class="toggle-row" style="margin-top:16px">
@@ -1775,7 +1741,6 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="sac-meta">
               <span>🏢 법무팀 · 김법무</span>
               <span>📅 구독일: 2026-04-15</span>
-              <span><span class="sec-badge sec-0" style="padding:2px 8px;font-size:10.5px">🔴 L0</span></span>
               <span class="a2a-chip" style="font-size:11px;padding:2px 8px">A2A 지원</span>
             </div>
           </div>
@@ -1844,7 +1809,6 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="sac-meta">
               <span>🏢 IT추진팀 · 박개발</span>
               <span>📅 구독일: 2026-05-01</span>
-              <span><span class="sec-badge sec-3" style="padding:2px 8px;font-size:10.5px">🌐 L3</span></span>
             </div>
           </div>
           <div class="sac-actions">
@@ -1905,7 +1869,7 @@ tbody tr:hover td { background: #f8f9ff; }
       <div style="text-align:center;padding:24px;border:2px dashed #dde2f0;border-radius:14px;color:#9aa3c0">
         <div style="font-size:28px;margin-bottom:8px">➕</div>
         <div style="font-size:13.5px;font-weight:700;margin-bottom:6px">더 많은 Agent를 구독해보세요</div>
-        <div style="font-size:12.5px;margin-bottom:14px">MARKETPLACE에서 보안등급에 맞는 Agent를 탐색할 수 있습니다</div>
+        <div style="font-size:12.5px;margin-bottom:14px">MARKETPLACE에서 Agent를 탐색할 수 있습니다</div>
         <button class="btn btn-outline btn-sm" onclick="show('marketplace')">MARKETPLACE 바로가기</button>
       </div>
 
@@ -2401,13 +2365,12 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="tbl-wrap">
             <table>
               <thead>
-                <tr><th>Agent 이름</th><th>상태</th><th>보안등급</th><th>구독자</th><th>이번달 Token</th><th>평균 응답속도</th><th>Gateway Key</th></tr>
+                <tr><th>Agent 이름</th><th>상태</th><th>구독자</th><th>이번달 Token</th><th>평균 응답속도</th><th>Gateway Key</th></tr>
               </thead>
               <tbody>
                 <tr>
                   <td><b>legal-review-agent</b></td>
                   <td><span class="status-pill sp-active">활성</span></td>
-                  <td><span class="sec-badge sec-0">🔴 L0</span></td>
                   <td><b>1,284</b></td>
                   <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill" style="width:100%"></div></div><span class="usage-lbl">2.1M</span></div></td>
                   <td><span class="speed-badge" style="color:#27ae60"><span class="speed-dot" style="background:#27ae60"></span> 1.2s</span></td>
@@ -2416,7 +2379,6 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tr>
                   <td><b>doc-summary-agent</b></td>
                   <td><span class="status-pill sp-active">활성</span></td>
-                  <td><span class="sec-badge sec-3">🌐 L3</span></td>
                   <td><b>843</b></td>
                   <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill green" style="width:52%"></div></div><span class="usage-lbl">1.1M</span></div></td>
                   <td><span class="speed-badge" style="color:#27ae60"><span class="speed-dot" style="background:#27ae60"></span> 0.9s</span></td>
@@ -2425,7 +2387,6 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tr>
                   <td><b>code-review-agent</b></td>
                   <td><span class="status-pill sp-active">활성</span></td>
-                  <td><span class="sec-badge sec-1">🏢 L1</span></td>
                   <td><b>562</b></td>
                   <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill" style="width:34%"></div></div><span class="usage-lbl">0.7M</span></div></td>
                   <td><span class="speed-badge" style="color:#e67e22"><span class="speed-dot" style="background:#e67e22"></span> 2.1s</span></td>
@@ -2434,7 +2395,6 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tr>
                   <td><b>hr-guide-agent</b></td>
                   <td><span class="status-pill sp-pending">검토 중</span></td>
-                  <td><span class="sec-badge sec-1">🏢 L1</span></td>
                   <td><span style="color:#ccc">—</span></td>
                   <td><span style="color:#ccc">—</span></td>
                   <td><span style="color:#ccc">—</span></td>
@@ -2443,7 +2403,6 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tr>
                   <td><b>data-insight-agent</b></td>
                   <td><span class="status-pill sp-pending">검토 중</span></td>
-                  <td><span class="sec-badge sec-0">🔴 L0</span></td>
                   <td><span style="color:#ccc">—</span></td>
                   <td><span style="color:#ccc">—</span></td>
                   <td><span style="color:#ccc">—</span></td>
@@ -2623,7 +2582,6 @@ tbody tr:hover td { background: #f8f9ff; }
               <div class="sac-meta">
                 <span>🏢 법무팀 · 김법무</span>
                 <span>📅 구독일: 2026-04-15</span>
-                <span><span class="sec-badge sec-0" style="padding:2px 8px;font-size:10.5px">🔴 L0</span></span>
                 <span class="a2a-chip" style="font-size:11px;padding:2px 8px">A2A 지원</span>
               </div>
             </div>
@@ -2663,7 +2621,6 @@ tbody tr:hover td { background: #f8f9ff; }
               <div class="sac-meta">
                 <span>🏢 IT추진팀 · 박개발</span>
                 <span>📅 구독일: 2026-05-01</span>
-                <span><span class="sec-badge sec-3" style="padding:2px 8px;font-size:10.5px">🌐 L3</span></span>
               </div>
             </div>
             <div class="sac-actions">
@@ -2697,7 +2654,7 @@ tbody tr:hover td { background: #f8f9ff; }
         <div style="text-align:center;padding:24px;border:2px dashed #dde2f0;border-radius:14px;color:#9aa3c0">
           <div style="font-size:28px;margin-bottom:8px">➕</div>
           <div style="font-size:13.5px;font-weight:700;margin-bottom:6px">더 많은 Agent를 구독해보세요</div>
-          <div style="font-size:12.5px;margin-bottom:14px">MARKETPLACE에서 보안등급에 맞는 Agent를 탐색할 수 있습니다</div>
+          <div style="font-size:12.5px;margin-bottom:14px">MARKETPLACE에서 Agent를 탐색할 수 있습니다</div>
           <button class="btn btn-outline btn-sm" onclick="show('marketplace')">MARKETPLACE 바로가기</button>
         </div>
       </div>
@@ -2848,14 +2805,12 @@ tbody tr:hover td { background: #f8f9ff; }
 <script>
 /* ─── Mock 계정 ─── */
 const ACCOUNTS = {
-  'admin@sky.com': { password: '1234', name: '관리자',  role: 'admin', clearance: 'L0' },
-  'dev@sky.com':   { password: '1234', name: '박개발',  role: 'dev',   clearance: 'L1' },
-  'user@sky.com':  { password: '1234', name: '홍길동',  role: 'user',  clearance: 'L3' },
+  'admin@sky.com': { password: '1234', name: '관리자', role: 'admin' },
+  'dev@sky.com':   { password: '1234', name: '박개발', role: 'dev'   },
+  'user@sky.com':  { password: '1234', name: '홍길동', role: 'user'  },
 };
 const AVATAR_ICON  = { user: '👤', dev: '💻', admin: '🛡️' };
 const ROLE_DISPLAY = { user: 'User', dev: 'Developer', admin: 'Admin' };
-const SEC_DISPLAY  = { L0: '🔴 L0 최고등급', L1: '🏢 L1', L3: '🌐 L3 일반' };
-const SEC_BADGE_CLS = { L0: 'sec-0', L1: 'sec-1', L3: 'sec-3' };
 
 let _currentAccount = null;
 
@@ -2874,7 +2829,6 @@ function login() {
 
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('roleSelect').value = acc.role;
-  document.getElementById('clearanceSelect').value = acc.clearance;
   updateAccountDisplay();
   switchRole(acc.role);
 }
@@ -2893,9 +2847,6 @@ function updateAccountDisplay() {
   document.getElementById('accName').textContent       = acc.name;
   document.getElementById('accEmail').textContent      = acc.email;
   document.getElementById('accRoleBadge').textContent  = ROLE_DISPLAY[acc.role] || acc.role;
-  const secBadge = document.getElementById('accSecBadge');
-  secBadge.textContent = SEC_DISPLAY[acc.clearance] || acc.clearance;
-  secBadge.className   = 'acc-sec-badge sec-badge ' + (SEC_BADGE_CLS[acc.clearance] || '');
 }
 
 const META = {
@@ -2927,75 +2878,37 @@ function show(id) {
 }
 
 const ROLE_LABELS = { user: 'User', dev: 'Developer', admin: 'Admin' };
-// L0 = 최고등급(숫자 0), L1 = 중간(1), L3 = 일반(3). 낮은 숫자일수록 높은 등급.
-const SEC_RANK    = { 'L0': 0, 'L1': 1, 'L3': 3 };  // 낮을수록 높은 보안
-const SEC_LABELS  = { 'L0': 'L0 · 최고등급', 'L1': 'L1', 'L3': 'L3 · 일반' };
-let _currentClearance = 'L3';
 
 function updateUserChip() {
   const role = document.getElementById('roleSelect').value;
   document.getElementById('chipRole').textContent = ROLE_LABELS[role] || role;
-  document.getElementById('chipSec').textContent  = SEC_LABELS[_currentClearance];
 }
 
-function changeClearance(level) {
-  _currentClearance = level;
-  updateUserChip();
-  updateMarketAccess();
+function sidebarTab(tab) {
+  ['my', 'developer', 'admin'].forEach(t => {
+    const header = document.getElementById('st-' + t);
+    const body   = document.getElementById('stnav-' + t);
+    const isTarget = t === tab;
+    const isOpen   = body.classList.contains('open');
+    // 클릭한 탭이 이미 열려 있으면 닫고, 아니면 열기 (나머지는 닫기)
+    const shouldOpen = isTarget && !isOpen;
+    header.classList.toggle('open', shouldOpen);
+    body.classList.toggle('open', shouldOpen);
+  });
 }
 
-function updateMarketAccess() {
-  const userRank = SEC_RANK[_currentClearance]; // 낮을수록 높은 등급
-
-  document.querySelectorAll('.agent-card[data-sec-level]').forEach((card, i) => {
-    const required = card.dataset.secLevel;   // 'L0' | 'L1' | 'L3'
-    const reqRank  = SEC_RANK[required] ?? 3;
-    const idx      = i + 1;
-    const btn      = document.getElementById('sub-btn-' + idx);
-    const badge    = document.getElementById('sub-badge-' + idx);
-    // 접근 가능 = 유저 등급 숫자 <= 요구 등급 숫자 (L0=0 is highest)
-    const canAccess = userRank <= reqRank;
-
-    card.classList.toggle('locked', !canAccess);
-
-    if (badge) {
-      badge.innerHTML = canAccess
-        ? '<span class="badge badge-purple">구독 중</span>'
-        : '';
-    }
-    if (btn) {
-      if (!canAccess) {
-        btn.textContent = '🔒 접근 불가';
-        btn.className = 'btn btn-sm';
-        btn.style.cssText = 'background:#f2f4fb;color:#9aa3c0;border:1px solid #dde2f0;cursor:not-allowed';
-        btn.disabled = true;
-      } else {
-        btn.textContent = i === 0 ? '구독 취소' : '구독';
-        btn.className = i === 0 ? 'btn btn-ghost btn-sm' : 'btn btn-sub btn-sm';
-        btn.style.cssText = '';
-        btn.disabled = false;
-      }
-    }
+function openSidebarTab(tab) {
+  ['my', 'developer', 'admin'].forEach(t => {
+    const open = t === tab;
+    document.getElementById('st-' + t).classList.toggle('open', open);
+    document.getElementById('stnav-' + t).classList.toggle('open', open);
   });
 }
 
 function switchRole(role) {
-  const devGroup      = document.getElementById('dev-nav-group');
-  const adminGroup    = document.getElementById('admin-nav-group');
-  const userStatusNav = document.getElementById('nav-user-status');
-
-  // 역할 계층: admin ⊃ dev ⊃ user
-  // admin은 admin-status 탭(3-tab)으로 모든 현황을 통합 제공하므로 dev 그룹은 표시 안 함
-  devGroup.style.display      = role === 'dev'   ? 'block' : 'none';
-  adminGroup.style.display    = role === 'admin' ? 'block' : 'none';
-  if (userStatusNav) userStatusNav.style.display = (role === 'user' || role === 'dev') ? 'flex' : 'none';
-
-  const defaultSec = { user: 'L3', dev: 'L1', admin: 'L0' };
-  _currentClearance = defaultSec[role] || 'L3';
-  document.getElementById('clearanceSelect').value = _currentClearance;
-
+  const tabMap = { user: 'my', dev: 'developer', admin: 'admin' };
+  openSidebarTab(tabMap[role] || 'my');
   updateUserChip();
-  updateMarketAccess();
 
   if (role === 'admin') show('admin-status');
   else if (role === 'dev') show('developer');
@@ -3213,9 +3126,6 @@ function showReqBody(el) {
   }
   document.getElementById('reqBodyModal').classList.add('open');
 }
-
-// 초기화 — 로그인 후 switchRole 호출됨
-updateMarketAccess();
 
 /* ─── Validation 모달 ─── */
 let _valA2A = true;

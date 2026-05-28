@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Studio</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3e;
+      --accent: #5b6af0;
+      --accent-hover: #6e7cf7;
+      --text-primary: #e8eaf0;
+      --text-secondary: #8b8fa8;
+      --tab-active-bg: #5b6af0;
+      --tab-hover-bg: #252838;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      height: 56px;
+      padding: 0 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      gap: 0;
+    }
+
+    /* Logo */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      margin-right: 32px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #5b6af0, #9b6af0);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .logo-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.3px;
+    }
+    .logo-text span {
+      color: var(--accent);
+    }
+
+    /* Tab nav */
+    .tab-nav {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+    }
+    .tab-btn {
+      position: relative;
+      padding: 6px 20px;
+      height: 36px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab-btn:hover {
+      background: var(--tab-hover-bg);
+      color: var(--text-primary);
+    }
+    .tab-btn.active {
+      background: var(--tab-active-bg);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Right area */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .guide-btn {
+      padding: 6px 14px;
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .guide-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .user-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5b6af0, #9b6af0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .user-label {
+      font-size: 13px;
+      color: var(--text-primary);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .user-label span {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-left: 2px;
+    }
+
+    /* ── Sub-menu bar ── */
+    .submenu-bar {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      height: 44px;
+      padding: 0 24px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .submenu-bar.visible {
+      display: flex;
+    }
+    .sub-btn {
+      padding: 5px 16px;
+      height: 30px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .sub-btn:hover {
+      background: var(--tab-hover-bg);
+      color: var(--text-primary);
+    }
+    .sub-btn.active {
+      background: var(--tab-hover-bg);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .sub-divider {
+      width: 1px;
+      height: 14px;
+      background: var(--border);
+      margin: 0 4px;
+    }
+
+    /* ── Content placeholder ── */
+    .content-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: calc(100vh - 100px);
+      gap: 12px;
+      color: var(--text-secondary);
+    }
+    .content-placeholder .panel-label {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .content-placeholder .panel-sub {
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <!-- Logo -->
+    <a class="logo" href="#">
+      <div class="logo-icon">✦</div>
+      <span class="logo-text">Agent <span>Studio</span></span>
+    </a>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn" data-tab="agent" onclick="switchTab(this)">AGENT</button>
+      <button class="tab-btn active" data-tab="developer" onclick="switchTab(this)">DEVELOPER</button>
+      <button class="tab-btn" data-tab="admin" onclick="switchTab(this)">ADMIN</button>
+    </nav>
+
+    <!-- Right: Guide + User -->
+    <div class="header-right">
+      <button class="guide-btn">이용가이드</button>
+      <div class="user-info">
+        <div class="user-avatar">김</div>
+        <div class="user-label">
+          김남규<span>(T12345)</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Sub-menu bar (ADMIN 전용) ── -->
+  <div class="submenu-bar" id="admin-submenu">
+    <button class="sub-btn active" data-sub="agents-all" onclick="switchSub(this)">전체 Agents 조회</button>
+    <div class="sub-divider"></div>
+    <button class="sub-btn" data-sub="approve-list" onclick="switchSub(this)">승인목록 조회</button>
+  </div>
+
+  <!-- ── Content Area (placeholder) ── -->
+  <main>
+    <div class="content-placeholder" id="content-area">
+      <div class="panel-label" id="panel-title">DEVELOPER</div>
+      <div class="panel-sub">패널 내용이 여기에 표시됩니다.</div>
+    </div>
+  </main>
+
+  <script>
+    const adminSubmenu = document.getElementById('admin-submenu');
+
+    function switchTab(btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+
+      // ADMIN 탭일 때만 서브메뉴 표시
+      if (tab === 'admin') {
+        adminSubmenu.classList.add('visible');
+        const activeSub = adminSubmenu.querySelector('.sub-btn.active');
+        document.getElementById('panel-title').textContent = activeSub ? activeSub.textContent : '전체 Agents 조회';
+      } else {
+        adminSubmenu.classList.remove('visible');
+        document.getElementById('panel-title').textContent = tab.toUpperCase();
+      }
+    }
+
+    function switchSub(btn) {
+      document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-title').textContent = btn.textContent;
+    }
+  </script>
+
+</body>
+</html>
