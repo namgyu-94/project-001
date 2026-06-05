@@ -1,13 +1,1 @@
-1. 관리자는 agent승인한다. 승인 시 관리자는 developer에게 발행한 token을 공유한다.
-2. 승인을 받은 developer는 공유 받은 토큰을 가지고 이미 배포된 agent 서버에 토큰을 넣고 재실행한다.
-3. validation을 수행한다.
-
-이때 validation을 수행할때 fastapi A2A로 개발된 agent를 다음 작업을 수행해야한다. 
-1. kong gateway -> agent endpoint -> agent server -> 응답하는지 확인
-2. kong admin api로 agent-id:{id} 조회 : 리소스 확인시 누락 또는 plugin 비활성화로 인한 성공/실패
-3. upstream 도달확인 여부
-4. 토큰 유효성 검증
-5. Agent 자체 health확인
-6. agent card 확인
-
-이거 말고확인해야할게 있으면 ?
+asdf

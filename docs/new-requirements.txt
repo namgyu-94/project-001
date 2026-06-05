@@ -1,0 +1,31 @@
+STG chat 기능에 대한 설계 필요.
+
+PRD 환경과 동일한 A2A환경에서 개발중인 AGENT를 테스트할 수 있는 환경 필요
+Gateway, Chat UI, Agent Card정보 관리, History관리 등 종합적인 고려 필요
+PRD A2A 환경 제공을 위한 PRD, STG 자원 (DB, S3)공유 검토
+
+상세 설계:
+- Market에 Agent등록 신청 -> 승인 이후 STG Chat 사용 시나리오
+- Agent 카드 정보(description, skills) PRD, STG구분 관리
+- Market에서 Endpoint 2개 입력 (PRD, STG) : 동일한 endpoint를 입력해도 상관없음
+    STG Chat도 api Gateway를 통해서 진행되어야함. 동일한 endpoint 2개를 입력하면 gateway에는 1개만 등록이 될듯.
+    
+validation 단계:
+    .STG Chat이 필수가 아니기 때문에 STG Chat사용을 위해서는 STG endPoint (&카드 정보) 입력 후 validation 통과 해야지만 STG Chat UI를 오픈 시켜주는 방법은 어떨지?
+    .STG Chat 없이 PRD chat만 사용할 Agent는 PRD validation만 진행하면 되지 않을까?
+- PRD, STG Chat진행 시 B/E, Super agent에 구분 식별자들 같이 전달해야함 (Agent Card식별이나 DB데이터 저장 시 식별 구분자 사용)
+- Chat UI 어떻게 할지 고민:
+    .PRD STG UI 분리? 분리하면 일반 사용자와 Agent 개발자와 화면이 명확히 분리되어 좋지만 개발/유지보수 번거러움
+    .UI를 하나의 도메인으로 하되, STG Chat 진입 방법을 Market의 Agent상세 페이지에서 들어가도록 하면 어떨까?
+     - 이 경우 Agent상세 페이지를 통해서 들어왔기 때문에 별도 설정 없이 해당 Agent만 STG endpoint를 사용하고 나머지는 모두 PRD로 사용할 수 있음
+- DB, S3 등의 자원은 PRD, STG 공유
+    .STG Chat UI에서 진행 할 경우 Thread(session) 정보에
+    STG표시를 해주면 나머지 데이터 (파일, 질문/응답내용, 참고자료 등)는 thread에 종속되기 때문에 PRD에 영향이 가지 않을까? 편의를 위해 S3의 bucket를 PRD, STG구분해도 좋을 듯
+- SuperAgent는 신경 써야할게 있나?
+ . Agent Card정보 가져올시 PRD, STG구분자에 따라 처리?
+
+
+
+
+나는 일단 채팅화면이 존재한다. 또한  해당 채팅은 prd용으로 개발한건데 stg단계의 agent 개발테스트를 validation 진행하고  
+최종적으로 prd로 배포하려고 한다.
