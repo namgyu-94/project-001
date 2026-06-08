@@ -68,8 +68,8 @@
 ## 8. Admin 권한 사용자 서비스 요청 Agent 승인
 
 - **업무기능**: Admin의 서비스 요청 Agent 승인 처리
-- **흐름 요약**: 로그인(Admin) → Admin > 승인 목록 조회 접근 → 승인 대기 Agent 선택 → 승인 버튼 클릭 → 승인 완료 확인 → Agent 상태 '서비스 중' 변경 확인
-- **검증포인트**: 승인 후 Agent 상태 변경 여부 / 승인 완료 메시지 출력 여부 / Developer > Agent 관리에 결과 반영 여부
+- **흐름 요약**: 로그인(Admin) → Admin > 승인 목록 조회 접근 → 승인 대기 Agent 선택 → 승인 버튼 클릭 → 승인 완료 확인 → Agent 상태 'Validation 대기' 변경 확인
+- **검증포인트**: 승인 후 Agent 상태 'Validation 대기' 변경 여부 / 승인 완료 메시지 출력 여부 / Developer > Agent 관리에 결과 반영 여부
 - **사전 요구사항**: Admin 계정 로그인 상태 / 승인 대기 중인 Agent 존재
 
 ---
@@ -164,12 +164,12 @@
 
 ---
 
-## 19. Developer 권한 사용자 Agent 유효성(validation) 검증
+## 19. Developer 권한 사용자 Agent 유효성(validation) 검증 및 Marketplace 등록
 
-- **업무기능**: Developer의 Agent 유효성 3단계 검증 수행
-- **흐름 요약**: 로그인(Developer) → Developer > Agent 관리 접근 → Agent 선택 → Validation 버튼 클릭 → 1단계 Router health-check 실행 → 2단계 Gateway Key 인증 실행 → 3단계 A2A 호환성 확인 → 검증 결과 확인
-- **검증포인트**: 각 단계별 성공/실패 상태 표시 여부 / A2A 미허용 Agent 3단계 skip 처리 여부 / 최종 검증 결과 메시지 출력 여부
-- **사전 요구사항**: Developer 계정 로그인 상태 / 등록된 Agent 존재 / Gateway Key 발급 완료
+- **업무기능**: Admin 승인 후 Developer의 Agent 유효성 3단계 검증 수행 및 Marketplace 최종 등록
+- **흐름 요약**: 로그인(Developer) → Developer > Agent 관리 접근 → Validation 대기 Agent 선택 → Validation 버튼 클릭 → 1단계 Router health-check 실행 → 2단계 Gateway Key 인증 실행 → 3단계 A2A 호환성 확인 → 검증 통과 확인 → Agent 등록 버튼 클릭 → MarketPlace > AgentMarket에 Agent 등록 확인
+- **검증포인트**: 각 단계별 성공/실패 상태 표시 여부 / A2A 미허용 Agent 3단계 skip 처리 여부 / Validation 통과 후 등록 버튼 활성화 여부 / 등록 완료 후 Agent 상태 '서비스 중' 변경 여부 / MarketPlace > AgentMarket에 Agent 노출 여부
+- **사전 요구사항**: Developer 계정 로그인 상태 / Admin 승인 완료된 Agent 존재 / Gateway Key 발급 완료
 
 ---
 
