@@ -33,9 +33,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 역할 | 설명 |
 |------|------|
-| **User** | MARKETPLACE 탐색, agent 구독, 문서 업로드 |
-| **Developer** | agent 등록 신청, 문서 승인, 구독 현황 조회 |
-| **Admin** | agent 등록 및 승인, Gateway Key 발급, Milvus 컬렉션 관리 |
+| **User** | MARKETPLACE 탐색, agent 구독 신청(Developer 승인 필요), 문서 업로드 |
+| **Developer** | agent 등록 신청·Validation 수행·Marketplace 등록, 구독 신청 승인/반려, 서비스 중단/재개(Admin 승인 없이 직접 처리) |
+| **Admin** | agent 등록 신청 승인/반려, 서비스 중단/재개, 폐기 신청 승인/반려, 영구 폐기, Gateway Key 발급 |
 
 ---
 
@@ -49,25 +49,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 로그인 시 역할에 따라 해당 섹션이 자동으로 펼쳐진다.
 
 ```
-▶ MY                          ← User 로그인 시 자동 펼침 (id: st-my / stnav-my)
-    🛒 MARKETPLACE
-    📊 내 현황
-    📤 문서 업로드
-    📋 내 문서 현황
+▶ MarketPlace                 ← 전체 역할 공통
+    🛒 AgentMarket
 
-▶ DEVELOPER                   ← Developer 로그인 시 자동 펼침 (id: st-developer / stnav-developer)
-    📊 내 현황
-    🗂 문서 승인
-    📝 등록 신청
+▶ My                          ← User 로그인 시 자동 펼침
+    👤 구독Agent
 
-▶ ADMIN                       ← Admin 로그인 시 자동 펼침 (id: st-admin / stnav-admin)
-    📊 내 현황
-    ➕ Agent 등록
-    ✅ 등록 승인
-    🔑 Gateway Key
-    🗄 Milvus 컬렉션
+▶ Developer                   ← Developer 로그인 시 자동 펼침
+    🗂 Agent 관리
 
-역할 선택: roleSelect (User / Developer / Admin) — 숨김 처리, JS 내부 호환용
+▶ Admin                       ← Admin 로그인 시 자동 펼침
+    ✅ 승인 목록 조회
 ```
 
 **아코디언 관련 JS 함수**
@@ -103,11 +95,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 핵심 기능 설명
 
-### Validation (등록 승인 후 3단계 검증)
-Admin이 agent를 승인한 뒤 Validation 버튼을 누르면 모달에서 단계별 애니메이션 실행:
+### Agent 등록 상태 흐름
+
+```
+등록 신청 (Developer)
+  → 승인 대기
+  → Admin 승인 → Validation 대기
+  → Developer Validation 수행 (3단계 검증 통과)
+  → Developer Agent 등록 버튼 클릭
+  → 서비스 중 (Marketplace 노출)
+```
+
+Admin 반려 시 → 반려 상태 (Developer 재신청 가능)
+
+### Validation (Admin 승인 후 Developer가 수행하는 3단계 검증)
+Admin 승인 완료 후 Developer가 Developer > Agent 관리에서 Validation 버튼을 클릭하면 모달에서 단계별 검증 실행. 전체 통과 후 Agent 등록 버튼이 활성화되며, 등록 버튼 클릭 시 Marketplace에 Agent가 등록된다.
 1. **Router health-check** — ping/응답 확인
 2. **Gateway Key 인증** — 발급된 Key로 접근 인증
 3. **A2A 호환성** — A2A 허용 agent만 수행 (skip 가능)
+
+### 구독 흐름
+
+```
+User 구독 신청 (MarketPlace > AgentMarket)
+  → 승인 대기 (My > 구독Agent에 '승인 대기' 노출)
+  → Developer 승인/반려 (Developer > Agent 관리)
+  → 승인 시: 구독 중
+  → 반려 시: 반려 상태
+```
 
 ### 문서 업로드 파이프라인
 ```
