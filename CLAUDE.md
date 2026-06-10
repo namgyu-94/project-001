@@ -16,6 +16,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `docs/process-definition.md` | 프로세스 정의서 + Mermaid 시퀀스 다이어그램 (Git 렌더링용) |
 | `docs/ui-requirements.html` | 브라우저에서 실행되는 단일 파일 UI 프로토타입 |
 | `nomal_consider.txt` | 기획 초안 메모 (원본 참고용) |
+| `requirements/20260608_recommand.md` | 테스트 시나리오 목록 (23개 시나리오, 검증포인트 포함) |
+| `requirements/20260609_test_case_detail.md` | 통합 테스트 케이스 상세 명세서 (23개 시나리오 × 복수 TC = 총 53개 TC) |
 
 ---
 
@@ -149,6 +151,41 @@ Mermaid 시퀀스 다이어그램 4개 포함:
 2. Agent 사용 흐름 — 단일 agent
 3. Agent 사용 흐름 — A2A
 4. Admin Gateway Key 발급 흐름
+
+---
+
+## 테스트 케이스 명세 (`requirements/`)
+
+### 시나리오 목록 (`20260608_recommand.md`)
+
+총 23개 시나리오. 각 시나리오는 업무기능·흐름 요약·검증포인트·사전 요구사항으로 구성.
+
+| 시나리오 그룹 | 번호 | 역할 |
+|-------------|------|------|
+| Market 화면 출력 | 1~3 | Admin / Developer / User |
+| User 구독 관리 | 4~6 | User |
+| Admin Agent 승인 관리 | 7~14 | Admin |
+| Developer Agent 관리 | 15~21 | Developer |
+| Developer 구독 승인 관리 | 22~23 | Developer |
+
+### 테스트 케이스 상세 명세 (`20260609_test_case_detail.md`)
+
+**구조 원칙**: 하나의 시나리오에서 복수의 TC를 도출. 원본 검증포인트를 기준으로 TC를 분리.
+
+- 총 **53개 TC** (23개 시나리오 × 평균 2~5개)
+- TC 번호 체계: `TC-{시나리오번호}-{순번}` (예: TC-01-01, TC-15-03)
+- 각 시나리오 상단에 공통 사전 조건·테스트 데이터를 한 번 정의하고 TC별로 절차·예상 결과를 기술
+
+**공통 테스트 계정**
+
+| 역할 | 계정 | 비밀번호 |
+|------|------|---------|
+| Admin | admin_test | Admin@1234 |
+| Developer | dev_test01 | Dev@1234 |
+| User | user_test01 | User@1234 |
+| User (보조) | user_test02 | User@5678 |
+
+**Agent 상태 값** (테스트 데이터 기준): 서비스 중 / 승인 대기 / Validation 대기 / 일시 중단 / 폐기 신청 / 폐기 승인
 
 ---
 

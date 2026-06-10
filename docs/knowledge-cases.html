@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentMarket — Knowledge 기능 케이스 비교</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f4f6fa;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --primary: #4f6ef7;
+    --primary-light: #eef0fe;
+    --green: #22c55e;
+    --green-light: #f0fdf4;
+    --orange: #f97316;
+    --orange-light: #fff7ed;
+    --red: #ef4444;
+    --red-light: #fef2f2;
+    --gray: #64748b;
+    --text: #1e293b;
+    --muted: #94a3b8;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.06);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ─── HEADER ─── */
+  .page-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+  }
+  .page-header h1 { font-size: 20px; font-weight: 700; }
+  .page-header .meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .page-header .meta span { margin-right: 16px; }
+
+  /* ─── CASE TAB NAV ─── */
+  .case-nav {
+    background: #fff;
+    border-bottom: 2px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    gap: 4px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  }
+  .case-tab {
+    padding: 14px 28px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .case-tab:hover { color: var(--text); }
+  .case-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .case-tab.active.caseB-tab { color: #0f766e; border-bottom-color: #0f766e; }
+  .tab-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .badge-a { background: #ede9fe; color: #5b21b6; }
+  .badge-b { background: #ccfbf1; color: #0f766e; }
+
+  /* ─── CASE PANELS ─── */
+  .case-panel { display: none; padding: 32px; max-width: 1100px; margin: 0 auto; }
+  .case-panel.active { display: block; }
+
+  /* ─── OVERVIEW BANNER ─── */
+  .overview-banner {
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    border: 2px solid;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .overview-banner.caseA { background: #faf5ff; border-color: #c4b5fd; }
+  .overview-banner.caseB { background: #f0fdfa; border-color: #5eead4; }
+
+  .banner-icon { font-size: 44px; flex-shrink: 0; line-height: 1; padding-top: 4px; }
+  .banner-body { flex: 1; }
+  .banner-body h2 { font-size: 19px; font-weight: 800; margin-bottom: 8px; }
+  .banner-body .banner-sub { font-size: 14px; color: var(--gray); margin-bottom: 14px; line-height: 1.7; }
+  .banner-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .btag {
+    font-size: 12px; font-weight: 600;
+    padding: 4px 10px; border-radius: 20px;
+  }
+  .btag-purple { background: #ede9fe; color: #5b21b6; }
+  .btag-teal   { background: #ccfbf1; color: #0f766e; }
+  .btag-blue   { background: #dbeafe; color: #1d4ed8; }
+  .btag-gray   { background: #f1f5f9; color: #475569; }
+
+  /* ─── COMPARISON BAR ─── */
+  .compare-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .compare-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .compare-item .ci-label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px;
+  }
+  .compare-item .ci-value { font-size: 14px; font-weight: 700; }
+  .compare-item .ci-desc  { font-size: 12px; color: var(--gray); margin-top: 3px; }
+
+  /* ─── SECTION ─── */
+  .sec { margin-bottom: 36px; }
+  .sec-title {
+    font-size: 15px; font-weight: 700;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sec-title .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--primary); flex-shrink: 0;
+  }
+  .sec-title .dot.teal { background: #0f766e; }
+
+  /* ─── APPLY STEPS ─── */
+  .apply-steps {
+    display: flex;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  @media(max-width: 700px) { .apply-steps { flex-direction: column; } }
+
+  .step-item {
+    flex: 1;
+    padding: 18px 16px;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .step-item:last-child { border-right: none; }
+  .step-item.step-active-a { background: #faf5ff; }
+  .step-item.step-active-b { background: #f0fdfa; }
+
+  .step-num  { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+  .step-name { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .step-item.step-active-a .step-name { color: #5b21b6; }
+  .step-item.step-active-b .step-name { color: #0f766e; }
+
+  .step-fields { list-style: none; }
+  .step-fields li {
+    font-size: 12px; color: var(--gray);
+    padding: 3px 0;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .step-fields li:last-child { border-bottom: none; }
+  .fd { width: 5px; height: 5px; border-radius: 50%; background: #cbd5e1; margin-top: 5px; flex-shrink: 0; }
+  .fd-new-a { background: #a78bfa; }
+  .fd-new-b { background: #2dd4bf; }
+
+  .tag-new-a { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; background: #ede9fe; color: #5b21b6; white-space: nowrap; }
+  .tag-new-b { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; background: #ccfbf1; color: #0f766e; white-space: nowrap; }
+  .tag-key   { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; background: #fde8d0; color: #9a3412; white-space: nowrap; }
+
+  /* ─── FLOW ─── */
+  .flow-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .flow-vertical { display: flex; flex-direction: column; }
+  .fv-step { display: flex; align-items: flex-start; gap: 14px; }
+  .fv-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .fv-dot {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .fv-line { width: 2px; flex: 1; min-height: 16px; background: #e2e8f0; margin: 2px 0; }
+  .fv-body { padding-bottom: 20px; flex: 1; }
+  .fv-body.last { padding-bottom: 0; }
+  .fv-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .fv-desc  { font-size: 12px; color: var(--gray); line-height: 1.6; }
+  .fv-code  {
+    display: inline-block;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px; color: #4338ca;
+    background: #f5f3ff; padding: 3px 8px;
+    border-radius: 4px; margin-top: 5px;
+  }
+  .fv-highlight {
+    display: inline-block;
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px; margin-top: 5px;
+  }
+  .hl-a { background: #ede9fe; color: #5b21b6; }
+  .hl-b { background: #ccfbf1; color: #0f766e; }
+
+  .role-tag {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 1px 6px; border-radius: 3px; margin-top: 4px;
+  }
+  .rt-user   { background: #dbeafe; color: #1d4ed8; }
+  .rt-plat   { background: #ede9fe; color: #6d28d9; }
+  .rt-dev    { background: #dcfce7; color: #065f46; }
+  .rt-dag    { background: #ffedd5; color: #c2410c; }
+  .rt-vdb    { background: #fdf4ff; color: #86198f; }
+
+  .dot-blue   { background: #dbeafe; color: #1d4ed8; }
+  .dot-purple { background: #ede9fe; color: #6d28d9; }
+  .dot-green  { background: #dcfce7; color: #15803d; }
+  .dot-orange { background: #ffedd5; color: #c2410c; }
+  .dot-teal   { background: #ccfbf1; color: #0f766e; }
+  .dot-gray   { background: #f1f5f9; color: #475569; }
+  .dot-red    { background: #fee2e2; color: #b91c1c; }
+  .dot-yellow { background: #fef9c3; color: #854d0e; }
+
+  /* ─── BRANCH ─── */
+  .branch-wrap {
+    margin-top: 8px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    padding: 16px; background: #f8fafc;
+    border-radius: 10px; border: 1px solid var(--border);
+  }
+  @media(max-width: 600px) { .branch-wrap { grid-template-columns: 1fr; } }
+  .branch-col-title {
+    font-size: 12px; font-weight: 700; margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .branch-approve { color: #15803d; }
+  .branch-reject  { color: #b91c1c; }
+
+  /* ─── APPROVE PANEL DETAIL (Case B 전용) ─── */
+  .approve-panel-box {
+    background: var(--card);
+    border: 2px solid #5eead4;
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+  }
+  .approve-panel-box .aph {
+    font-size: 13px; font-weight: 700; color: #0f766e;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+  }
+  .apb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .apb-table th {
+    background: #f0fdfa; color: #0f766e; font-weight: 700;
+    padding: 8px 12px; text-align: left;
+    border-bottom: 2px solid #5eead4;
+  }
+  .apb-table td {
+    padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top;
+  }
+  .apb-table tr:last-child td { border-bottom: none; }
+  .apb-table tr:hover td { background: #f8fafc; }
+
+  .field-badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 7px; border-radius: 4px;
+  }
+  .fb-existing { background: #f1f5f9; color: #475569; }
+  .fb-new-b    { background: #ccfbf1; color: #0f766e; }
+  .fb-required { background: #fde8d0; color: #9a3412; }
+  .fb-auto     { background: #dbeafe; color: #1d4ed8; }
+
+  /* ─── PROS/CONS ─── */
+  .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width: 600px) { .pc-grid { grid-template-columns: 1fr; } }
+  .pc-card { padding: 16px 18px; border-radius: 10px; }
+  .pc-card.pros { background: var(--green-light); border: 1px solid #86efac; }
+  .pc-card.cons { background: var(--red-light);   border: 1px solid #fca5a5; }
+  .pc-card h4 { font-size: 12px; font-weight: 700; margin-bottom: 10px; }
+  .pc-card.pros h4 { color: #15803d; }
+  .pc-card.cons h4 { color: #b91c1c; }
+  .pc-card ul { list-style: none; }
+  .pc-card li { font-size: 13px; color: var(--text); padding: 4px 0; display: flex; gap: 8px; align-items: flex-start; }
+  .pc-card li::before { content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+  .pc-card.pros li::before { background: #22c55e; }
+  .pc-card.cons li::before { background: #ef4444; }
+
+  /* ─── SUMMARY TABLE ─── */
+  .summary-wrap {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .summary-table th {
+    padding: 11px 16px; text-align: left; font-weight: 700;
+    border-bottom: 2px solid var(--border);
+    background: #f8fafc; color: var(--gray);
+    font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+  }
+  .summary-table td {
+    padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: top;
+  }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table tr:hover td { background: #fafafa; }
+  .summary-table td:first-child { font-weight: 600; color: var(--text); width: 160px; }
+
+  .badge-caseA { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; background: #ede9fe; color: #5b21b6; }
+  .badge-caseB { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; background: #ccfbf1; color: #0f766e; }
+  .badge-same  { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; background: #f1f5f9; color: #475569; }
+
+  /* ─── OPEN ITEMS ─── */
+  .open-item {
+    background: var(--card);
+    border: 1.5px solid #fde68a;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex; gap: 12px; align-items: flex-start;
+    box-shadow: var(--shadow);
+  }
+  .open-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #fef9c3; color: #854d0e;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .open-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .open-opts  { font-size: 12px; color: var(--gray); }
+
+  /* ─── scrollbar ─── */
+  ::-webkit-scrollbar { height: 5px; width: 5px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ────────────────────────────────────── -->
+<header class="page-header">
+  <h1>AgentMarket — Knowledge 기능 케이스 비교</h1>
+  <p class="meta">
+    <span>작성일: 2026-06-10</span>
+    <span>기준 화면: docs/ui-requirements.html</span>
+    <span>공통 전제: 문서 저장소는 플랫폼 S3 사용</span>
+  </p>
+</header>
+
+
+<!-- ── CASE TAB NAV ───────────────────────────────────── -->
+<nav class="case-nav">
+  <div class="case-tab active" onclick="switchCase('caseA')">
+    <span>Case A</span>
+    <span class="tab-badge badge-a">Agent 등록 시 Knowledge 설정</span>
+  </div>
+  <div class="case-tab caseB-tab" onclick="switchCase('caseB')">
+    <span>Case B</span>
+    <span class="tab-badge badge-b">문서 승인 시 DAG 입력</span>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════════════════════════════
+     CASE A — Agent 등록 시 Knowledge 활성화 여부 결정
+══════════════════════════════════════════════════════ -->
+<div id="caseA" class="case-panel active">
+
+  <!-- Overview -->
+  <div class="overview-banner caseA">
+    <div class="banner-icon">🧩</div>
+    <div class="banner-body">
+      <h2>Case A — Agent 등록 신청 시 Knowledge 활성화 여부를 결정</h2>
+      <div class="banner-sub">
+        Developer가 Agent를 마켓에 등록 신청할 때 <strong>Step 1에서 Knowledge 기능 토글과 DAG ID를 함께 입력</strong>합니다.<br>
+        이후 사용자가 문서를 업로드하면 플랫폼 S3에 임시 보관되고, Developer가 doc-approve에서 승인·반려만 하면 됩니다.<br>
+        DAG은 이미 Agent에 연결되어 있으므로 승인 시 플랫폼이 자동으로 트리거합니다.
+      </div>
+      <div class="banner-tags">
+        <span class="btag btag-purple">Agent 등록 시 DAG 사전 연결</span>
+        <span class="btag btag-blue">플랫폼 S3</span>
+        <span class="btag btag-gray">승인은 승인만 — DAG 자동 실행</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Difference Summary -->
+  <div class="compare-bar">
+    <div class="compare-item">
+      <div class="ci-label">DAG 설정 시점</div>
+      <div class="ci-value">Agent 등록 신청 시 (Step 1)</div>
+      <div class="ci-desc">한 번 설정하면 해당 Agent의 모든 문서 처리에 동일 DAG 사용</div>
+    </div>
+    <div class="compare-item">
+      <div class="ci-label">Developer 승인 시 추가 입력</div>
+      <div class="ci-value" style="color:#15803d;">없음 — 승인/반려만</div>
+      <div class="ci-desc">DAG이 이미 Agent에 연결되어 있으므로 승인 즉시 자동 트리거</div>
+    </div>
+  </div>
+
+  <!-- Apply Form Steps -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot"></div>Agent 등록 신청 폼 — Knowledge 설정 위치</div>
+    <div class="apply-steps">
+      <div class="step-item step-active-a">
+        <div class="step-num">Step 1 · 핵심</div>
+        <div class="step-name">기본 정보 입력</div>
+        <ul class="step-fields">
+          <li><div class="fd"></div>과제번호, 부문</li>
+          <li><div class="fd"></div>Agent 이름 (중복 확인)</li>
+          <li><div class="fd"></div>카테고리, Agent 설명</li>
+          <li><div class="fd"></div>팀이름 / 신청자 (자동 표시)</li>
+          <li><div class="fd"></div>협업 developer, 시스템계정</li>
+          <li><div class="fd"></div>보안성 검토 신청 ID, 승인 여부</li>
+          <li>
+            <div class="fd fd-new-a"></div>
+            <span>Knowledge 기능 <strong>ON / OFF 토글</strong> <span class="tag-new-a">추가</span></span>
+          </li>
+          <li>
+            <div class="fd fd-new-a"></div>
+            <span>Airflow DAG ID <span class="tag-new-a">추가</span> <span class="tag-key">토글 ON 시 노출</span></span>
+          </li>
+        </ul>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 2</div>
+        <div class="step-name">Skills / Tags 설정</div>
+        <ul class="step-fields">
+          <li><div class="fd"></div>Skills 태그 선택</li>
+          <li><div class="fd"></div>카테고리 태그 추가</li>
+        </ul>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 3</div>
+        <div class="step-name">확인 절차</div>
+        <ul class="step-fields">
+          <li><div class="fd"></div>입력 정보 최종 확인</li>
+          <li><div class="fd"></div>A2A 허용 여부 공개 설정</li>
+        </ul>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 4</div>
+        <div class="step-name">신청 완료</div>
+        <ul class="step-fields">
+          <li><div class="fd"></div>등록 대기 상태</li>
+          <li><div class="fd"></div>Admin 승인 후 Validation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flow -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot"></div>전체 문서 처리 흐름</div>
+    <div class="flow-card">
+      <div class="flow-vertical">
+
+        <div class="fv-step">
+          <div class="fv-left"><div class="fv-dot dot-blue">👤</div><div class="fv-line"></div></div>
+          <div class="fv-body">
+            <div class="fv-title">End-user — 문서 업로드 (doc-upload)</div>
+            <div class="fv-desc">Knowledge 지원 Agent를 선택 후 파일 업로드</div>
+            <span class="role-tag rt-user">User</span>
+          </div>
+        </div>
+
+        <div class="fv-step">
+          <div class="fv-left"><div class="fv-dot dot-purple">🖧</div><div class="fv-line"></div></div>
+          <div class="fv-body">
+            <div class="fv-title">플랫폼 S3 임시 보관 — 승인 대기</div>
+            <div class="fv-desc">플랫폼 소유 S3에 저장. 승인 전까지 DAG 미접근.</div>
+            <div class="fv-code">platform-s3/agents/{agent_id}/users/{user_id}/{doc_id}</div>
+            <span class="role-tag rt-plat">Platform S3</span>
+          </div>
+        </div>
+
+        <div class="fv-step">
+          <div class="fv-left"><div class="fv-dot dot-green">🧑‍💻</div><div class="fv-line"></div></div>
+          <div class="fv-body">
+            <div class="fv-title">Developer — 문서 승인 / 반려 (doc-approve)</div>
+            <div class="fv-desc">업로드된 문서 목록 검토. <strong>추가 입력 없이 승인 또는 반려만 선택.</strong></div>
+            <span class="fv-highlight hl-a">DAG 설정은 Agent 등록 시 이미 완료</span>
+            <span class="role-tag rt-dev" style="margin-left:6px;">Developer</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Branch -->
+      <div class="branch-wrap">
+        <div>
+          <div class="branch-col-title branch-approve">✅ 승인 경로</div>
+          <div class="flow-vertical">
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-orange" style="width:30px;height:30px;font-size:13px;">🚀</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">플랫폼 → Agent에 연결된 DAG 자동 트리거</div>
+                <div class="fv-desc">별도 입력 없이 등록된 DAG ID로 실행</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-orange" style="width:30px;height:30px;font-size:13px;">🔗</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">DAG → 플랫폼 API 호출 (S3 경로 조회)</div>
+                <div class="fv-code">GET /api/v1/documents/{doc_id}/path</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-orange" style="width:30px;height:30px;font-size:13px;">📦</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">문서 임베딩 처리</div>
+                <div class="fv-desc">상태: DAG 실행 중 → 임베딩 처리 중</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-teal" style="width:30px;height:30px;font-size:13px;">🗄️</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">Milvus VectorDB 적재</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-purple" style="width:30px;height:30px;font-size:13px;">📡</div></div>
+              <div class="fv-body last">
+                <div class="fv-title">DAG → 플랫폼 상태 콜백</div>
+                <div class="fv-code">POST /api/v1/documents/{doc_id}/status</div>
+                <div class="fv-desc" style="margin-top:4px;">상태: 등록 완료 + Milvus 컬렉션명 기록</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="branch-col-title branch-reject">❌ 반려 경로</div>
+          <div class="flow-vertical">
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-red" style="width:30px;height:30px;font-size:13px;">🗑️</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">플랫폼 S3 파일 삭제</div>
+                <div class="fv-desc">플랫폼 자체 S3이므로 직접 삭제 처리</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-gray" style="width:30px;height:30px;font-size:13px;">📋</div></div>
+              <div class="fv-body last">
+                <div class="fv-title">doc-status 반려 상태 반영</div>
+                <div class="fv-desc">상태: 반려 + 반려 사유 표시</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen Impact -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot"></div>변경되는 화면 (패널)</div>
+    <div class="summary-wrap">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>패널 ID</th>
+            <th>접근 역할</th>
+            <th>변경 내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>apply</code></td>
+            <td>Developer</td>
+            <td>Step 1에 Knowledge 토글 추가. 토글 ON 시 DAG ID 입력 필드 노출. S3 경로는 플랫폼 자동 할당 안내.</td>
+          </tr>
+          <tr>
+            <td><code>developer</code></td>
+            <td>Developer</td>
+            <td>Agent 상세 화면에 Knowledge 섹션 추가 (DAG ID 수정, Knowledge 활성/비활성 토글, 플랫폼 S3 경로 확인).</td>
+          </tr>
+          <tr>
+            <td><code>doc-approve</code></td>
+            <td>Developer</td>
+            <td>기존 구조 그대로 유지. 승인 시 플랫폼이 연결된 DAG 자동 트리거. 추가 입력란 없음.</td>
+          </tr>
+          <tr>
+            <td><code>doc-upload</code></td>
+            <td>User · Developer</td>
+            <td>Knowledge 미활성 Agent는 업로드 버튼 비활성. Agent 카드에 Knowledge 지원 여부 뱃지 표시.</td>
+          </tr>
+          <tr>
+            <td><code>doc-status</code></td>
+            <td>User · Developer</td>
+            <td>처리 단계 상태 컬럼 추가 (승인 대기 / DAG 실행 중 / 임베딩 처리 중 / 등록 완료 / 반려). Milvus 컬렉션명 표시.</td>
+          </tr>
+          <tr>
+            <td><code>milvus</code></td>
+            <td>Admin</td>
+            <td>컬렉션 목록에 연결 Agent명 컬럼, 등록 문서 수 표시.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pros/Cons -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot"></div>장단점</div>
+    <div class="pc-grid">
+      <div class="pc-card pros">
+        <h4>✔ 장점</h4>
+        <ul>
+          <li>Agent 단위로 DAG이 고정 → 운영 일관성</li>
+          <li>승인 시 추가 입력 없음 → 승인 프로세스 단순</li>
+          <li>Admin이 Agent 등록 시 DAG 검토 가능</li>
+          <li>DAG 변경 시 Agent 관리 화면에서 중앙 관리</li>
+        </ul>
+      </div>
+      <div class="pc-card cons">
+        <h4>✖ 단점</h4>
+        <ul>
+          <li>Agent에 DAG을 고정하므로 문서마다 다른 DAG 사용 불가</li>
+          <li>DAG 변경 시 Admin 재승인 필요 여부 별도 결정 필요</li>
+          <li>Knowledge 미사용 Agent는 신청 시 토글 OFF 필요 (UX 추가)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Open Items -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot"></div>미결 결정 사항</div>
+    <div class="open-item">
+      <div class="open-num">?</div>
+      <div>
+        <div class="open-title">Knowledge 설정 변경(DAG ID 수정) 시 Admin 재승인이 필요한가?</div>
+        <div class="open-opts">옵션 A — 재승인 필요 (DAG 변경은 보안 검토 대상) · 옵션 B — 재승인 불필요 (Developer 자율 변경)</div>
+      </div>
+    </div>
+    <div class="open-item">
+      <div class="open-num">?</div>
+      <div>
+        <div class="open-title">DAG Service Token은 누가 발급하고 어떻게 관리하는가?</div>
+        <div class="open-opts">옵션 A — Admin이 gwkey 패널에서 발급 · 옵션 B — Agent 등록 승인 시 플랫폼이 자동 발급</div>
+      </div>
+    </div>
+    <div class="open-item">
+      <div class="open-num">?</div>
+      <div>
+        <div class="open-title">DAG 처리 실패(콜백 미수신) 시 타임아웃 및 재시도 정책</div>
+        <div class="open-opts">N분 후 자동 실패 처리 / 재시도 횟수 / Developer 수동 재처리 여부</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /caseA -->
+
+
+<!-- ══════════════════════════════════════════════════════
+     CASE B — 문서 승인 시 Developer가 DAG ID 입력
+══════════════════════════════════════════════════════ -->
+<div id="caseB" class="case-panel">
+
+  <!-- Overview -->
+  <div class="overview-banner caseB">
+    <div class="banner-icon">📋</div>
+    <div class="banner-body">
+      <h2>Case B — 문서 승인 시 Developer가 DAG ID를 직접 입력</h2>
+      <div class="banner-sub">
+        Agent 등록 신청 시에는 Knowledge 관련 설정이 없습니다.<br>
+        사용자가 문서를 업로드하면 플랫폼 S3에 임시 보관되고, Developer가 <strong>doc-approve 화면에서 해당 문서를 승인할 때 Airflow DAG ID를 직접 입력</strong>합니다.<br>
+        문서마다 다른 DAG을 지정할 수 있어 유연하지만, 승인 시마다 입력이 필요합니다.
+      </div>
+      <div class="banner-tags">
+        <span class="btag btag-teal">Agent 등록과 DAG 분리</span>
+        <span class="btag btag-blue">플랫폼 S3</span>
+        <span class="btag btag-gray">문서마다 DAG 지정 가능</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Difference Summary -->
+  <div class="compare-bar">
+    <div class="compare-item">
+      <div class="ci-label">DAG 설정 시점</div>
+      <div class="ci-value">문서 승인 시 (doc-approve)</div>
+      <div class="ci-desc">승인할 때마다 해당 문서에 적용할 DAG ID를 입력</div>
+    </div>
+    <div class="compare-item">
+      <div class="ci-label">Agent 등록 시 Knowledge 설정</div>
+      <div class="ci-value" style="color:#0f766e;">없음 — 등록 폼 변경 최소</div>
+      <div class="ci-desc">Agent 등록 신청 폼(apply) 변경이 거의 없음</div>
+    </div>
+  </div>
+
+  <!-- Apply Form Steps -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot teal"></div>Agent 등록 신청 폼 — Knowledge 설정 없음</div>
+    <div class="apply-steps">
+      <div class="step-item">
+        <div class="step-num">Step 1</div>
+        <div class="step-name">기본 정보 입력</div>
+        <ul class="step-fields">
+          <li><div class="fd"></div>과제번호, 부문</li>
+          <li><div class="fd"></div>Agent 이름 (중복 확인)</li>
+          <li><div class="fd"></div>카테고리, Agent 설명</li>
+          <li><div class="fd"></div>팀이름 / 신청자 (자동 표시)</li>
+          <li><div class="fd"></div>협업 developer, 시스템계정</li>
+          <li><div class="fd"></div>보안성 검토 신청 ID, 승인 여부</li>
+          <li style="color:var(--muted);"><div class="fd" style="background:#e2e8f0;"></div><em>Knowledge 설정 없음 — 변경 없음</em></li>
+        </ul>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 2</div>
+        <div class="step-name">Skills / Tags 설정</div>
+        <ul class="step-fields">
+          <li><div class="fd"></div>Skills 태그 선택</li>
+          <li><div class="fd"></div>카테고리 태그 추가</li>
+        </ul>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 3</div>
+        <div class="step-name">확인 절차</div>
+        <ul class="step-fields">
+          <li><div class="fd"></div>입력 정보 최종 확인</li>
+          <li><div class="fd"></div>A2A 허용 여부 공개 설정</li>
+        </ul>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 4</div>
+        <div class="step-name">신청 완료</div>
+        <ul class="step-fields">
+          <li><div class="fd"></div>등록 대기 상태</li>
+          <li><div class="fd"></div>Admin 승인 후 Validation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- doc-approve detail -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot teal"></div>doc-approve 화면 — DAG ID 입력 필드 추가</div>
+    <div class="approve-panel-box">
+      <div class="aph">📄 doc-approve 패널 변경 상세</div>
+      <table class="apb-table">
+        <thead>
+          <tr>
+            <th>필드</th>
+            <th>구분</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>업로드 파일명</td>
+            <td><span class="field-badge fb-existing">기존</span></td>
+            <td>사용자가 업로드한 파일 이름</td>
+          </tr>
+          <tr>
+            <td>업로더 (User)</td>
+            <td><span class="field-badge fb-existing">기존</span></td>
+            <td>업로드한 사용자 계정</td>
+          </tr>
+          <tr>
+            <td>업로드 일시</td>
+            <td><span class="field-badge fb-existing">기존</span></td>
+            <td>파일 업로드 시각</td>
+          </tr>
+          <tr>
+            <td>플랫폼 S3 경로</td>
+            <td><span class="field-badge fb-auto">자동</span></td>
+            <td>플랫폼이 자동 할당한 임시 S3 경로 (읽기 전용 표시)</td>
+          </tr>
+          <tr>
+            <td><strong>Airflow DAG ID</strong></td>
+            <td><span class="field-badge fb-new-b">추가 NEW</span> <span class="field-badge fb-required">승인 시 필수</span></td>
+            <td>승인 버튼 클릭 시 노출되는 입력 필드. 이 문서를 처리할 DAG ID를 입력. 반려 시는 불필요.</td>
+          </tr>
+          <tr>
+            <td>승인 / 반려 버튼</td>
+            <td><span class="field-badge fb-existing">기존</span></td>
+            <td>승인 클릭 시 DAG ID 입력 확인 후 트리거. 반려 클릭 시 플랫폼 S3 파일 삭제.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Flow -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot teal"></div>전체 문서 처리 흐름</div>
+    <div class="flow-card">
+      <div class="flow-vertical">
+
+        <div class="fv-step">
+          <div class="fv-left"><div class="fv-dot dot-blue">👤</div><div class="fv-line"></div></div>
+          <div class="fv-body">
+            <div class="fv-title">End-user — 문서 업로드 (doc-upload)</div>
+            <div class="fv-desc">Agent 선택 후 파일 업로드</div>
+            <span class="role-tag rt-user">User</span>
+          </div>
+        </div>
+
+        <div class="fv-step">
+          <div class="fv-left"><div class="fv-dot dot-purple">🖧</div><div class="fv-line"></div></div>
+          <div class="fv-body">
+            <div class="fv-title">플랫폼 S3 임시 보관 — 승인 대기</div>
+            <div class="fv-desc">플랫폼 소유 S3에 저장. 승인 전까지 DAG 미접근.</div>
+            <div class="fv-code">platform-s3/agents/{agent_id}/users/{user_id}/{doc_id}</div>
+            <span class="role-tag rt-plat">Platform S3</span>
+          </div>
+        </div>
+
+        <div class="fv-step">
+          <div class="fv-left"><div class="fv-dot dot-green">🧑‍💻</div><div class="fv-line"></div></div>
+          <div class="fv-body">
+            <div class="fv-title">Developer — 문서 검토 + DAG ID 입력 (doc-approve)</div>
+            <div class="fv-desc">업로드된 문서 확인 후 <strong>승인 시 Airflow DAG ID를 직접 입력</strong>합니다.</div>
+            <span class="fv-highlight hl-b">이 문서에 사용할 DAG ID 입력 후 승인</span>
+            <span class="role-tag rt-dev" style="margin-left:6px;">Developer</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Branch -->
+      <div class="branch-wrap">
+        <div>
+          <div class="branch-col-title branch-approve">✅ 승인 경로</div>
+          <div class="flow-vertical">
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-orange" style="width:30px;height:30px;font-size:13px;">🚀</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">플랫폼 → Developer가 입력한 DAG ID로 트리거</div>
+                <div class="fv-desc">doc-approve에서 입력받은 DAG ID로 실행</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-orange" style="width:30px;height:30px;font-size:13px;">🔗</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">DAG → 플랫폼 API 호출 (S3 경로 조회)</div>
+                <div class="fv-code">GET /api/v1/documents/{doc_id}/path</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-orange" style="width:30px;height:30px;font-size:13px;">📦</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">문서 임베딩 처리</div>
+                <div class="fv-desc">상태: DAG 실행 중 → 임베딩 처리 중</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-teal" style="width:30px;height:30px;font-size:13px;">🗄️</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">Milvus VectorDB 적재</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-purple" style="width:30px;height:30px;font-size:13px;">📡</div></div>
+              <div class="fv-body last">
+                <div class="fv-title">DAG → 플랫폼 상태 콜백</div>
+                <div class="fv-code">POST /api/v1/documents/{doc_id}/status</div>
+                <div class="fv-desc" style="margin-top:4px;">상태: 등록 완료 + Milvus 컬렉션명 기록</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="branch-col-title branch-reject">❌ 반려 경로</div>
+          <div class="flow-vertical">
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-red" style="width:30px;height:30px;font-size:13px;">🗑️</div><div class="fv-line"></div></div>
+              <div class="fv-body" style="padding-bottom:12px;">
+                <div class="fv-title">플랫폼 S3 파일 삭제</div>
+                <div class="fv-desc">DAG ID 입력 불필요. 플랫폼 S3에서 직접 삭제.</div>
+              </div>
+            </div>
+            <div class="fv-step">
+              <div class="fv-left"><div class="fv-dot dot-gray" style="width:30px;height:30px;font-size:13px;">📋</div></div>
+              <div class="fv-body last">
+                <div class="fv-title">doc-status 반려 상태 반영</div>
+                <div class="fv-desc">상태: 반려 + 반려 사유 표시</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen Impact -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot teal"></div>변경되는 화면 (패널)</div>
+    <div class="summary-wrap">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>패널 ID</th>
+            <th>접근 역할</th>
+            <th>변경 내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>apply</code></td>
+            <td>Developer</td>
+            <td style="color:var(--muted);">변경 없음. Agent 등록 신청 폼 그대로 유지.</td>
+          </tr>
+          <tr>
+            <td><code>developer</code></td>
+            <td>Developer</td>
+            <td>Agent 상세 화면에 Knowledge 활성/비활성 토글 추가. (DAG은 doc-approve에서 문서별 지정이므로 여기서는 설정 불필요)</td>
+          </tr>
+          <tr>
+            <td><code>doc-approve</code></td>
+            <td>Developer</td>
+            <td><strong>핵심 변경.</strong> 승인 시 Airflow DAG ID 입력 필드 추가. 반려 시는 기존과 동일. 플랫폼 S3 경로 읽기 전용 표시 추가.</td>
+          </tr>
+          <tr>
+            <td><code>doc-upload</code></td>
+            <td>User · Developer</td>
+            <td>Knowledge 미활성 Agent는 업로드 버튼 비활성. Agent 카드에 Knowledge 지원 여부 뱃지 표시.</td>
+          </tr>
+          <tr>
+            <td><code>doc-status</code></td>
+            <td>User · Developer</td>
+            <td>처리 단계 상태 컬럼 추가 (승인 대기 / DAG 실행 중 / 임베딩 처리 중 / 등록 완료 / 반려). Milvus 컬렉션명 표시.</td>
+          </tr>
+          <tr>
+            <td><code>milvus</code></td>
+            <td>Admin</td>
+            <td>컬렉션 목록에 연결 Agent명 컬럼, 등록 문서 수 표시.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pros/Cons -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot teal"></div>장단점</div>
+    <div class="pc-grid">
+      <div class="pc-card pros">
+        <h4>✔ 장점</h4>
+        <ul>
+          <li>Agent 등록 폼 변경이 거의 없음 → 기존 신청 프로세스 영향 최소</li>
+          <li>문서마다 다른 DAG을 지정 가능 → 유연한 처리</li>
+          <li>DAG 미설정 Agent에도 문서 업로드 허용 가능</li>
+        </ul>
+      </div>
+      <div class="pc-card cons">
+        <h4>✖ 단점</h4>
+        <ul>
+          <li>Developer가 승인할 때마다 DAG ID를 직접 입력해야 함 → 반복 작업</li>
+          <li>DAG ID 오입력 리스크 (문서마다 다른 DAG이 사용될 수 있음)</li>
+          <li>Agent 단위의 DAG 관리가 어려워 운영 일관성 떨어짐</li>
+          <li>Admin이 어떤 DAG이 사용되는지 사전 파악 불가</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Open Items -->
+  <div class="sec">
+    <div class="sec-title"><div class="dot teal"></div>미결 결정 사항</div>
+    <div class="open-item">
+      <div class="open-num">?</div>
+      <div>
+        <div class="open-title">doc-approve에서 DAG ID 입력 방식 — 자유 입력 vs 사전 등록 목록 선택</div>
+        <div class="open-opts">옵션 A — 텍스트로 직접 입력 · 옵션 B — Admin이 사전 등록한 DAG 목록에서 선택</div>
+      </div>
+    </div>
+    <div class="open-item">
+      <div class="open-num">?</div>
+      <div>
+        <div class="open-title">승인할 때마다 DAG ID를 입력하는가, 아니면 Agent별 기본값을 설정할 수 있는가?</div>
+        <div class="open-opts">옵션 A — 매번 직접 입력 · 옵션 B — developer 화면에서 기본 DAG ID를 설정하고 승인 시 수정 가능</div>
+      </div>
+    </div>
+    <div class="open-item">
+      <div class="open-num">?</div>
+      <div>
+        <div class="open-title">DAG Service Token 발급 및 관리 주체</div>
+        <div class="open-opts">옵션 A — Admin이 gwkey 패널에서 발급 · 옵션 B — 승인 시 플랫폼이 자동 발급</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /caseB -->
+
+
+<!-- ── CASE COMPARISON (항상 표시) ───────────────────── -->
+<div style="max-width:1100px; margin: 0 auto 40px; padding: 0 32px;">
+  <div style="font-size:15px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+    <div style="width:8px;height:8px;border-radius:50%;background:#64748b;flex-shrink:0;"></div>
+    두 케이스 한눈에 비교
+  </div>
+  <div class="summary-wrap">
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>Case A — Agent 등록 시 설정</th>
+          <th>Case B — 문서 승인 시 입력</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>DAG 설정 시점</td>
+          <td><span class="badge-caseA">Agent 등록 신청 Step 1</span></td>
+          <td><span class="badge-caseB">문서 승인 시 (doc-approve)</span></td>
+        </tr>
+        <tr>
+          <td>apply 폼 변경</td>
+          <td>Knowledge 토글 + DAG ID 필드 추가</td>
+          <td><span class="badge-same">변경 없음</span></td>
+        </tr>
+        <tr>
+          <td>doc-approve 변경</td>
+          <td><span class="badge-same">변경 없음 (승인/반려만)</span></td>
+          <td>DAG ID 입력 필드 추가 (승인 시)</td>
+        </tr>
+        <tr>
+          <td>DAG 단위</td>
+          <td>Agent 단위 (Agent당 1개 DAG)</td>
+          <td>문서 단위 (문서마다 다른 DAG 가능)</td>
+        </tr>
+        <tr>
+          <td>승인 시 Developer 작업</td>
+          <td>승인 / 반려만 선택</td>
+          <td>DAG ID 입력 후 승인 / 반려 선택</td>
+        </tr>
+        <tr>
+          <td>운영 일관성</td>
+          <td>높음 (Agent별 DAG 고정)</td>
+          <td>낮음 (문서마다 DAG 달라질 수 있음)</td>
+        </tr>
+        <tr>
+          <td>유연성</td>
+          <td>낮음 (DAG 변경 시 재설정 필요)</td>
+          <td>높음 (문서마다 다른 DAG 지정 가능)</td>
+        </tr>
+        <tr>
+          <td>플랫폼 S3</td>
+          <td><span class="badge-same">공통 — 플랫폼 S3</span></td>
+          <td><span class="badge-same">공통 — 플랫폼 S3</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<script>
+  function switchCase(id) {
+    document.querySelectorAll('.case-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.case-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const map = { caseA: 0, caseB: 1 };
+    const tabs = document.querySelectorAll('.case-tab');
+    if (map[id] !== undefined) tabs[map[id]].classList.add('active');
+  }
+</script>
+
+</body>
+</html>

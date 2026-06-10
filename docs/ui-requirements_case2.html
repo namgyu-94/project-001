@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agent Market UI 요건</title>
+<title>Agent Market UI 요건 — Case 2: 문서 승인 시 DAG 입력</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #f0f2f5; color: #1a1a2e; display: flex; height: 100vh; overflow: hidden; }
@@ -734,6 +734,9 @@ tbody tr:hover td { background: #f8f9ff; }
   <div id="topbar">
     <div class="topbar-title" id="topTitle">MARKETPLACE</div>
     <span class="topbar-desc" id="topDesc">등록된 Agent를 탐색하고 구독하세요</span>
+    <div style="display:inline-flex;align-items:center;gap:6px;background:#f0fdfa;border:1.5px solid #5eead4;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:700;color:#0f766e;flex-shrink:0;margin-left:8px;">
+      📋 Case 2 — 문서 승인 시 DAG 입력
+    </div>
     <div class="topbar-right" id="topRight">
       <span id="breadcrumbText">agentMarket &gt; MARKETPLACE</span>
       <span class="user-chip">
@@ -1214,43 +1217,10 @@ tbody tr:hover td { background: #f8f9ff; }
           </div>
 
           <hr class="section-sep">
-          <div class="card-title" style="margin-bottom:10px">🧠 Knowledge 기능 설정</div>
-          <div class="info-box" style="margin-bottom:14px">
-            Knowledge 기능을 활성화하면 구독자가 개인 문서를 업로드하여 지식화할 수 있습니다.
-            문서는 <b>플랫폼 S3</b>에 임시 저장되며, 개발자 승인 후 설정한 DAG이 자동 Trigger되어 Milvus VectorDB에 임베딩됩니다.
-          </div>
-          <div class="toggle-row" style="margin-bottom:14px">
-            <label class="tog">
-              <input type="checkbox" id="knowledgeEnabled" onchange="toggleKnowledge(this.checked)">
-              <div class="tog-track"></div>
-              <span class="tog-lbl">Knowledge 기능 사용</span>
-            </label>
-          </div>
-          <div id="knowledgeSettings" class="knowledge-section" style="display:none">
-            <div class="form-grid">
-              <div class="fg">
-                <label>Airflow DAG ID <span class="req">*</span></label>
-                <input type="text" id="dagIdInput" placeholder="예: legal_doc_embedding_dag">
-                <div style="font-size:11.5px;color:#9aa3c0;margin-top:5px">사용자 문서 승인 시 플랫폼이 이 DAG을 자동으로 Trigger합니다.</div>
-              </div>
-              <div class="fg">
-                <label>Airflow Host URL <span class="req">*</span></label>
-                <input type="text" placeholder="예: https://airflow.internal" value="https://airflow.internal">
-              </div>
-              <div class="fg full">
-                <div class="dag-api-box">
-                  <div style="font-size:12.5px;font-weight:700;color:#12132a;margin-bottom:8px">📋 플랫폼 DAG 인터페이스 규격 (Pull 방식)</div>
-                  <div style="font-size:12px;color:#5a6288;line-height:2">
-                    DAG Trigger 시 <code>doc_id</code>를 수신 → 아래 플랫폼 API로 S3 경로를 조회하세요.<br>
-                    <code>GET /api/documents/{doc_id}/path</code> → S3 경로 반환<br>
-                    <code>POST /api/documents/{doc_id}/status</code> → 처리 결과 업데이트 (completed / failed)
-                  </div>
-                  <div style="margin-top:10px">
-                    <button class="btn btn-outline btn-sm" type="button">📥 DAG 템플릿 코드 다운로드</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div style="background:#f0fdfa;border:1.5px solid #5eead4;border-left:4px solid #0f766e;border-radius:0 8px 8px 0;padding:13px 16px;font-size:12.5px;color:#0f766e;line-height:1.65;margin-bottom:8px">
+            <b>📋 Case 2 — Knowledge DAG 설정 없음</b><br>
+            이 케이스에서는 Agent 등록 시 Airflow DAG을 지정하지 않습니다.<br>
+            DAG ID는 <b>개발자가 사용자 문서를 승인할 때 직접 입력</b>합니다. (문서 승인 → DAG ID 입력 → 승인 확정)
           </div>
 
           <div class="form-footer">
@@ -1371,7 +1341,7 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tr><td style="color:#9aa3c0;padding:5px 0">A2A</td><td><span class="badge badge-purple">허용</span></td></tr>
                 <tr>
                   <td style="color:#9aa3c0;padding:5px 0;vertical-align:top">🧠 Knowledge</td>
-                  <td id="confirmKnowledge"><span class="kb-chip off">미사용</span></td>
+                  <td><span class="kb-chip" style="background:#f0fdfa;color:#0f766e;border-color:#5eead4">승인 시 DAG 입력</span></td>
                 </tr>
               </table>
             </div>
@@ -1942,8 +1912,9 @@ tbody tr:hover td { background: #f8f9ff; }
     <div class="panel" id="panel-doc-upload">
       <div class="info-box">
         구독 중인 Agent의 Vector DB Collection에 문서를 업로드합니다.
-        파일은 <b>플랫폼 S3</b>에 임시 저장되며, <b>개발자 승인</b> 후 플랫폼이 등록된 Airflow DAG을 자동으로 Trigger하여 Milvus VectorDB에 임베딩합니다.
-        <span class="platform-s3-badge" style="margin-left:8px">🖧 플랫폼 S3 관리 — Airflow Host · JWT Token 입력 불필요</span>
+        파일은 <b>플랫폼 S3</b>에 임시 저장되며, <b>개발자가 문서 승인 시 Airflow DAG ID를 직접 입력</b>하여 Milvus VectorDB에 임베딩합니다.
+        <span class="platform-s3-badge" style="margin-left:8px">🖧 플랫폼 S3 관리</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;background:#f0fdfa;color:#0f766e;border:1px solid #5eead4;border-radius:6px;padding:3px 10px;font-size:11.5px;font-weight:700;margin-left:6px;">📋 Case 2 — DAG은 승인 시 입력</span>
       </div>
 
       <div class="card" style="position:relative">
@@ -1992,13 +1963,13 @@ tbody tr:hover td { background: #f8f9ff; }
         <hr class="section-sep">
 
         <!-- Step 3: 처리 설정 -->
-        <div class="card-title">③ 처리 설정 <span style="font-size:12px;font-weight:400;color:#9aa3c0">— 플랫폼이 자동 처리합니다</span></div>
+        <div class="card-title">③ 처리 설정 <span style="font-size:12px;font-weight:400;color:#0f766e;font-weight:600">— DAG ID는 개발자가 문서 승인 시 입력합니다</span></div>
         <div class="form-grid">
           <div class="fg">
-            <label>처리 DAG <span style="font-size:11px;color:#9aa3c0;font-weight:400">(Agent 설정 기준 자동)</span></label>
+            <label>처리 DAG <span style="font-size:11px;color:#0f766e;font-weight:600">승인 시 Developer가 입력</span></label>
             <input type="text" id="dagSelect" readonly
-              style="background:#f5f7ff;color:#4a6cff;font-family:monospace;font-size:12.5px"
-              placeholder="Agent 선택 시 자동 표시">
+              style="background:#f0fdfa;color:#9aa3c0;font-family:monospace;font-size:12.5px;border-color:#5eead4"
+              placeholder="— 개발자 승인 시 DAG ID 입력 —">
           </div>
           <div class="fg">
             <label>저장 경로 <span style="font-size:11px;color:#9aa3c0;font-weight:400">(플랫폼 S3 자동 할당)</span></label>
@@ -2168,9 +2139,10 @@ tbody tr:hover td { background: #f8f9ff; }
     <div class="panel" id="panel-doc-approve">
       <div class="info-box">
         사용자가 플랫폼 S3에 업로드한 문서를 검토합니다.
-        <b>승인</b> 시 플랫폼 백엔드가 등록된 Airflow DAG을 자동 Trigger합니다.
-        DAG은 <code style="font-size:11.5px;background:#e8eeff;padding:1px 5px;border-radius:4px">GET /api/documents/{doc_id}/path</code> API로 S3 경로를 조회한 뒤 임베딩 처리를 수행합니다.
+        <b>승인</b> 시 처리할 <b>Airflow DAG ID를 직접 입력</b>하고 승인을 클릭하세요. 플랫폼이 입력된 DAG을 Trigger하며,
+        DAG은 <code style="font-size:11.5px;background:#e8eeff;padding:1px 5px;border-radius:4px">GET /api/documents/{doc_id}/path</code> API로 S3 경로를 조회합니다.
         <b>반려</b> 시 플랫폼 S3에서 파일이 즉시 삭제됩니다.
+        <span style="display:inline-flex;align-items:center;gap:5px;background:#f0fdfa;color:#0f766e;border:1px solid #5eead4;border-radius:6px;padding:3px 10px;font-size:11.5px;font-weight:700;margin-left:6px;">📋 Case 2 — 승인 시 DAG ID 직접 입력</span>
       </div>
 
       <!-- Agent별 요약 카드 -->
@@ -2258,7 +2230,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <th>업로드 사용자</th>
                   <th>Agent</th>
                   <th>Collection</th>
-                  <th>DAG</th>
+                  <th>Airflow DAG ID <span style="color:#0f766e;font-weight:800">★ 승인 시 입력</span></th>
                   <th>크기</th>
                   <th>업로드일</th>
                   <th>Request Body</th>
@@ -2271,7 +2243,11 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>홍길동</td>
                   <td><span style="font-size:12px">📄 doc-summary-agent</span></td>
                   <td><span class="col-chip">doc_summary_corpus</span></td>
-                  <td><code style="font-size:11px;color:#6a7090">general_embedding_dag</code></td>
+                  <td>
+                    <input type="text" class="dag-inline-input"
+                      placeholder="DAG ID 입력 (예: embedding_dag)"
+                      style="border:1.5px solid #5eead4;border-radius:6px;padding:5px 9px;font-family:monospace;font-size:11.5px;color:#0f766e;width:200px;outline:none;background:#f0fdfa;">
+                  </td>
                   <td>8.7 MB</td>
                   <td>2026-05-20</td>
                   <td>
@@ -2292,7 +2268,11 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>이수진</td>
                   <td><span style="font-size:12px">⚖️ legal-review-agent</span></td>
                   <td><span class="col-chip">legal_contracts_v2</span></td>
-                  <td><code style="font-size:11px;color:#6a7090">legal_doc_embedding_dag</code></td>
+                  <td>
+                    <input type="text" class="dag-inline-input"
+                      placeholder="DAG ID 입력 (예: embedding_dag)"
+                      style="border:1.5px solid #5eead4;border-radius:6px;padding:5px 9px;font-family:monospace;font-size:11.5px;color:#0f766e;width:200px;outline:none;background:#f0fdfa;">
+                  </td>
                   <td>0.9 MB</td>
                   <td>2026-05-20</td>
                   <td>
@@ -3092,8 +3072,6 @@ function toggleJwt() {
 function simulateUpload() {
   const agent = document.getElementById('uploadAgentSelect').value;
   if (!agent) { alert('대상 Agent를 선택하세요.'); return; }
-  if (!document.getElementById('dagSelect').value) { alert('Airflow DAG을 선택하세요.'); return; }
-  if (!document.getElementById('jwtInput').value) { alert('JWT Token을 입력하세요.'); return; }
 
   const ol = document.getElementById('uploadOverlay');
   const msg = document.getElementById('uploadMsg');
@@ -3101,19 +3079,19 @@ function simulateUpload() {
 
   ol.classList.add('show');
   msg.textContent = 'S3 업로드 중...';
-  sub.textContent = '파일을 S3 버킷에 저장하고 있습니다';
+  sub.textContent = '파일을 플랫폼 S3 버킷에 저장하고 있습니다';
 
   setTimeout(() => {
-    msg.textContent = 'Airflow DAG 호출 중...';
-    sub.textContent = 'JWT 인증 및 DAG trigger 요청 중';
+    msg.textContent = '승인 대기 등록 중...';
+    sub.textContent = '개발자 승인 큐에 문서를 등록하고 있습니다';
   }, 1800);
 
   setTimeout(() => {
     msg.textContent = '업로드 완료 ✅';
-    sub.textContent = '개발자 승인 후 Vector DB에 임베딩됩니다';
+    sub.textContent = '개발자가 DAG ID를 입력하고 승인하면 임베딩이 시작됩니다';
     setTimeout(() => {
       ol.classList.remove('show');
-      alert('✅ 업로드 완료\n\nS3에 저장되었습니다.\n개발자 승인 후 Airflow DAG이 실행되어 Vector DB에 임베딩됩니다.');
+      alert('✅ 업로드 완료\n\nS3에 저장되었습니다.\n개발자가 문서를 승인할 때 Airflow DAG ID를 직접 입력하면\nDAG이 실행되어 Vector DB에 임베딩됩니다.');
     }, 1000);
   }, 3400);
 }
@@ -3154,8 +3132,20 @@ function filterDocByAgent(el, agent) {
 
 function approveDoc(btn) {
   const row = btn.closest('tr');
+  const dagInput = row.querySelector('.dag-inline-input');
+  if (dagInput) {
+    const dagVal = dagInput.value.trim();
+    if (!dagVal) {
+      dagInput.style.borderColor = '#e74c3c';
+      dagInput.placeholder = '⚠ DAG ID를 입력하세요';
+      dagInput.focus();
+      return;
+    }
+    dagInput.style.borderColor = '#27ae60';
+  }
   const lastCell = row.cells[row.cells.length - 1];
-  lastCell.innerHTML = '<span class="status-pill sp-approved" style="white-space:nowrap">✅ 승인 · DAG Trigger 중</span>';
+  const dagId = dagInput ? dagInput.value.trim() : '—';
+  lastCell.innerHTML = `<span class="status-pill sp-approved" style="white-space:nowrap">✅ 승인 · DAG(${dagId}) Trigger 중</span>`;
   setTimeout(() => {
     lastCell.innerHTML = '<span class="status-pill sp-approved" style="white-space:nowrap;background:#ede9fe;color:#5b21b6">⚙ DAG 실행 중</span>';
   }, 900);

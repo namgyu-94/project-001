@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agent Market UI 요건</title>
+<title>Agent Market UI 요건 — Case 1: Agent 등록 시 Knowledge 설정</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #f0f2f5; color: #1a1a2e; display: flex; height: 100vh; overflow: hidden; }
@@ -734,6 +734,9 @@ tbody tr:hover td { background: #f8f9ff; }
   <div id="topbar">
     <div class="topbar-title" id="topTitle">MARKETPLACE</div>
     <span class="topbar-desc" id="topDesc">등록된 Agent를 탐색하고 구독하세요</span>
+    <div style="display:inline-flex;align-items:center;gap:6px;background:#ede9fe;border:1.5px solid #c4b5fd;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:700;color:#5b21b6;flex-shrink:0;margin-left:8px;">
+      🧩 Case 1 — Agent 등록 시 Knowledge 설정
+    </div>
     <div class="topbar-right" id="topRight">
       <span id="breadcrumbText">agentMarket &gt; MARKETPLACE</span>
       <span class="user-chip">
@@ -2168,9 +2171,10 @@ tbody tr:hover td { background: #f8f9ff; }
     <div class="panel" id="panel-doc-approve">
       <div class="info-box">
         사용자가 플랫폼 S3에 업로드한 문서를 검토합니다.
-        <b>승인</b> 시 플랫폼 백엔드가 등록된 Airflow DAG을 자동 Trigger합니다.
+        <b>승인</b> 시 플랫폼 백엔드가 <b>Agent 등록 신청 시 설정한 Airflow DAG을 자동 Trigger</b>합니다.
         DAG은 <code style="font-size:11.5px;background:#e8eeff;padding:1px 5px;border-radius:4px">GET /api/documents/{doc_id}/path</code> API로 S3 경로를 조회한 뒤 임베딩 처리를 수행합니다.
         <b>반려</b> 시 플랫폼 S3에서 파일이 즉시 삭제됩니다.
+        <span style="display:inline-flex;align-items:center;gap:5px;background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;border-radius:6px;padding:3px 10px;font-size:11.5px;font-weight:700;margin-left:6px;">🧩 Case 1 — DAG은 Agent에 사전 등록, 승인 시 자동 실행</span>
       </div>
 
       <!-- Agent별 요약 카드 -->
@@ -3092,8 +3096,7 @@ function toggleJwt() {
 function simulateUpload() {
   const agent = document.getElementById('uploadAgentSelect').value;
   if (!agent) { alert('대상 Agent를 선택하세요.'); return; }
-  if (!document.getElementById('dagSelect').value) { alert('Airflow DAG을 선택하세요.'); return; }
-  if (!document.getElementById('jwtInput').value) { alert('JWT Token을 입력하세요.'); return; }
+  if (!document.getElementById('dagSelect').value) { alert('Agent에 설정된 DAG이 없습니다. Agent 등록 시 DAG ID를 설정하세요.'); return; }
 
   const ol = document.getElementById('uploadOverlay');
   const msg = document.getElementById('uploadMsg');
@@ -3104,8 +3107,8 @@ function simulateUpload() {
   sub.textContent = '파일을 S3 버킷에 저장하고 있습니다';
 
   setTimeout(() => {
-    msg.textContent = 'Airflow DAG 호출 중...';
-    sub.textContent = 'JWT 인증 및 DAG trigger 요청 중';
+    msg.textContent = '플랫폼 승인 대기 등록 중...';
+    sub.textContent = '개발자 승인 후 Agent 설정 DAG이 자동 실행됩니다';
   }, 1800);
 
   setTimeout(() => {
@@ -3113,7 +3116,7 @@ function simulateUpload() {
     sub.textContent = '개발자 승인 후 Vector DB에 임베딩됩니다';
     setTimeout(() => {
       ol.classList.remove('show');
-      alert('✅ 업로드 완료\n\nS3에 저장되었습니다.\n개발자 승인 후 Airflow DAG이 실행되어 Vector DB에 임베딩됩니다.');
+      alert('✅ 업로드 완료\n\nS3에 저장되었습니다.\n개발자 승인 후 Agent에 사전 등록된 Airflow DAG이 자동 실행되어 VectorDB에 임베딩됩니다.');
     }, 1000);
   }, 3400);
 }
