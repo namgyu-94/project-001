@@ -1,0 +1,14 @@
+payload = json.dumps(
+    {
+        "dag_run_id": dag_run_id,
+        "logical_date": current_logical_date,
+        "conf": {
+            "request_doc": {
+                "file_path": file_path,
+                "file_name": file_name,
+                "doc_id": doc_id,                
+                "source_type": "user",
+            },
+            "method": methos,
+    }
+)
