@@ -1,6 +1,9 @@
-# Developer S3 Case A — Platform S3 임시 저장 후 승인 시 Developer S3로 이전
+# Developer S3 Case A — 플랫폼이 Developer MinIO 자격증명으로 Presigned URL 생성
+
+**전제**: 플랫폼 및 Developer 모두 AWS S3가 아닌 **MinIO(S3 호환) 오브젝트 스토리지** 사용.
 
 **관련 파일**
+- `requirements/20260611_developer_s3_case_b.md` — Case B (Developer가 Upload API 직접 제공)
 - `requirements/20260611_dag_s3_access_cases.md` — DAG S3 접근 방식 비교
 - `requirements/20260610_knowledge_requirements.md` — Knowledge 파이프라인 전체 흐름
 
@@ -8,76 +11,93 @@
 
 ## 개념
 
-End-user 업로드는 기존과 동일하게 **플랫폼 S3에 임시 저장**된다.  
-Developer가 **승인**하는 시점에 플랫폼이 파일을 **Developer S3로 복사** 후 임시 파일을 삭제한다.  
-DAG은 Developer S3 경로를 전달받아 직접 접근한다.
+Developer가 Agent 등록 시 자신의 **MinIO 엔드포인트 + 자격증명(AccessKey/SecretKey)** 을 플랫폼에 등록한다.  
+End-user 업로드 요청 시 플랫폼이 Developer의 MinIO 자격증명으로 **Presigned PUT URL을 직접 생성**하여 End-user에게 전달한다.  
+End-user 브라우저는 해당 URL로 **Developer MinIO에 바로 업로드**한다.  
+플랫폼 자체 스토리지를 경유하지 않으며, **메타데이터만 관리**한다.
 
 ```
-End-user → Platform S3 (임시) → [Developer 승인] → Developer S3 → Airflow DAG
+End-user → 플랫폼 백엔드 (Presigned URL 요청)
+  → 플랫폼이 Developer MinIO 자격증명으로 Presigned PUT URL 생성
+  → End-user 브라우저 → Developer MinIO 직접 PUT 업로드
+  → Developer 승인 → Airflow DAG
 ```
+
+---
+
+## Agent 등록 시 입력 항목 (Knowledge 활성화 전제)
+
+Developer가 Agent 등록 신청 Step 1에서 Knowledge 토글 ON 후 아래 항목을 입력한다.
+
+| 항목 | 설명 |
+|------|------|
+| MinIO Endpoint URL | Developer MinIO 서버 주소 (예: `http://minio.developer.internal:9000`) |
+| Bucket 명 | 파일이 저장될 버킷 (예: `agent-knowledge`) |
+| 저장 경로 Prefix | 파일 저장 경로 접두사 (예: `agents/agent01/knowledge/`) |
+| AccessKey | Presigned URL 생성에 사용할 MinIO 액세스 키 |
+| SecretKey | 위 AccessKey의 시크릿 키 |
+| Airflow DAG ID | 임베딩 처리에 사용할 DAG |
+
+> 등록된 자격증명은 플랫폼 내부 Secret Store(Vault 또는 K8s Secret)에 암호화 저장.  
+> 업로드용 최소 권한(PutObject)만 부여된 전용 키 사용 권장.
 
 ---
 
 ## 전체 흐름
 
 ```
-[업로드 단계 — 기존과 동일]
-End-user 파일 선택 및 업로드 요청
-  → 플랫폼 백엔드: 파일 수신
-  → Platform S3 임시 저장
-      platform-s3/staging/agents/{agent_id}/users/{user_id}/{doc_id}/{file_name}
-  → DB: doc 상태 = "승인 대기", s3_path = 플랫폼 S3 임시 경로 저장
+[업로드 단계 — Case A 핵심]
+End-user 파일 선택 및 업로드 요청 (플랫폼 UI)
+  → 플랫폼 백엔드:
+      1. doc_id 생성
+      2. Agent 등록 정보에서 Developer MinIO 자격증명 조회
+             endpoint, bucket, prefix, access_key, secret_key
+      3. MinIO Python SDK로 Presigned PUT URL 생성
+             minio_client = Minio(endpoint, access_key, secret_key)
+             url = minio_client.presigned_put_object(bucket, object_name, expires=timedelta(minutes=30))
+      4. DB: doc 상태 = "업로드 대기", object_path 저장
+             object_path = {bucket}/{prefix}/{user_id}/{doc_id}/{file_name}
+      5. End-user에게 Presigned PUT URL 반환
+
+End-user 브라우저 → Developer MinIO에 직접 PUT 업로드 (플랫폼 트래픽 없음)
+
+업로드 완료 후 End-user → 플랫폼에 업로드 완료 알림
+  → DB: doc 상태 = "승인 대기"
   → Developer 문서 승인 패널에 표시
 
-[승인 단계 — Case A 핵심 처리]
+[승인 단계]
 Developer 승인 클릭
   → 플랫폼 백엔드:
-      1. Platform S3 → Developer S3로 파일 복사 (S3 Copy API)
-             developer-s3://{developer_bucket}/{agent_id}/{user_id}/{doc_id}/{file_name}
-      2. Platform S3 임시 파일 삭제
-      3. DB: doc 상태 = "승인", s3_path = Developer S3 경로로 업데이트
-      4. Airflow DAG Trigger
-             conf에 Developer S3 경로 포함
+      DB: doc 상태 = "승인"
+      Airflow DAG Trigger
+        conf에 Developer MinIO 엔드포인트 + object_path 포함
 
 [DAG 실행 단계]
-DAG이 conf에서 Developer S3 경로 파싱
-  → Developer 자격증명으로 S3에서 파일 직접 조회 및 처리
-  → 임베딩 완료
+DAG이 conf에서 MinIO 경로 파싱
+  → K8s Secret에서 Developer MinIO 자격증명 로드
+  → MinIO에서 파일 직접 처리 (임베딩)
   → POST /api/documents/{doc_id}/status (completed / failed)
 
 [반려 단계]
 Developer 반려 클릭
-  → Platform S3 임시 파일 즉시 삭제
-  → DB: doc 상태 = "반려"
-  → Developer S3로 복사 없음
+  → 플랫폼 백엔드:
+      DB: doc 상태 = "반려"
+      Developer MinIO 자격증명으로 파일 삭제
+        minio_client.remove_object(bucket, object_name)
 ```
 
 ---
 
 ## 플랫폼 백엔드 처리 내용
 
-### 업로드 시
-| 처리 | 내용 |
-|------|------|
-| 파일 저장 | Platform S3 `staging/` 경로에 임시 저장 |
-| 메타데이터 | doc_id, 임시 s3_path, 파일명, 크기, 업로드 시각 DB 저장 |
-| 상태 | `승인 대기` |
+| 단계 | 처리 | 내용 |
+|------|------|------|
+| 업로드 요청 | Presigned PUT URL 생성 | Developer MinIO 자격증명으로 직접 생성 |
+| 업로드 완료 알림 | 상태 업데이트 | `업로드 대기` → `승인 대기` |
+| 승인 | DAG Trigger | conf에 MinIO 엔드포인트 + object_path 포함 |
+| 반려 | 파일 삭제 | Developer MinIO 자격증명으로 `remove_object` 호출 |
 
-### 승인 시 (Case A 핵심)
-| 처리 | 내용 |
-|------|------|
-| S3 Copy | Platform S3 → Developer S3 파일 복사 |
-| 임시 파일 삭제 | Platform S3 `staging/` 파일 삭제 |
-| DB 업데이트 | s3_path를 Developer S3 경로로 교체, 상태 = `승인` |
-| DAG Trigger | Airflow REST API 호출, conf에 Developer S3 경로 포함 |
-
-**S3 Copy를 위해 플랫폼이 필요한 권한**
-```
-Developer가 플랫폼에 사전 제공해야 하는 것:
-  - Developer S3 버킷명
-  - 플랫폼이 해당 버킷에 PutObject 가능한 IAM Role ARN
-    (Cross-Account IAM Role 또는 Bucket Policy로 플랫폼 계정 허용)
-```
+> 플랫폼 자체 스토리지 저장·이전 없음. 파일은 처음부터 끝까지 Developer MinIO에만 존재.
 
 ---
 
@@ -90,7 +110,9 @@ Developer가 플랫폼에 사전 제공해야 하는 것:
   "conf": {
     "request_doc": {
       "doc_id": "doc_abc123",
-      "file_path": "s3://developer-bucket/agent01/user01/doc_abc123/계약서_v3.pdf",
+      "minio_endpoint": "http://minio.developer.internal:9000",
+      "bucket": "agent-knowledge",
+      "object_path": "agents/agent01/user01/doc_abc123/계약서_v3.pdf",
       "file_name": "계약서_v3.pdf",
       "source_type": "user"
     },
@@ -99,33 +121,8 @@ Developer가 플랫폼에 사전 제공해야 하는 것:
 }
 ```
 
-- `file_path`는 Developer S3 경로 (승인 시 복사 완료된 경로)
-- 플랫폼 S3 임시 경로는 포함되지 않음
-
----
-
-## Developer가 플랫폼에 사전 등록해야 하는 정보
-
-| 항목 | 설명 |
-|------|------|
-| Developer S3 버킷명 | 파일이 복사될 목적지 버킷 |
-| 저장 경로 Prefix | `agents/{agent_id}/` 등 Developer가 원하는 경로 구조 |
-| Cross-Account IAM Role ARN | 플랫폼 계정이 Assume하여 Developer S3에 PutObject 가능한 Role |
-
-**Developer S3 버킷 정책 예시 (플랫폼 계정 허용)**
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Allow",
-    "Principal": {
-      "AWS": "arn:aws:iam::{platform_account_id}:role/PlatformS3CopyRole"
-    },
-    "Action": ["s3:PutObject", "s3:DeleteObject"],
-    "Resource": "arn:aws:s3:::developer-bucket/agent01/*"
-  }]
-}
-```
+- `file_path`(S3 URI) 대신 `minio_endpoint` + `bucket` + `object_path` 분리 전달
+- MinIO 자격증명(AccessKey/SecretKey)은 conf에 포함하지 않음 → DAG이 K8s Secret에서 직접 로드
 
 ---
 
@@ -145,23 +142,23 @@ PLATFORM_API_TOKEN = Variable.get("agentmarket_platform_token")
 
 
 def parse_conf(**context):
-    """
-    conf에서 Developer S3 경로 직접 파싱.
-    승인 시 플랫폼이 이미 Developer S3로 파일을 복사한 상태.
-    """
     conf = context["dag_run"].conf
     req  = conf["request_doc"]
 
-    doc_id    = req["doc_id"]
-    file_path = req["file_path"]  # Developer S3 경로 (s3://developer-bucket/...)
-    method    = conf.get("method", "embed")
+    doc_id        = req["doc_id"]
+    minio_endpoint = req["minio_endpoint"]
+    bucket        = req["bucket"]
+    object_path   = req["object_path"]
+    method        = conf.get("method", "embed")
 
-    if not doc_id or not file_path:
-        raise ValueError(f"conf 누락: doc_id={doc_id}, file_path={file_path}")
+    if not doc_id or not object_path:
+        raise ValueError(f"conf 누락: doc_id={doc_id}, object_path={object_path}")
 
-    context["ti"].xcom_push(key="doc_id",    value=doc_id)
-    context["ti"].xcom_push(key="file_path", value=file_path)
-    context["ti"].xcom_push(key="method",    value=method)
+    context["ti"].xcom_push(key="doc_id",         value=doc_id)
+    context["ti"].xcom_push(key="minio_endpoint", value=minio_endpoint)
+    context["ti"].xcom_push(key="bucket",         value=bucket)
+    context["ti"].xcom_push(key="object_path",    value=object_path)
+    context["ti"].xcom_push(key="method",         value=method)
 
 
 def report_status(status: str, **context):
@@ -197,15 +194,23 @@ with DAG(
         image="{{ developer_image }}",
         namespace="{{ k8s_namespace }}",
 
-        # Developer 자신의 S3이므로 Developer 자격증명으로 접근
-        service_account_name="{{ developer_sa_with_s3_role }}",  # IRSA 방식
-        # 또는 env_from으로 Developer S3 자격증명 Secret 주입
+        # MinIO 자격증명은 K8s Secret에서 주입 (conf에 포함하지 않음)
+        env_from=[
+            k8s.V1EnvFromSource(
+                secret_ref=k8s.V1SecretEnvSource(name="{{ developer_minio_secret }}")
+            )
+        ],
+        # Secret에 포함되어야 할 키: MINIO_ACCESS_KEY, MINIO_SECRET_KEY
 
         env_vars=[
             k8s.V1EnvVar(name="DOC_ID",
                 value="{{ ti.xcom_pull(key='doc_id') }}"),
-            k8s.V1EnvVar(name="S3_FILE_PATH",  # Developer S3 경로 직접 사용
-                value="{{ ti.xcom_pull(key='file_path') }}"),
+            k8s.V1EnvVar(name="MINIO_ENDPOINT",
+                value="{{ ti.xcom_pull(key='minio_endpoint') }}"),
+            k8s.V1EnvVar(name="MINIO_BUCKET",
+                value="{{ ti.xcom_pull(key='bucket') }}"),
+            k8s.V1EnvVar(name="MINIO_OBJECT_PATH",
+                value="{{ ti.xcom_pull(key='object_path') }}"),
             k8s.V1EnvVar(name="EMBED_METHOD",
                 value="{{ ti.xcom_pull(key='method') }}"),
         ],
@@ -229,11 +234,9 @@ with DAG(
 | `{{ developer_dag_id }}` | agentMarket 등록 시 입력한 DAG ID |
 | `{{ developer_image }}` | 임베딩 처리 컨테이너 이미지 |
 | `{{ k8s_namespace }}` | Pod 실행 네임스페이스 |
-| `{{ developer_sa_with_s3_role }}` | Developer S3 접근 권한이 바인딩된 K8s ServiceAccount |
+| `{{ developer_minio_secret }}` | MinIO 자격증명이 담긴 K8s Secret 이름 (`MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY` 포함) |
 | `agentmarket_api_base_url` | Airflow Variable — 플랫폼 API URL |
 | `agentmarket_platform_token` | Airflow Variable — 플랫폼 발급 토큰 |
-
-> Platform S3 자격증명 불필요. Developer가 자신의 S3에 직접 접근.
 
 ---
 
@@ -241,9 +244,7 @@ with DAG(
 
 | 구분 | 내용 |
 |------|------|
-| 장점 | 비승인 파일이 Developer S3에 저장되지 않음 (승인 후에만 복사) |
-| 장점 | End-user 업로드 단계는 기존 플랫폼 S3 방식과 동일 — 변경 최소 |
-| 장점 | 반려 시 Developer S3에 파일 잔류 없음 |
-| 단점 | 플랫폼이 Developer S3에 PutObject 권한 필요 (Cross-Account IAM 설정) |
-| 단점 | 승인 시 S3 Copy 지연 발생 (파일 크기에 따라 Trigger 딜레이) |
-| 단점 | Developer가 IAM Role ARN을 플랫폼에 등록하는 온보딩 절차 필요 |
+| 장점 | Developer가 별도 서버/API 구현 없이 MinIO 자격증명 등록만으로 연동 가능 |
+| 장점 | 반려 시 플랫폼이 직접 파일 삭제 처리 |
+| 단점 | Developer MinIO 자격증명을 플랫폼에 위임 — 최소 권한 키 사용 및 Secret 관리 필요 |
+| 단점 | End-user 브라우저에서 Developer MinIO로 직접 업로드하므로 CORS 설정 필요 |

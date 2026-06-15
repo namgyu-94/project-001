@@ -10,61 +10,50 @@ body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; backgrou
 
 /* ───────────── 사이드바 ───────────── */
 #sidebar {
-  width: 224px; min-width: 224px; background: #12132a; color: #c8cfe8;
+  width: 224px; min-width: 224px; background: #fff; color: #333;
   display: flex; flex-direction: column; overflow-y: auto;
+  border-right: 1px solid #e4e8f4;
 }
 .sidebar-logo {
-  padding: 22px 20px 18px; font-size: 17px; font-weight: 800; color: #fff;
-  border-bottom: 1px solid #1e2040; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;
+  padding: 22px 20px 18px; font-size: 17px; font-weight: 800; color: #12132a;
+  border-bottom: 1px solid #e4e8f4; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;
 }
-.sidebar-logo .logo-accent { color: #6c8cff; }
+.sidebar-logo .logo-accent { color: #4a6cff; }
 
 .nav-section { padding: 20px 0 8px; }
 .nav-section-label {
-  font-size: 10px; font-weight: 700; letter-spacing: 1.4px; color: #454878;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.4px; color: #aab0c6;
   padding: 0 20px 10px; text-transform: uppercase;
 }
 .nav-item {
   display: flex; align-items: center; gap: 10px;
   padding: 10px 20px; cursor: pointer; font-size: 13.5px;
-  border-left: 3px solid transparent; transition: all 0.15s; color: #9aa3c8;
+  border-left: 3px solid transparent; transition: all 0.15s; color: #555e7a;
 }
-.nav-item:hover { background: #1c1e3a; color: #fff; }
-.nav-item.active { background: #1c1e3a; color: #7c9fff; border-left-color: #7c9fff; font-weight: 600; }
+.nav-item:hover { background: #f4f6ff; color: #12132a; }
+.nav-item.active { background: #eef1ff; color: #4a6cff; border-left-color: #4a6cff; font-weight: 600; }
 .nav-item .ni-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
 .nav-badge {
   margin-left: auto; background: #e74c3c; color: #fff;
   font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; min-width: 20px; text-align: center;
 }
-.nav-divider { border: none; border-top: 1px solid #1e2040; margin: 8px 20px; }
+.nav-divider { border: none; border-top: 1px solid #e8ecf4; margin: 8px 20px; }
 
 /* ─── 사이드바 아코디언 ─── */
 .acc-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 20px; cursor: pointer; font-size: 11px; font-weight: 700;
-  letter-spacing: 1px; text-transform: uppercase; color: #454878;
-  border-left: 3px solid transparent; transition: all 0.15s;
-  user-select: none;
+  display: flex; align-items: center;
+  padding: 16px 20px 6px; font-size: 10px; font-weight: 700;
+  letter-spacing: 1.4px; text-transform: uppercase; color: #aab0c6;
 }
-.acc-header:hover { color: #9aa3c8; background: #161828; }
-.acc-header.open  { color: #7c9fff; border-left-color: #7c9fff; background: #161828; }
-.acc-arrow {
-  font-size: 10px; transition: transform 0.25s; display: inline-block;
-}
-.acc-header.open .acc-arrow { transform: rotate(90deg); }
-.acc-body {
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.28s ease;
-}
-.acc-body.open { max-height: 400px; }
+.acc-body { display: block; }
 
 .role-box {
-  margin: auto 16px 20px; padding: 12px 14px; background: #1c1e3a;
-  border-radius: 10px; font-size: 12px;
+  margin: auto 16px 20px; padding: 12px 14px; background: #f4f6ff;
+  border-radius: 10px; font-size: 12px; border: 1px solid #e0e6ff;
 }
-.role-box label { color: #6a6f9a; display: block; margin-bottom: 7px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+.role-box label { color: #8a92b2; display: block; margin-bottom: 7px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
 .role-box select {
-  width: 100%; background: #12132a; color: #c8cfe8; border: 1px solid #2e3268;
+  width: 100%; background: #fff; color: #333; border: 1px solid #d0d7f0;
   border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer; outline: none;
 }
 
@@ -355,6 +344,42 @@ tbody tr:hover td { background: #f8f9ff; }
 .vb-pass   { background: #e6faf0; color: #27ae60; }
 .vb-fail   { background: #fde8e8; color: #e74c3c; }
 .vb-run    { background: #e8eeff; color: #4a6cff; }
+.vb-token  { background: #fffbee; color: #9a7000; border: 1px solid #f5d86a; }
+
+/* ─── Agent Type 선택 ─── */
+.agent-type-selector { display: flex; gap: 12px; margin-top: 4px; }
+.atype-option {
+  flex: 1; border: 2px solid #e8ecf8; border-radius: 10px; padding: 14px 16px;
+  cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 4px;
+  user-select: none;
+}
+.atype-option:hover { border-color: #7c9fff; background: #f8f9ff; }
+.atype-option.selected { border-color: #4a6cff; background: #f4f6ff; }
+.atype-label { font-size: 13.5px; font-weight: 800; color: #12132a; }
+.atype-desc  { font-size: 11.5px; color: #9aa3c0; line-height: 1.5; }
+
+/* ─── Validation 사전 입력 단계 ─── */
+.vps-section-title { font-size: 11px; font-weight: 700; color: #aab0c6; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 10px; }
+.vps-field { margin-bottom: 16px; }
+.vps-field label { font-size: 12.5px; font-weight: 700; color: #3a4466; display: block; margin-bottom: 6px; }
+.vps-field input[type="text"] {
+  width: 100%; box-sizing: border-box; border: 1.5px solid #e4e8f4; border-radius: 8px;
+  padding: 9px 12px; font-size: 12.5px; font-family: monospace; outline: none; color: #12132a;
+}
+.vps-field input[type="text"]:focus { border-color: #4a6cff; }
+
+.val-token-wait {
+  background: #fffbee; border: 1.5px solid #f5d86a; border-radius: 10px;
+  padding: 13px 15px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 10px;
+}
+.vtw-title { font-size: 13px; font-weight: 700; color: #7a5c00; margin-bottom: 3px; }
+.vtw-desc  { font-size: 11.5px; color: #9a7a20; line-height: 1.5; }
+
+/* ─── Kong 토큰 발급 모달 (Admin) ─── */
+.kong-modal-box {
+  background: #fff; border-radius: 18px; padding: 32px 36px; width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto;
+}
 
 /* ───────────── 문서 업로드 ───────────── */
 .drop-zone {
@@ -645,9 +670,7 @@ tbody tr:hover td { background: #f8f9ff; }
   <div class="sidebar-logo">🤖 Agent<span class="logo-accent">Market</span></div>
 
   <!-- MY 아코디언 -->
-  <div class="acc-header" id="st-my" onclick="sidebarTab('my')">
-    MY <span class="acc-arrow">▶</span>
-  </div>
+  <div class="acc-header" id="st-my">MY</div>
   <div class="acc-body" id="stnav-my">
     <div class="nav-item" id="nav-marketplace" onclick="show('marketplace')">
       <span class="ni-icon">🛒</span> MARKETPLACE
@@ -664,9 +687,7 @@ tbody tr:hover td { background: #f8f9ff; }
   </div>
 
   <!-- DEVELOPER 아코디언 -->
-  <div class="acc-header" id="st-developer" onclick="sidebarTab('developer')">
-    DEVELOPER <span class="acc-arrow">▶</span>
-  </div>
+  <div class="acc-header" id="st-developer">DEVELOPER</div>
   <div class="acc-body" id="stnav-developer">
     <div class="nav-item" id="nav-developer" onclick="show('developer')">
       <span class="ni-icon">📊</span> 내 현황
@@ -681,9 +702,7 @@ tbody tr:hover td { background: #f8f9ff; }
   </div>
 
   <!-- ADMIN 아코디언 -->
-  <div class="acc-header" id="st-admin" onclick="sidebarTab('admin')">
-    ADMIN <span class="acc-arrow">▶</span>
-  </div>
+  <div class="acc-header" id="st-admin">ADMIN</div>
   <div class="acc-body" id="stnav-admin">
     <div class="nav-item" id="nav-admin-status" onclick="show('admin-status')">
       <span class="ni-icon">📊</span> 내 현황
@@ -753,12 +772,12 @@ tbody tr:hover td { background: #f8f9ff; }
       </div>
       <div class="cat-bar">
         <div class="cat-chip on">전체</div>
-        <div class="cat-chip">법무·계약</div>
-        <div class="cat-chip">문서 요약</div>
-        <div class="cat-chip">코드 리뷰</div>
-        <div class="cat-chip">데이터 분석</div>
-        <div class="cat-chip">HR·총무</div>
-        <div class="cat-chip">고객 응대</div>
+        <div class="cat-chip">공정 분석</div>
+        <div class="cat-chip">수율·품질</div>
+        <div class="cat-chip">설계 검증</div>
+        <div class="cat-chip">장비 모니터링</div>
+        <div class="cat-chip">특허·IP</div>
+        <div class="cat-chip">소재·부품</div>
       </div>
 
       <div class="agent-grid">
@@ -767,14 +786,14 @@ tbody tr:hover td { background: #f8f9ff; }
         <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-1"></div>
           <div class="ac-head">
-            <div class="ac-icon" style="background:#e8eeff">⚖️</div>
+            <div class="ac-icon" style="background:#fff0e8">🔬</div>
             <div>
-              <div class="ac-name">법무 계약 검토 Agent</div>
-              <div class="ac-team">법무팀 · 김법무</div>
+              <div class="ac-name">공정 불량 분석 Agent</div>
+              <div class="ac-team">공정개발팀 · 이공정</div>
             </div>
           </div>
-          <div class="ac-desc">계약서 초안을 분석해 리스크 조항, 누락 항목, 법적 이슈를 자동 검토합니다.</div>
-          <div class="ac-tags"><span class="ac-tag">법무</span><span class="ac-tag">계약</span><span class="ac-tag">리스크</span></div>
+          <div class="ac-desc">웨이퍼 공정 데이터를 분석해 불량 원인, 위험 구간, 재현 패턴을 자동으로 진단합니다.</div>
+          <div class="ac-tags"><span class="ac-tag">공정</span><span class="ac-tag">불량</span><span class="ac-tag">웨이퍼</span></div>
           <div class="ac-meta">
             <div class="ac-meta-item"><div class="m-val">1,284</div><div class="m-lbl">구독자</div></div>
             <div class="ac-meta-item"><div class="m-val">1.2s</div><div class="m-lbl">평균 응답</div></div>
@@ -793,14 +812,14 @@ tbody tr:hover td { background: #f8f9ff; }
         <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-2"></div>
           <div class="ac-head">
-            <div class="ac-icon" style="background:#e6faf0">📄</div>
+            <div class="ac-icon" style="background:#eef6ff">📈</div>
             <div>
-              <div class="ac-name">문서 요약 Agent</div>
-              <div class="ac-team">IT추진팀 · 박개발</div>
+              <div class="ac-name">수율 예측 Agent</div>
+              <div class="ac-team">수율혁신팀 · 김수율</div>
             </div>
           </div>
-          <div class="ac-desc">보고서·회의록·제안서를 핵심 요점과 액션 아이템 중심으로 요약합니다.</div>
-          <div class="ac-tags"><span class="ac-tag">문서</span><span class="ac-tag">요약</span><span class="ac-tag">보고서</span></div>
+          <div class="ac-desc">공정 파라미터와 계측 데이터를 기반으로 배치 수율을 예측하고 개선 포인트를 제시합니다.</div>
+          <div class="ac-tags"><span class="ac-tag">수율</span><span class="ac-tag">예측</span><span class="ac-tag">품질</span></div>
           <div class="ac-meta">
             <div class="ac-meta-item"><div class="m-val">843</div><div class="m-lbl">구독자</div></div>
             <div class="ac-meta-item"><div class="m-val">0.9s</div><div class="m-lbl">평균 응답</div></div>
@@ -816,14 +835,14 @@ tbody tr:hover td { background: #f8f9ff; }
         <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-3"></div>
           <div class="ac-head">
-            <div class="ac-icon" style="background:#fff4e6">💻</div>
+            <div class="ac-icon" style="background:#eefaf4">🖥️</div>
             <div>
-              <div class="ac-name">코드 리뷰 Agent</div>
-              <div class="ac-team">플랫폼팀 · 이개발</div>
+              <div class="ac-name">설계 검증 Agent</div>
+              <div class="ac-team">설계팀 · 박설계</div>
             </div>
           </div>
-          <div class="ac-desc">PR 코드를 분석해 버그 가능성, 성능 이슈, 컨벤션 위반 사항을 리포트합니다.</div>
-          <div class="ac-tags"><span class="ac-tag">코드</span><span class="ac-tag">리뷰</span><span class="ac-tag">PR</span></div>
+          <div class="ac-desc">회로 설계 파일을 분석해 DRC·LVS 위반, 타이밍 마진 이슈, 설계 규칙 준수 여부를 리포트합니다.</div>
+          <div class="ac-tags"><span class="ac-tag">설계</span><span class="ac-tag">DRC</span><span class="ac-tag">타이밍</span></div>
           <div class="ac-meta">
             <div class="ac-meta-item"><div class="m-val">562</div><div class="m-lbl">구독자</div></div>
             <div class="ac-meta-item"><div class="m-val">2.1s</div><div class="m-lbl">평균 응답</div></div>
@@ -839,14 +858,14 @@ tbody tr:hover td { background: #f8f9ff; }
         <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-4"></div>
           <div class="ac-head">
-            <div class="ac-icon" style="background:#fde8f8">📊</div>
+            <div class="ac-icon" style="background:#fdf4e8">🛠️</div>
             <div>
-              <div class="ac-name">데이터 분석 Agent</div>
-              <div class="ac-team">데이터팀 · 최분석</div>
+              <div class="ac-name">장비 이상 감지 Agent</div>
+              <div class="ac-team">설비팀 · 최설비</div>
             </div>
           </div>
-          <div class="ac-desc">CSV·Excel 데이터를 업로드하면 통계 분석, 이상치 탐지, 인사이트를 제공합니다.</div>
-          <div class="ac-tags"><span class="ac-tag">데이터</span><span class="ac-tag">분석</span><span class="ac-tag">통계</span></div>
+          <div class="ac-desc">제조 장비의 실시간 센서 데이터를 모니터링해 이상 징후와 예방 정비 시점을 알립니다.</div>
+          <div class="ac-tags"><span class="ac-tag">장비</span><span class="ac-tag">이상감지</span><span class="ac-tag">예지보전</span></div>
           <div class="ac-meta">
             <div class="ac-meta-item"><div class="m-val">391</div><div class="m-lbl">구독자</div></div>
             <div class="ac-meta-item"><div class="m-val">3.4s</div><div class="m-lbl">평균 응답</div></div>
@@ -862,14 +881,14 @@ tbody tr:hover td { background: #f8f9ff; }
         <div class="agent-card">
           <div style="position:absolute;top:14px;right:14px" id="sub-badge-5"></div>
           <div class="ac-head">
-            <div class="ac-icon" style="background:#e8fff4">🧑‍💼</div>
+            <div class="ac-icon" style="background:#f4e8ff">📜</div>
             <div>
-              <div class="ac-name">HR 규정 안내 Agent</div>
-              <div class="ac-team">인사팀 · 정인사</div>
+              <div class="ac-name">특허 검색 Agent</div>
+              <div class="ac-team">IP팀 · 최특허</div>
             </div>
           </div>
-          <div class="ac-desc">사내 인사 규정, 복리후생, 휴가 정책 등 HR 관련 질의에 즉시 답변합니다.</div>
-          <div class="ac-tags"><span class="ac-tag">HR</span><span class="ac-tag">인사</span><span class="ac-tag">규정</span></div>
+          <div class="ac-desc">반도체 기술 키워드로 특허를 검색·분석하고 침해 리스크 및 선행 기술 현황을 제공합니다.</div>
+          <div class="ac-tags"><span class="ac-tag">특허</span><span class="ac-tag">IP</span><span class="ac-tag">선행기술</span></div>
           <div class="ac-meta">
             <div class="ac-meta-item"><div class="m-val">217</div><div class="m-lbl">구독자</div></div>
             <div class="ac-meta-item"><div class="m-val">0.7s</div><div class="m-lbl">평균 응답</div></div>
@@ -930,6 +949,7 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tr>
                   <th>Agent 이름</th>
                   <th>카테고리</th>
+                  <th>타입</th>
                   <th>공개</th>
                   <th>A2A</th>
                   <th>승인 상태</th>
@@ -943,25 +963,27 @@ tbody tr:hover td { background: #f8f9ff; }
               </thead>
               <tbody>
                 <tr>
-                  <td><b>legal-review-agent</b></td>
-                  <td><span class="badge badge-blue">법무·계약</span></td>
+                  <td><b>process-defect-agent</b></td>
+                  <td><span class="badge badge-blue">공정 분석</span></td>
+                  <td><span class="badge" style="background:#e8f4ff;color:#2471a3;font-size:11px">⚙️ Framework</span></td>
                   <td>✅</td><td>✅</td>
                   <td><span class="kb-chip">🧠 활성</span></td>
                   <td><span class="status-pill sp-active">승인 완료</span></td>
-                  <td><span class="val-badge vb-none">미검증</span></td>
+                  <td><span class="val-badge vb-token">⏳ 토큰 대기</span></td>
                   <td><b>—</b></td>
                   <td><span style="color:#ccc">—</span></td>
                   <td><span style="color:#ccc">—</span></td>
                   <td>2026-05-10</td>
                   <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
                     <button class="btn btn-primary btn-xs"
-                      onclick="openValidation('legal-review-agent', true)">🔍 검증 시작</button>
+                      onclick="openValidation('process-defect-agent', true, 'framework')">🔍 검증 시작</button>
                     <button class="btn btn-ghost btn-xs">상세</button>
                   </td>
                 </tr>
                 <tr>
-                  <td><b>doc-summary-agent</b></td>
-                  <td><span class="badge badge-green">문서 요약</span></td>
+                  <td><b>yield-prediction-agent</b></td>
+                  <td><span class="badge badge-green">수율·품질</span></td>
+                  <td><span class="badge" style="background:#f0e8ff;color:#7d3c98;font-size:11px">🧱 Builder</span></td>
                   <td>✅</td><td>—</td>
                   <td><span class="kb-chip">🧠 활성</span></td>
                   <td><span class="status-pill sp-active">승인 완료</span></td>
@@ -981,13 +1003,14 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>2026-05-01</td>
                   <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
                     <button class="btn btn-ghost btn-xs"
-                      onclick="openValidation('doc-summary-agent', false)">재검증</button>
+                      onclick="openValidation('yield-prediction-agent', false, 'builder')">재검증</button>
                     <button class="btn btn-ghost btn-xs">상세</button>
                   </td>
                 </tr>
                 <tr>
-                  <td><b>contract-draft-agent</b></td>
-                  <td><span class="badge badge-blue">법무·계약</span></td>
+                  <td><b>design-verify-agent</b></td>
+                  <td><span class="badge badge-blue">설계 검증</span></td>
+                  <td><span class="badge" style="background:#e8f4ff;color:#2471a3;font-size:11px">⚙️ Framework</span></td>
                   <td>✅</td><td>✅</td>
                   <td><span class="kb-chip off">미설정</span></td>
                   <td><span class="status-pill sp-pending">검토 중</span></td>
@@ -1002,8 +1025,9 @@ tbody tr:hover td { background: #f8f9ff; }
                   </td>
                 </tr>
                 <tr>
-                  <td><b>clause-extractor-agent</b></td>
-                  <td><span class="badge badge-blue">법무·계약</span></td>
+                  <td><b>equipment-anomaly-agent</b></td>
+                  <td><span class="badge badge-blue">장비 모니터링</span></td>
+                  <td><span class="badge" style="background:#e8f4ff;color:#2471a3;font-size:11px">⚙️ Framework</span></td>
                   <td>—</td><td>—</td>
                   <td><span class="kb-chip off">미설정</span></td>
                   <td><span class="status-pill sp-rejected">반려</span></td>
@@ -1030,12 +1054,12 @@ tbody tr:hover td { background: #f8f9ff; }
             <div style="font-size:13px;font-weight:700;color:#6a7090;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px">구독자 수</div>
             <div style="display:flex;flex-direction:column;gap:12px">
               <div class="usage-bar-wrap">
-                <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">⚖️ legal-review</div>
+                <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">🔬 process-defect</div>
                 <div class="usage-bar" style="height:10px"><div class="usage-fill" style="width:100%"></div></div>
                 <span class="usage-lbl">1,284명</span>
               </div>
               <div class="usage-bar-wrap">
-                <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">📄 doc-summary</div>
+                <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">📈 yield-prediction</div>
                 <div class="usage-bar" style="height:10px"><div class="usage-fill" style="width:44%"></div></div>
                 <span class="usage-lbl">563명</span>
               </div>
@@ -1052,7 +1076,7 @@ tbody tr:hover td { background: #f8f9ff; }
                 </thead>
                 <tbody>
                   <tr>
-                    <td><b>legal-review-agent</b></td>
+                    <td><b>process-defect-agent</b></td>
                     <td>1.4M</td><td>1.8M</td>
                     <td><b style="color:#4a6cff">2.1M</b></td>
                     <td>
@@ -1063,7 +1087,7 @@ tbody tr:hover td { background: #f8f9ff; }
                     </td>
                   </tr>
                   <tr>
-                    <td><b>doc-summary-agent</b></td>
+                    <td><b>yield-prediction-agent</b></td>
                     <td>0.7M</td><td>0.9M</td>
                     <td><b style="color:#4a6cff">1.1M</b></td>
                     <td>
@@ -1088,12 +1112,12 @@ tbody tr:hover td { background: #f8f9ff; }
                 </thead>
                 <tbody>
                   <tr>
-                    <td><b>legal-review-agent</b></td>
+                    <td><b>process-defect-agent</b></td>
                     <td><b>1.2s</b></td><td>0.6s</td><td>4.1s</td><td>2.8s</td>
                     <td><span class="status-pill sp-active">양호</span></td>
                   </tr>
                   <tr>
-                    <td><b>doc-summary-agent</b></td>
+                    <td><b>yield-prediction-agent</b></td>
                     <td><b>0.9s</b></td><td>0.4s</td><td>2.2s</td><td>1.6s</td>
                     <td><span class="status-pill sp-active">양호</span></td>
                   </tr>
@@ -1154,13 +1178,13 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="fg">
               <label>Agent 이름 <span class="req">*</span></label>
               <div class="input-row">
-                <input type="text" placeholder="예: legal-review-agent">
+                <input type="text" placeholder="예: process-defect-agent">
                 <button class="btn btn-secondary btn-sm">중복 확인</button>
               </div>
             </div>
             <div class="fg">
               <label>Agent 카테고리 <span class="req">*</span></label>
-              <select><option value="">선택하세요</option><option>법무·계약</option><option>문서 요약</option><option>코드 리뷰</option><option>데이터 분석</option><option>HR·총무</option><option>고객 응대</option><option>기타</option></select>
+              <select><option value="">선택하세요</option><option>공정 분석</option><option>수율·품질</option><option>설계 검증</option><option>장비 모니터링</option><option>특허·IP</option><option>소재·부품</option><option>기타</option></select>
             </div>
             <div class="fg full">
               <label>Agent 설명 <span class="req">*</span></label>
@@ -1173,17 +1197,17 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="form-grid">
             <div class="fg">
               <label>팀이름</label>
-              <input type="text" value="법무팀" readonly style="background:#f5f7ff;color:#6a7090">
+              <input type="text" value="공정개발팀" readonly style="background:#f5f7ff;color:#6a7090">
               <div style="font-size:11px;color:#9aa3c0;margin-top:4px">🔒 로그인 계정 정보에서 자동 표시</div>
             </div>
             <div class="fg">
               <label>신청자</label>
-              <input type="text" value="박개발" readonly style="background:#f5f7ff;color:#6a7090">
+              <input type="text" value="이공정" readonly style="background:#f5f7ff;color:#6a7090">
               <div style="font-size:11px;color:#9aa3c0;margin-top:4px">🔒 로그인 계정 정보에서 자동 표시</div>
             </div>
             <div class="fg">
               <label>담당자 <span class="req">*</span></label>
-              <input type="text" placeholder="예: 김법무">
+              <input type="text" placeholder="예: 이공정">
             </div>
             <div class="fg">
               <label>협업 Developer</label>
@@ -1197,7 +1221,7 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="form-grid">
             <div class="fg">
               <label>시스템 계정 <span class="req">*</span></label>
-              <input type="text" placeholder="예: svc_agent_legal">
+              <input type="text" placeholder="예: svc_agent_process">
             </div>
             <div class="fg">
               <label>보안성 검토 신청 ID <span class="req">*</span></label>
@@ -1268,7 +1292,7 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="fg full">
               <label>외부 접근 URL (Kong Route Path) <span class="req">*</span></label>
               <div class="input-row">
-                <input type="text" placeholder="예: /agents/legal-review" style="font-family:monospace">
+                <input type="text" placeholder="예: /agents/process-defect" style="font-family:monospace">
                 <button class="btn btn-secondary btn-sm">중복 확인</button>
               </div>
               <div style="font-size:11.5px;color:#9aa3c0;margin-top:5px">소문자·숫자·하이픈·슬래시만 허용. agentChat에서 이 경로로 외부 라우팅됩니다.</div>
@@ -1278,6 +1302,22 @@ tbody tr:hover td { background: #f8f9ff; }
               <input type="text" placeholder="예: http://10.0.1.5:8080" style="font-family:monospace">
               <div style="font-size:11.5px;color:#9aa3c0;margin-top:5px">HPP에서 배포한 Agent Pod의 클러스터 내부 주소입니다.</div>
             </div>
+          </div>
+
+          <hr class="section-sep">
+          <div class="card-title" style="margin-bottom:12px">🏗 Agent Type <span class="req">*</span></div>
+          <div class="agent-type-selector" id="applyAgentTypeSel">
+            <div class="atype-option selected" onclick="selectApplyAgentType('builder', this)">
+              <div class="atype-label">🧱 Builder</div>
+              <div class="atype-desc">플랫폼 내장 빌더 기반.<br>승인 즉시 Validation 진행 가능합니다.</div>
+            </div>
+            <div class="atype-option" onclick="selectApplyAgentType('framework', this)">
+              <div class="atype-label">⚙️ Framework</div>
+              <div class="atype-desc">외부 프레임워크 기반 (LangChain, LlamaIndex 등).<br>승인 후 Admin이 Kong Access Token을 발급하면 Validation을 진행합니다.</div>
+            </div>
+          </div>
+          <div id="applyFrameworkNotice" style="display:none;margin-top:10px;background:#fffbee;border:1.5px solid #f5d86a;border-radius:8px;padding:10px 14px;font-size:12px;color:#7a5c00">
+            ⚠️ Framework 타입은 승인 완료 후 Admin이 Kong Access Token을 발급하는 단계가 추가됩니다.
           </div>
 
           <hr class="section-sep">
@@ -1301,7 +1341,7 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="form-grid">
             <div class="fg">
               <label>Tags</label>
-              <input type="text" placeholder="쉼표로 구분 (예: 법무, 계약, 리스크)">
+              <input type="text" placeholder="쉼표로 구분 (예: 공정, 불량, 웨이퍼)">
             </div>
             <div class="fg">
               <label>MPRS 구분</label>
@@ -1345,11 +1385,11 @@ tbody tr:hover td { background: #f8f9ff; }
               <table style="width:100%;font-size:13px;border-collapse:collapse">
                 <tr><td style="color:#9aa3c0;padding:5px 0;width:42%">과제번호</td><td style="font-weight:600">PRJ-2026-0042</td></tr>
                 <tr><td style="color:#9aa3c0;padding:5px 0">부문</td><td style="font-weight:600">디지털혁신부문</td></tr>
-                <tr><td style="color:#9aa3c0;padding:5px 0">Agent 이름</td><td style="font-weight:800;color:#4a6cff;font-family:monospace;font-size:12px">legal-review-agent</td></tr>
-                <tr><td style="color:#9aa3c0;padding:5px 0">카테고리</td><td><span class="badge badge-blue">법무·계약</span></td></tr>
-                <tr><td style="color:#9aa3c0;padding:5px 0">팀 / 신청자</td><td style="font-weight:600">법무팀 · 박개발</td></tr>
-                <tr><td style="color:#9aa3c0;padding:5px 0">담당자</td><td style="font-weight:600">김법무</td></tr>
-                <tr><td style="color:#9aa3c0;padding:5px 0">시스템 계정</td><td style="font-family:monospace;font-size:12px">svc_agent_legal</td></tr>
+                <tr><td style="color:#9aa3c0;padding:5px 0">Agent 이름</td><td style="font-weight:800;color:#4a6cff;font-family:monospace;font-size:12px">process-defect-agent</td></tr>
+                <tr><td style="color:#9aa3c0;padding:5px 0">카테고리</td><td><span class="badge badge-blue">공정 분석</span></td></tr>
+                <tr><td style="color:#9aa3c0;padding:5px 0">팀 / 신청자</td><td style="font-weight:600">공정개발팀 · 이공정</td></tr>
+                <tr><td style="color:#9aa3c0;padding:5px 0">담당자</td><td style="font-weight:600">이공정</td></tr>
+                <tr><td style="color:#9aa3c0;padding:5px 0">시스템 계정</td><td style="font-family:monospace;font-size:12px">svc_agent_process</td></tr>
                 <tr><td style="color:#9aa3c0;padding:5px 0">보안 검토 ID</td><td style="font-family:monospace;font-size:12px">SEC-2026-0128</td></tr>
                 <tr><td style="color:#9aa3c0;padding:5px 0">구독 승인</td><td><span class="badge badge-orange">Developer 승인 필요</span></td></tr>
               </table>
@@ -1365,7 +1405,7 @@ tbody tr:hover td { background: #f8f9ff; }
                     <span class="skill-chip selected" style="font-size:11px;cursor:default">리스크 분석</span>
                   </div></td>
                 </tr>
-                <tr><td style="color:#9aa3c0;padding:5px 0">Tags</td><td style="font-weight:600">법무, 계약, 리스크</td></tr>
+                <tr><td style="color:#9aa3c0;padding:5px 0">Tags</td><td style="font-weight:600">공정, 불량, 웨이퍼</td></tr>
                 <tr><td style="color:#9aa3c0;padding:5px 0">MPRS</td><td><span class="badge badge-gray">P — 우선</span></td></tr>
                 <tr><td style="color:#9aa3c0;padding:5px 0">공개</td><td><span class="badge badge-green">Market 공개</span></td></tr>
                 <tr><td style="color:#9aa3c0;padding:5px 0">A2A</td><td><span class="badge badge-purple">허용</span></td></tr>
@@ -1476,7 +1516,7 @@ tbody tr:hover td { background: #f8f9ff; }
                 &nbsp;&nbsp;- <span style="color:#ffd08a">name</span>: KONG_AUTH_TOKEN<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#ffd08a">value</span>: <span style="color:#a8f0b8">"kong_api_key_8f2a1d94e3b7c056f4129de8a30bc71e"</span>
               </div>
-              <div style="font-size:11.5px;color:#9aa3c0;margin-top:10px">적용 후: <code style="background:#eaeefc;padding:2px 6px;border-radius:4px;font-size:11px">kubectl rollout restart deployment/legal-review-agent</code></div>
+              <div style="font-size:11.5px;color:#9aa3c0;margin-top:10px">적용 후: <code style="background:#eaeefc;padding:2px 6px;border-radius:4px;font-size:11px">kubectl rollout restart deployment/process-defect-agent</code></div>
             </div>
             <div class="form-footer">
               <span style="font-size:12px;color:#9aa3c0">재시작 완료 후 Developer 내 현황에서 Validation을 진행하세요</span>
@@ -1518,13 +1558,13 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="fg">
             <label>Agent 이름 <span class="req">*</span></label>
             <div class="input-row">
-              <input type="text" placeholder="예: legal-review-agent">
+              <input type="text" placeholder="예: process-defect-agent">
               <button class="btn btn-secondary btn-sm">중복 확인</button>
             </div>
           </div>
           <div class="fg">
             <label>Agent 카테고리 <span class="req">*</span></label>
-            <select><option value="">선택하세요</option><option>법무·계약</option><option>문서 요약</option><option>코드 리뷰</option><option>데이터 분석</option><option>HR·총무</option><option>고객 응대</option><option>기타</option></select>
+            <select><option value="">선택하세요</option><option>공정 분석</option><option>수율·품질</option><option>설계 검증</option><option>장비 모니터링</option><option>특허·IP</option><option>소재·부품</option><option>기타</option></select>
           </div>
           <div class="fg">
             <label>과제번호 <span class="req">*</span></label>
@@ -1532,7 +1572,7 @@ tbody tr:hover td { background: #f8f9ff; }
           </div>
           <div class="fg">
             <label>시스템 계정 <span class="req">*</span></label>
-            <input type="text" placeholder="예: svc_agent_legal">
+            <input type="text" placeholder="예: svc_agent_process">
           </div>
           <div class="fg">
             <label>보안성 검토 ID <span class="req">*</span></label>
@@ -1551,8 +1591,8 @@ tbody tr:hover td { background: #f8f9ff; }
         <hr class="section-sep">
         <div class="card-title" style="margin-bottom:16px">👥 담당자 정보</div>
         <div class="form-grid col3">
-          <div class="fg"><label>팀명 <span class="req">*</span></label><input type="text" placeholder="예: 법무팀"></div>
-          <div class="fg"><label>담당자 <span class="req">*</span></label><input type="text" placeholder="예: 김법무"></div>
+          <div class="fg"><label>팀명 <span class="req">*</span></label><input type="text" placeholder="예: 공정개발팀"></div>
+          <div class="fg"><label>담당자 <span class="req">*</span></label><input type="text" placeholder="예: 이공정"></div>
           <div class="fg"><label>Agent Owner <span class="req">*</span></label><input type="text" placeholder="예: kim.legal@company.com"></div>
         </div>
 
@@ -1565,7 +1605,7 @@ tbody tr:hover td { background: #f8f9ff; }
           </div>
           <div class="fg">
             <label>태그</label>
-            <input type="text" placeholder="쉼표로 구분 (예: 법무, 계약, 리스크)">
+            <input type="text" placeholder="쉼표로 구분 (예: 공정, 불량, 웨이퍼)">
           </div>
         </div>
 
@@ -1599,49 +1639,53 @@ tbody tr:hover td { background: #f8f9ff; }
         <div class="tbl-wrap">
           <table>
             <thead>
-              <tr><th>Agent 이름</th><th>카테고리</th><th>팀명</th><th>담당자</th><th>보안 검토 ID</th><th>신청일</th><th>공개</th><th>A2A</th><th>상태</th><th>처리</th></tr>
+              <tr><th>Agent 이름</th><th>카테고리</th><th>타입</th><th>팀명</th><th>담당자</th><th>보안 검토 ID</th><th>신청일</th><th>공개</th><th>A2A</th><th>상태</th><th>처리</th></tr>
             </thead>
             <tbody>
               <tr>
-                <td><b>legal-review-agent</b></td>
-                <td><span class="badge badge-blue">법무·계약</span></td>
-                <td>법무팀</td><td>김법무</td><td>SEC-2026-0128</td><td>2026-05-18</td>
+                <td><b>process-defect-agent</b></td>
+                <td><span class="badge badge-blue">공정 분석</span></td>
+                <td><span class="badge" style="background:#e8f4ff;color:#2471a3;font-size:11px">⚙️ Framework</span></td>
+                <td>공정개발팀</td><td>이공정</td><td>SEC-2026-0128</td><td>2026-05-18</td>
                 <td>✅</td><td>✅</td>
                 <td><span class="status-pill sp-pending">검토 중</span></td>
-                <td style="display:flex;gap:6px;padding:13px 14px">
-                  <button class="btn btn-success btn-sm">승인</button>
+                <td style="display:flex;gap:6px;padding:13px 14px;flex-wrap:wrap">
+                  <button class="btn btn-success btn-sm" onclick="approveAgent('process-defect-agent','framework',this)">승인</button>
                   <button class="btn btn-danger btn-sm">반려</button>
                 </td>
               </tr>
               <tr>
-                <td><b>hr-guide-agent</b></td>
-                <td><span class="badge badge-gray">HR·총무</span></td>
-                <td>인사팀</td><td>정인사</td><td>SEC-2026-0131</td><td>2026-05-19</td>
+                <td><b>patent-search-agent</b></td>
+                <td><span class="badge badge-gray">특허·IP</span></td>
+                <td><span class="badge" style="background:#f0e8ff;color:#7d3c98;font-size:11px">🧱 Builder</span></td>
+                <td>IP팀</td><td>최특허</td><td>SEC-2026-0131</td><td>2026-05-19</td>
                 <td>✅</td><td>—</td>
                 <td><span class="status-pill sp-pending">검토 중</span></td>
-                <td style="display:flex;gap:6px;padding:13px 14px">
-                  <button class="btn btn-success btn-sm">승인</button>
+                <td style="display:flex;gap:6px;padding:13px 14px;flex-wrap:wrap">
+                  <button class="btn btn-success btn-sm" onclick="approveAgent('patent-search-agent','builder',this)">승인</button>
                   <button class="btn btn-danger btn-sm">반려</button>
                 </td>
               </tr>
               <tr>
-                <td><b>data-insight-agent</b></td>
-                <td><span class="badge badge-purple">데이터 분석</span></td>
-                <td>데이터팀</td><td>최분석</td><td>SEC-2026-0135</td><td>2026-05-20</td>
+                <td><b>equipment-anomaly-agent</b></td>
+                <td><span class="badge badge-purple">장비 모니터링</span></td>
+                <td><span class="badge" style="background:#e8f4ff;color:#2471a3;font-size:11px">⚙️ Framework</span></td>
+                <td>설비팀</td><td>최설비</td><td>SEC-2026-0135</td><td>2026-05-20</td>
                 <td>—</td><td>—</td>
                 <td><span class="status-pill sp-pending">검토 중</span></td>
-                <td style="display:flex;gap:6px;padding:13px 14px">
-                  <button class="btn btn-success btn-sm">승인</button>
+                <td style="display:flex;gap:6px;padding:13px 14px;flex-wrap:wrap">
+                  <button class="btn btn-success btn-sm" onclick="approveAgent('equipment-anomaly-agent','framework',this)">승인</button>
                   <button class="btn btn-danger btn-sm">반려</button>
                 </td>
               </tr>
               <tr>
-                <td><b>doc-summary-agent</b></td>
-                <td><span class="badge badge-green">문서 요약</span></td>
-                <td>IT추진팀</td><td>박개발</td><td>SEC-2026-0110</td><td>2026-05-10</td>
+                <td><b>yield-prediction-agent</b></td>
+                <td><span class="badge badge-green">수율·품질</span></td>
+                <td><span class="badge" style="background:#f0e8ff;color:#7d3c98;font-size:11px">🧱 Builder</span></td>
+                <td>수율혁신팀</td><td>김수율</td><td>SEC-2026-0110</td><td>2026-05-10</td>
                 <td>✅</td><td>—</td>
                 <td><span class="status-pill sp-active">승인 완료</span></td>
-                <td><button class="btn btn-outline btn-sm">Key 발급 →</button></td>
+                <td><span style="font-size:12px;color:#27ae60;font-weight:600">✅ Validation 대기 중</span></td>
               </tr>
             </tbody>
           </table>
@@ -1662,11 +1706,11 @@ tbody tr:hover td { background: #f8f9ff; }
             </thead>
             <tbody>
               <tr>
-                <td><b>doc-summary-agent</b></td>
-                <td>박개발</td><td>2026-05-11</td>
+                <td><b>yield-prediction-agent</b></td>
+                <td>김수율</td><td>2026-05-11</td>
                 <td>
                   <div class="key-box">
-                    <span>gk_a1b2c3d4e5f6g7h8_docsummary</span>
+                    <span>gk_a1b2c3d4e5f6g7h8_yieldpredict</span>
                     <button class="btn btn-ghost btn-xs">복사</button>
                   </div>
                 </td>
@@ -1674,11 +1718,11 @@ tbody tr:hover td { background: #f8f9ff; }
                 <td><button class="btn btn-danger btn-sm">폐기</button></td>
               </tr>
               <tr>
-                <td><b>code-review-agent</b></td>
-                <td>이개발</td><td>2026-05-05</td>
+                <td><b>design-verify-agent</b></td>
+                <td>박설계</td><td>2026-05-05</td>
                 <td>
                   <div class="key-box">
-                    <span>gk_z9y8x7w6v5u4t3s2_codereview</span>
+                    <span>gk_z9y8x7w6v5u4t3s2_designverify</span>
                     <button class="btn btn-ghost btn-xs">복사</button>
                   </div>
                 </td>
@@ -1686,8 +1730,8 @@ tbody tr:hover td { background: #f8f9ff; }
                 <td><button class="btn btn-danger btn-sm">폐기</button></td>
               </tr>
               <tr>
-                <td><b>legal-review-agent</b></td>
-                <td>김법무</td><td>—</td>
+                <td><b>process-defect-agent</b></td>
+                <td>이공정</td><td>—</td>
                 <td><span style="color:#ccc;font-size:12px">승인 대기 중</span></td>
                 <td><span class="status-pill sp-pending">대기</span></td>
                 <td><button class="btn btn-primary btn-sm" disabled style="opacity:.4">발급</button></td>
@@ -1727,32 +1771,32 @@ tbody tr:hover td { background: #f8f9ff; }
             </thead>
             <tbody>
               <tr>
-                <td><code>legal_contracts_v2</code></td>
-                <td>legal-review-agent</td>
+                <td><code>process_defect_corpus</code></td>
+                <td>process-defect-agent</td>
                 <td><span class="kb-chip">🧠 활성</span></td>
                 <td><b>12건</b> <span style="color:#27ae60;font-size:11px">· 2건 처리 중</span></td>
                 <td>842,310</td><td>1536</td><td>HNSW</td><td>2026-05-19</td>
                 <td><span class="status-pill sp-active">활성</span></td>
               </tr>
               <tr>
-                <td><code>doc_summary_corpus</code></td>
-                <td>doc-summary-agent</td>
+                <td><code>yield_prediction_corpus</code></td>
+                <td>yield-prediction-agent</td>
                 <td><span class="kb-chip">🧠 활성</span></td>
                 <td><b>9건</b> <span style="color:#e67e22;font-size:11px">· 1건 승인 대기</span></td>
                 <td>1,204,500</td><td>1536</td><td>IVF_FLAT</td><td>2026-05-18</td>
                 <td><span class="status-pill sp-active">활성</span></td>
               </tr>
               <tr>
-                <td><code>code_review_db</code></td>
-                <td>code-review-agent</td>
+                <td><code>design_verify_db</code></td>
+                <td>design-verify-agent</td>
                 <td><span class="kb-chip off">미설정</span></td>
                 <td><span style="color:#ccc">—</span></td>
                 <td>318,200</td><td>768</td><td>HNSW</td><td>2026-05-15</td>
                 <td><span class="status-pill sp-active">활성</span></td>
               </tr>
               <tr>
-                <td><code>hr_policy_2026</code></td>
-                <td>hr-guide-agent</td>
+                <td><code>patent_search_db</code></td>
+                <td>patent-search-agent</td>
                 <td><span class="kb-chip off">미설정</span></td>
                 <td><span style="color:#ccc">—</span></td>
                 <td>54,100</td><td>1536</td><td>FLAT</td><td>2026-05-12</td>
@@ -1794,14 +1838,14 @@ tbody tr:hover td { background: #f8f9ff; }
       <!-- 구독 Agent별 카드 -->
       <div style="font-size:13px;font-weight:700;color:#12132a;margin-bottom:14px">구독 중인 Agent</div>
 
-      <!-- Agent 1: 법무 계약 검토 -->
+      <!-- Agent 1: 공정 불량 분석 -->
       <div class="sub-agent-card">
         <div class="sac-head">
-          <div class="sac-icon" style="background:#e8eeff">⚖️</div>
+          <div class="sac-icon" style="background:#fff0e8">🔬</div>
           <div>
-            <div class="sac-name">법무 계약 검토 Agent</div>
+            <div class="sac-name">공정 불량 분석 Agent</div>
             <div class="sac-meta">
-              <span>🏢 법무팀 · 김법무</span>
+              <span>🏢 공정개발팀 · 이공정</span>
               <span>📅 구독일: 2026-04-15</span>
               <span class="a2a-chip" style="font-size:11px;padding:2px 8px">A2A 지원</span>
             </div>
@@ -1854,7 +1898,7 @@ tbody tr:hover td { background: #f8f9ff; }
 
         <!-- 액션 푸터 -->
         <div class="sac-foot">
-          <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">legal_contracts_v2</code></div>
+          <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">process_defect_corpus</code></div>
           <div style="margin-left:auto;display:flex;gap:8px">
             <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
             <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
@@ -1862,14 +1906,14 @@ tbody tr:hover td { background: #f8f9ff; }
         </div>
       </div>
 
-      <!-- Agent 2: 문서 요약 -->
+      <!-- Agent 2: 수율 예측 -->
       <div class="sub-agent-card">
         <div class="sac-head">
-          <div class="sac-icon" style="background:#e6faf0">📄</div>
+          <div class="sac-icon" style="background:#eef6ff">📈</div>
           <div>
-            <div class="sac-name">문서 요약 Agent</div>
+            <div class="sac-name">수율 예측 Agent</div>
             <div class="sac-meta">
-              <span>🏢 IT추진팀 · 박개발</span>
+              <span>🏢 수율혁신팀 · 김수율</span>
               <span>📅 구독일: 2026-05-01</span>
             </div>
           </div>
@@ -1919,7 +1963,7 @@ tbody tr:hover td { background: #f8f9ff; }
         </div>
 
         <div class="sac-foot">
-          <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">doc_summary_corpus</code></div>
+          <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">yield_prediction_corpus</code></div>
           <div style="margin-left:auto;display:flex;gap:8px">
             <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
             <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
@@ -1960,8 +2004,8 @@ tbody tr:hover td { background: #f8f9ff; }
             <label>Agent 선택 <span class="req">*</span></label>
             <select id="uploadAgentSelect" onchange="onAgentSelect(this.value)">
               <option value="">— 구독 중인 Agent 선택 —</option>
-              <option value="legal">⚖️ 법무 계약 검토 Agent</option>
-              <option value="doc">📄 문서 요약 Agent</option>
+              <option value="process">🔬 공정 불량 분석 Agent</option>
+              <option value="yield">📈 수율 예측 Agent</option>
             </select>
           </div>
           <div class="fg">
@@ -2072,7 +2116,7 @@ tbody tr:hover td { background: #f8f9ff; }
               <!-- ① 등록 완료 -->
               <tr>
                 <td>📄 <b>NDA_계약서_v3.pdf</b></td>
-                <td>⚖️ 법무 계약 검토</td>
+                <td>🔬 공정 불량 분석</td>
                 <td>2026-05-18</td>
                 <td>2.3 MB</td>
                 <td>
@@ -2088,13 +2132,13 @@ tbody tr:hover td { background: #f8f9ff; }
                     <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">VectorDB</span></div>
                   </div>
                 </td>
-                <td><code style="font-size:11px;color:#4a6cff">legal_contracts_v2</code></td>
+                <td><code style="font-size:11px;color:#4a6cff">process_defect_corpus</code></td>
                 <td><span class="badge badge-green" style="font-size:11px">등록 완료</span></td>
               </tr>
               <!-- ② DAG 실행 / 임베딩 중 -->
               <tr>
                 <td>📄 <b>계약서_초안_2026.docx</b></td>
-                <td>⚖️ 법무 계약 검토</td>
+                <td>🔬 공정 불량 분석</td>
                 <td>2026-05-19</td>
                 <td>1.1 MB</td>
                 <td>
@@ -2116,7 +2160,7 @@ tbody tr:hover td { background: #f8f9ff; }
               <!-- ③ 승인 대기 -->
               <tr>
                 <td>📄 <b>연간보고서_2025.pdf</b></td>
-                <td>📄 문서 요약</td>
+                <td>📈 수율 예측</td>
                 <td>2026-05-20</td>
                 <td>8.7 MB</td>
                 <td>
@@ -2138,7 +2182,7 @@ tbody tr:hover td { background: #f8f9ff; }
               <!-- ④ 반려 -->
               <tr>
                 <td>📄 <b>내부규정_인사편람.pdf</b></td>
-                <td>📄 문서 요약</td>
+                <td>📈 수율 예측</td>
                 <td>2026-05-20</td>
                 <td>4.2 MB</td>
                 <td>
@@ -2179,10 +2223,10 @@ tbody tr:hover td { background: #f8f9ff; }
         <!-- Agent 1 -->
         <div class="stat-card" style="border-left:4px solid #4a6cff">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="font-size:20px">⚖️</span>
+            <span style="font-size:20px">🔬</span>
             <div>
-              <div style="font-size:13px;font-weight:800;color:#12132a">legal-review-agent</div>
-              <div class="col-chip" style="margin-top:3px">legal_contracts_v2</div>
+              <div style="font-size:13px;font-weight:800;color:#12132a">process-defect-agent</div>
+              <div class="col-chip" style="margin-top:3px">process_defect_corpus</div>
             </div>
           </div>
           <div style="display:flex;gap:16px">
@@ -2195,10 +2239,10 @@ tbody tr:hover td { background: #f8f9ff; }
         <!-- Agent 2 -->
         <div class="stat-card" style="border-left:4px solid #27ae60">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="font-size:20px">📄</span>
+            <span style="font-size:20px">📈</span>
             <div>
-              <div style="font-size:13px;font-weight:800;color:#12132a">doc-summary-agent</div>
-              <div class="col-chip" style="margin-top:3px">doc_summary_corpus</div>
+              <div style="font-size:13px;font-weight:800;color:#12132a">yield-prediction-agent</div>
+              <div class="col-chip" style="margin-top:3px">yield_prediction_corpus</div>
             </div>
           </div>
           <div style="display:flex;gap:16px">
@@ -2229,11 +2273,11 @@ tbody tr:hover td { background: #f8f9ff; }
               전체 <span class="af-count af-pend">2</span>
             </div>
             <div class="af-tab" data-agent="legal" onclick="filterDocByAgent(this,'legal')">
-              ⚖️ legal-review-agent
+              🔬 process-defect-agent
               <span class="af-count af-pend">1</span>
             </div>
             <div class="af-tab" data-agent="doc-summary" onclick="filterDocByAgent(this,'doc-summary')">
-              📄 doc-summary-agent
+              📈 yield-prediction-agent
               <span class="af-count af-pend">1</span>
             </div>
           </div>
@@ -2269,14 +2313,14 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tr data-agent="doc-summary">
                   <td>📄 <b>연간보고서_2025.pdf</b></td>
                   <td>홍길동</td>
-                  <td><span style="font-size:12px">📄 doc-summary-agent</span></td>
-                  <td><span class="col-chip">doc_summary_corpus</span></td>
+                  <td><span style="font-size:12px">📈 yield-prediction-agent</span></td>
+                  <td><span class="col-chip">yield_prediction_corpus</span></td>
                   <td><code style="font-size:11px;color:#6a7090">general_embedding_dag</code></td>
                   <td>8.7 MB</td>
                   <td>2026-05-20</td>
                   <td>
                     <span class="req-body-preview" onclick="showReqBody(this)"
-                      data-body='{"collection_name":"doc_summary_corpus","chunk_size":512,"chunk_overlap":64,"embed_model":"text-embedding-3-large","metadata":{"source":"agentMarket","doc_type":"report"}}'>
+                      data-body='{"collection_name":"yield_prediction_corpus","chunk_size":512,"chunk_overlap":64,"embed_model":"text-embedding-3-large","metadata":{"source":"agentMarket","doc_type":"report"}}'>
                       {"collection_name":"doc_s... <span style="color:#4a6cff;font-size:11px">더보기</span>
                     </span>
                   </td>
@@ -2290,14 +2334,14 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tr data-agent="legal">
                   <td>📄 <b>회의록_05월_전략.docx</b></td>
                   <td>이수진</td>
-                  <td><span style="font-size:12px">⚖️ legal-review-agent</span></td>
-                  <td><span class="col-chip">legal_contracts_v2</span></td>
+                  <td><span style="font-size:12px">🔬 process-defect-agent</span></td>
+                  <td><span class="col-chip">process_defect_corpus</span></td>
                   <td><code style="font-size:11px;color:#6a7090">legal_doc_embedding_dag</code></td>
                   <td>0.9 MB</td>
                   <td>2026-05-20</td>
                   <td>
                     <span class="req-body-preview" onclick="showReqBody(this)"
-                      data-body='{"collection_name":"legal_contracts_v2","chunk_size":256,"chunk_overlap":32,"embed_model":"text-embedding-3-large","metadata":{"source":"agentMarket","doc_type":"meeting_minutes"}}'>
+                      data-body='{"collection_name":"process_defect_corpus","chunk_size":256,"chunk_overlap":32,"embed_model":"text-embedding-3-large","metadata":{"source":"agentMarket","doc_type":"meeting_minutes"}}'>
                       {"collection_name":"legal... <span style="color:#4a6cff;font-size:11px">더보기</span>
                     </span>
                   </td>
@@ -2327,38 +2371,38 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tr data-agent="legal">
                   <td>📄 NDA_계약서_v3.pdf</td>
                   <td>홍길동</td>
-                  <td>⚖️ legal-review-agent</td>
-                  <td><span class="col-chip">legal_contracts_v2</span></td>
+                  <td>🔬 process-defect-agent</td>
+                  <td><span class="col-chip">process_defect_corpus</span></td>
                   <td>2.3 MB</td><td>2026-05-18</td>
                   <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
-                  <td>김법무</td>
+                  <td>이공정</td>
                 </tr>
                 <tr data-agent="legal">
                   <td>📄 계약서_초안_2026.docx</td>
                   <td>박민준</td>
-                  <td>⚖️ legal-review-agent</td>
-                  <td><span class="col-chip">legal_contracts_v2</span></td>
+                  <td>🔬 process-defect-agent</td>
+                  <td><span class="col-chip">process_defect_corpus</span></td>
                   <td>1.1 MB</td><td>2026-05-19</td>
                   <td><span class="status-pill sp-approved">승인 · 임베딩 중</span></td>
-                  <td>김법무</td>
+                  <td>이공정</td>
                 </tr>
                 <tr data-agent="doc-summary">
                   <td>📄 내부규정_인사편람.pdf</td>
                   <td>최지수</td>
-                  <td>📄 doc-summary-agent</td>
-                  <td><span class="col-chip">doc_summary_corpus</span></td>
+                  <td>📈 yield-prediction-agent</td>
+                  <td><span class="col-chip">yield_prediction_corpus</span></td>
                   <td>4.2 MB</td><td>2026-05-19</td>
                   <td><span class="status-pill sp-rejected">반려 — 형식 부적합</span></td>
-                  <td>박개발</td>
+                  <td>김수율</td>
                 </tr>
                 <tr data-agent="doc-summary">
                   <td>📄 분기실적보고서_Q1.pdf</td>
                   <td>강민서</td>
-                  <td>📄 doc-summary-agent</td>
-                  <td><span class="col-chip">doc_summary_corpus</span></td>
+                  <td>📈 yield-prediction-agent</td>
+                  <td><span class="col-chip">yield_prediction_corpus</span></td>
                   <td>3.6 MB</td><td>2026-05-17</td>
                   <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
-                  <td>박개발</td>
+                  <td>김수율</td>
                 </tr>
               </tbody>
             </table>
@@ -2436,7 +2480,7 @@ tbody tr:hover td { background: #f8f9ff; }
               </thead>
               <tbody>
                 <tr>
-                  <td><b>legal-review-agent</b></td>
+                  <td><b>process-defect-agent</b></td>
                   <td><span class="status-pill sp-active">활성</span></td>
                   <td><b>1,284</b></td>
                   <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill" style="width:100%"></div></div><span class="usage-lbl">2.1M</span></div></td>
@@ -2444,7 +2488,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td><span class="badge badge-green">발급 완료</span></td>
                 </tr>
                 <tr>
-                  <td><b>doc-summary-agent</b></td>
+                  <td><b>yield-prediction-agent</b></td>
                   <td><span class="status-pill sp-active">활성</span></td>
                   <td><b>843</b></td>
                   <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill green" style="width:52%"></div></div><span class="usage-lbl">1.1M</span></div></td>
@@ -2452,7 +2496,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td><span class="badge badge-green">발급 완료</span></td>
                 </tr>
                 <tr>
-                  <td><b>code-review-agent</b></td>
+                  <td><b>design-verify-agent</b></td>
                   <td><span class="status-pill sp-active">활성</span></td>
                   <td><b>562</b></td>
                   <td><div class="usage-bar-wrap"><div class="usage-bar"><div class="usage-fill" style="width:34%"></div></div><span class="usage-lbl">0.7M</span></div></td>
@@ -2460,7 +2504,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td><span class="badge badge-green">발급 완료</span></td>
                 </tr>
                 <tr>
-                  <td><b>hr-guide-agent</b></td>
+                  <td><b>patent-search-agent</b></td>
                   <td><span class="status-pill sp-pending">검토 중</span></td>
                   <td><span style="color:#ccc">—</span></td>
                   <td><span style="color:#ccc">—</span></td>
@@ -2525,21 +2569,21 @@ tbody tr:hover td { background: #f8f9ff; }
                 </thead>
                 <tbody>
                   <tr>
-                    <td><b>legal-review-agent</b></td>
-                    <td><span class="badge badge-blue">법무·계약</span></td>
+                    <td><b>process-defect-agent</b></td>
+                    <td><span class="badge badge-blue">공정 분석</span></td>
                     <td>✅</td><td>✅</td>
                     <td><span class="status-pill sp-active">승인 완료</span></td>
                     <td><span class="val-badge vb-none">미검증</span></td>
                     <td><b>—</b></td><td><span style="color:#ccc">—</span></td><td><span style="color:#ccc">—</span></td>
                     <td>2026-05-10</td>
                     <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
-                      <button class="btn btn-primary btn-xs" onclick="openValidation('legal-review-agent',true)">🔍 검증 시작</button>
+                      <button class="btn btn-primary btn-xs" onclick="openValidation('process-defect-agent',true,'framework')">🔍 검증 시작</button>
                       <button class="btn btn-ghost btn-xs">상세</button>
                     </td>
                   </tr>
                   <tr>
-                    <td><b>doc-summary-agent</b></td>
-                    <td><span class="badge badge-green">문서 요약</span></td>
+                    <td><b>yield-prediction-agent</b></td>
+                    <td><span class="badge badge-green">수율·품질</span></td>
                     <td>✅</td><td>—</td>
                     <td><span class="status-pill sp-active">승인 완료</span></td>
                     <td><span class="val-badge vb-pass">✅ 검증 완료</span></td>
@@ -2548,13 +2592,13 @@ tbody tr:hover td { background: #f8f9ff; }
                     <td><span class="speed-badge" style="color:#27ae60"><span class="speed-dot" style="background:#27ae60"></span> 0.9s</span></td>
                     <td>2026-05-01</td>
                     <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
-                      <button class="btn btn-ghost btn-xs" onclick="openValidation('doc-summary-agent',false)">재검증</button>
+                      <button class="btn btn-ghost btn-xs" onclick="openValidation('yield-prediction-agent',false,'builder')">재검증</button>
                       <button class="btn btn-ghost btn-xs">상세</button>
                     </td>
                   </tr>
                   <tr>
-                    <td><b>contract-draft-agent</b></td>
-                    <td><span class="badge badge-blue">법무·계약</span></td>
+                    <td><b>design-verify-agent</b></td>
+                    <td><span class="badge badge-blue">설계 검증</span></td>
                     <td>✅</td><td>✅</td>
                     <td><span class="status-pill sp-pending">검토 중</span></td>
                     <td><span class="val-badge vb-none" style="opacity:.45">—</span></td>
@@ -2566,8 +2610,8 @@ tbody tr:hover td { background: #f8f9ff; }
                     </td>
                   </tr>
                   <tr>
-                    <td><b>clause-extractor-agent</b></td>
-                    <td><span class="badge badge-blue">법무·계약</span></td>
+                    <td><b>equipment-anomaly-agent</b></td>
+                    <td><span class="badge badge-blue">장비 모니터링</span></td>
                     <td>—</td><td>—</td>
                     <td><span class="status-pill sp-rejected">반려</span></td>
                     <td><span class="val-badge vb-none" style="opacity:.45">—</span></td>
@@ -2587,12 +2631,12 @@ tbody tr:hover td { background: #f8f9ff; }
               <div style="font-size:13px;font-weight:700;color:#6a7090;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px">구독자 수</div>
               <div style="display:flex;flex-direction:column;gap:12px">
                 <div class="usage-bar-wrap">
-                  <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">⚖️ legal-review</div>
+                  <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">🔬 process-defect</div>
                   <div class="usage-bar" style="height:10px"><div class="usage-fill" style="width:100%"></div></div>
                   <span class="usage-lbl">1,284명</span>
                 </div>
                 <div class="usage-bar-wrap">
-                  <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">📄 doc-summary</div>
+                  <div style="min-width:160px;font-size:13px;font-weight:700;color:#12132a">📈 yield-prediction</div>
                   <div class="usage-bar" style="height:10px"><div class="usage-fill" style="width:44%"></div></div>
                   <span class="usage-lbl">563명</span>
                 </div>
@@ -2604,8 +2648,8 @@ tbody tr:hover td { background: #f8f9ff; }
                 <table>
                   <thead><tr><th>Agent</th><th>평균</th><th>최소</th><th>최대</th><th>P95</th><th>상태</th></tr></thead>
                   <tbody>
-                    <tr><td><b>legal-review-agent</b></td><td><b>1.2s</b></td><td>0.6s</td><td>4.1s</td><td>2.8s</td><td><span class="status-pill sp-active">양호</span></td></tr>
-                    <tr><td><b>doc-summary-agent</b></td><td><b>0.9s</b></td><td>0.4s</td><td>2.2s</td><td>1.6s</td><td><span class="status-pill sp-active">양호</span></td></tr>
+                    <tr><td><b>process-defect-agent</b></td><td><b>1.2s</b></td><td>0.6s</td><td>4.1s</td><td>2.8s</td><td><span class="status-pill sp-active">양호</span></td></tr>
+                    <tr><td><b>yield-prediction-agent</b></td><td><b>0.9s</b></td><td>0.4s</td><td>2.2s</td><td>1.6s</td><td><span class="status-pill sp-active">양호</span></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -2643,11 +2687,11 @@ tbody tr:hover td { background: #f8f9ff; }
 
         <div class="sub-agent-card">
           <div class="sac-head">
-            <div class="sac-icon" style="background:#e8eeff">⚖️</div>
+            <div class="sac-icon" style="background:#fff0e8">🔬</div>
             <div>
-              <div class="sac-name">법무 계약 검토 Agent</div>
+              <div class="sac-name">공정 불량 분석 Agent</div>
               <div class="sac-meta">
-                <span>🏢 법무팀 · 김법무</span>
+                <span>🏢 공정개발팀 · 이공정</span>
                 <span>📅 구독일: 2026-04-15</span>
                 <span class="a2a-chip" style="font-size:11px;padding:2px 8px">A2A 지원</span>
               </div>
@@ -2672,7 +2716,7 @@ tbody tr:hover td { background: #f8f9ff; }
             </div>
           </div>
           <div class="sac-foot">
-            <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">legal_contracts_v2</code></div>
+            <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">process_defect_corpus</code></div>
             <div style="margin-left:auto;display:flex;gap:8px">
               <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
               <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
@@ -2682,11 +2726,11 @@ tbody tr:hover td { background: #f8f9ff; }
 
         <div class="sub-agent-card">
           <div class="sac-head">
-            <div class="sac-icon" style="background:#e6faf0">📄</div>
+            <div class="sac-icon" style="background:#eef6ff">📈</div>
             <div>
-              <div class="sac-name">문서 요약 Agent</div>
+              <div class="sac-name">수율 예측 Agent</div>
               <div class="sac-meta">
-                <span>🏢 IT추진팀 · 박개발</span>
+                <span>🏢 수율혁신팀 · 김수율</span>
                 <span>📅 구독일: 2026-05-01</span>
               </div>
             </div>
@@ -2710,7 +2754,7 @@ tbody tr:hover td { background: #f8f9ff; }
             </div>
           </div>
           <div class="sac-foot">
-            <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">doc_summary_corpus</code></div>
+            <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">yield_prediction_corpus</code></div>
             <div style="margin-left:auto;display:flex;gap:8px">
               <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
               <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
@@ -2773,12 +2817,108 @@ tbody tr:hover td { background: #f8f9ff; }
   </div>
 </div>
 
+<!-- ═══════════════════════════════ Kong 토큰 발급 모달 (Admin) ═══════════════════════════════ -->
+<div class="modal-overlay" id="kongTokenModal">
+  <div class="kong-modal-box">
+    <button class="modal-close" onclick="closeKongModal()">✕</button>
+    <div class="modal-title">🔑 Kong Access Token 발급</div>
+    <div class="modal-subtitle" id="kongModalSub">Framework Agent에 Kong Access Token을 발급합니다</div>
+
+    <div style="background:#f5f7ff;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:12.5px;color:#5a6288;line-height:1.7">
+      <b style="color:#12132a">발급 대상</b><br>
+      Agent: <b id="kongAgentName" style="color:#4a6cff;font-family:monospace">—</b><br>
+      담당자: <b id="kongDeveloper">—</b><br>
+      타입: <span class="badge" style="background:#e8f4ff;color:#2471a3;font-size:11px">⚙️ Framework</span>
+    </div>
+
+    <!-- 발급 전 -->
+    <div id="kong-before-issue">
+      <div style="font-size:12.5px;color:#5a6288;margin-bottom:16px">
+        아래 버튼을 클릭하면 Kong Manager에서 Service/Route가 생성되고 Access Token이 발급됩니다.<br>
+        발급된 토큰은 <b>Developer에게 이메일로 자동 전송</b>됩니다.
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button class="btn btn-secondary" onclick="closeKongModal()">취소</button>
+        <button class="btn btn-primary" onclick="issueKongToken()">🔑 토큰 발급</button>
+      </div>
+    </div>
+
+    <!-- 발급 후 -->
+    <div id="kong-after-issue" style="display:none">
+      <div style="background:#e6faf0;border:1.5px solid #b0ebd0;border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">✅</span>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:#1a7a44">토큰 발급 완료</div>
+          <div style="font-size:12px;color:#27ae60;margin-top:2px">Developer 이메일로 자동 발송되었습니다.</div>
+        </div>
+      </div>
+      <div style="font-size:12.5px;font-weight:700;color:#3a4466;margin-bottom:8px">발급된 Kong Access Token</div>
+      <div style="background:#12132a;border-radius:10px;padding:14px 16px;margin-bottom:8px;position:relative">
+        <div id="kongIssuedToken" style="font-family:monospace;font-size:12px;color:#a8f0b8;word-break:break-all"></div>
+        <button onclick="this.textContent='복사됨 ✓'" style="position:absolute;top:10px;right:12px;background:#2a3050;color:#7c9fff;border:1px solid #3a4080;border-radius:6px;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">복사</button>
+      </div>
+      <div style="font-size:11.5px;color:#9aa3c0;margin-bottom:20px">이 토큰은 한 번만 표시됩니다. Developer는 토큰을 Agent에 적용 후 Validation을 진행합니다.</div>
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn btn-primary" onclick="closeKongModal()">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════ Validation 모달 ═══════════════════════════════ -->
 <div class="modal-overlay" id="valModal">
-  <div class="modal-box">
+  <div class="modal-box" style="width:600px">
     <button class="modal-close" onclick="closeValidation()">✕</button>
     <div class="modal-title" id="valModalTitle">Validation</div>
-    <div class="modal-subtitle" id="valModalSub">Agent 서버 연결 및 인증 검증을 단계별로 수행합니다</div>
+    <div class="modal-subtitle" id="valModalSub">엔드포인트와 Agent 타입을 입력한 후 검증을 진행합니다</div>
+
+    <!-- ── Phase 0: 사전 입력 ── -->
+    <div id="val-phase-setup">
+      <div class="vps-section-title">① Ingress Endpoint</div>
+      <div class="vps-field">
+        <label>Ingress Endpoint <span style="color:#e74c3c">*</span></label>
+        <input type="text" id="valEndpointInput" placeholder="예: https://agent.internal/process-defect/health">
+      </div>
+
+      <div class="vps-section-title" style="margin-top:4px">② Agent Type</div>
+      <div class="agent-type-selector" id="valAgentTypeSel" style="margin-bottom:18px">
+        <div class="atype-option selected" id="vtypeBuilder" onclick="selectValType('builder', this)">
+          <div class="atype-label">🧱 Builder</div>
+          <div class="atype-desc">승인 즉시 Validation 진행</div>
+        </div>
+        <div class="atype-option" id="vtypeFramework" onclick="selectValType('framework', this)">
+          <div class="atype-label">⚙️ Framework</div>
+          <div class="atype-desc">Kong Access Token 적용 후 Validation</div>
+        </div>
+      </div>
+
+      <!-- Framework 전용: 토큰 입력 -->
+      <div id="val-token-section" style="display:none">
+        <div class="vps-section-title">③ Kong Access Token</div>
+        <div class="val-token-wait">
+          <span style="font-size:18px;flex-shrink:0">⏳</span>
+          <div>
+            <div class="vtw-title">Admin의 Kong Access Token 발급을 기다리는 중</div>
+            <div class="vtw-desc">Admin이 토큰을 발급하면 이메일로 전달됩니다. 수령 후 아래에 입력하세요.</div>
+          </div>
+        </div>
+        <div class="vps-field">
+          <label>Kong Access Token (수령 후 입력)</label>
+          <input type="text" id="valKongToken" placeholder="kong_access_token_...">
+        </div>
+        <div style="background:#f5f7ff;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#5a6288;line-height:1.7">
+          수령한 토큰을 Agent 서버 환경변수 <code style="background:#eaeefc;padding:1px 5px;border-radius:4px">KONG_ACCESS_TOKEN</code>에 설정하고
+          <code style="background:#eaeefc;padding:1px 5px;border-radius:4px">kubectl rollout restart</code> 후 아래 검증을 진행하세요.
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn btn-primary" id="valProceedBtn" onclick="proceedToValidation()">검증 진행 →</button>
+      </div>
+    </div>
+
+    <!-- ── Phase 1: Validation 단계 ── -->
+    <div id="val-phase-steps" style="display:none">
 
     <!-- 진행률 바 -->
     <div class="val-progress"><div class="val-progress-fill" id="valProgressFill"></div></div>
@@ -2799,15 +2939,15 @@ tbody tr:hover td { background: #f8f9ff; }
         </div>
       </div>
 
-      <!-- Step 2: Gateway Key 검증 -->
+      <!-- Step 2: Kong Token / Skip -->
       <div class="val-step" id="vstep2">
         <div class="vs-header">
           <div class="vs-num">2</div>
-          <div class="vs-label">Gateway Key 검증</div>
+          <div class="vs-label" id="vstep2Label">Kong Access Token 인증</div>
           <div class="vs-status-icon" id="vicon2">○</div>
         </div>
         <div class="vs-detail" id="vdetail2">
-          <div>발급된 Key로 인증 헤더를 구성해 API 호출 권한을 확인합니다.</div>
+          <div id="vstep2Desc">발급된 Kong Access Token으로 인증 헤더를 구성해 API 호출 권한을 확인합니다.</div>
           <div class="vs-log" id="vlog2"></div>
         </div>
       </div>
@@ -2863,9 +3003,11 @@ tbody tr:hover td { background: #f8f9ff; }
 
     <!-- 버튼 -->
     <div style="display:flex;justify-content:flex-end;gap:10px">
-      <button class="btn btn-secondary" onclick="closeValidation()">닫기</button>
+      <button class="btn btn-secondary" onclick="backToSetup()">← 다시 설정</button>
       <button class="btn btn-primary" id="valStartBtn" onclick="runValidation()">검증 시작</button>
     </div>
+
+    </div><!-- /val-phase-steps -->
   </div>
 </div>
 
@@ -2879,7 +3021,7 @@ function toggleKnowledge(checked) {
 /* ─── Mock 계정 ─── */
 const ACCOUNTS = {
   'admin@sky.com': { password: '1234', name: '관리자', role: 'admin' },
-  'dev@sky.com':   { password: '1234', name: '박개발', role: 'dev'   },
+  'dev@sky.com':   { password: '1234', name: '이공정', role: 'dev'   },
   'user@sky.com':  { password: '1234', name: '홍길동', role: 'user'  },
 };
 const AVATAR_ICON  = { user: '👤', dev: '💻', admin: '🛡️' };
@@ -2957,26 +3099,9 @@ function updateUserChip() {
   document.getElementById('chipRole').textContent = ROLE_LABELS[role] || role;
 }
 
-function sidebarTab(tab) {
-  ['my', 'developer', 'admin'].forEach(t => {
-    const header = document.getElementById('st-' + t);
-    const body   = document.getElementById('stnav-' + t);
-    const isTarget = t === tab;
-    const isOpen   = body.classList.contains('open');
-    // 클릭한 탭이 이미 열려 있으면 닫고, 아니면 열기 (나머지는 닫기)
-    const shouldOpen = isTarget && !isOpen;
-    header.classList.toggle('open', shouldOpen);
-    body.classList.toggle('open', shouldOpen);
-  });
-}
+function sidebarTab(tab) {}
 
-function openSidebarTab(tab) {
-  ['my', 'developer', 'admin'].forEach(t => {
-    const open = t === tab;
-    document.getElementById('st-' + t).classList.toggle('open', open);
-    document.getElementById('stnav-' + t).classList.toggle('open', open);
-  });
-}
+function openSidebarTab(tab) {}
 
 function switchRole(role) {
   const tabMap = { user: 'my', dev: 'developer', admin: 'admin' };
@@ -3031,8 +3156,8 @@ document.querySelectorAll('.tog input').forEach(cb => {
 
 /* ─── 문서 업로드 ─── */
 const AGENT_COLLECTIONS = {
-  legal: 'legal_contracts_v2',
-  doc:   'doc_summary_corpus',
+  legal: 'process_defect_corpus',
+  doc:   'yield_prediction_corpus',
 };
 const AGENT_DAGS = {
   legal: 'legal_doc_embedding_dag',
@@ -3212,25 +3337,101 @@ function showReqBody(el) {
   document.getElementById('reqBodyModal').classList.add('open');
 }
 
+/* ─── Apply 폼 Agent Type 선택 ─── */
+let _applyAgentType = 'builder';
+function selectApplyAgentType(type, el) {
+  _applyAgentType = type;
+  document.querySelectorAll('#applyAgentTypeSel .atype-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('applyFrameworkNotice').style.display = type === 'framework' ? 'block' : 'none';
+}
+
+/* ─── Admin Kong 토큰 발급 ─── */
+let _kongAgentName = '', _kongDeveloper = '';
+function approveAgent(agentName, type, btn) {
+  const row = btn.closest('tr');
+  const statusCell = row.cells[row.cells.length - 2];
+  statusCell.innerHTML = '<span class="status-pill sp-active">승인 완료</span>';
+  if (type === 'framework') {
+    btn.closest('td').innerHTML =
+      '<button class="btn btn-primary btn-sm" onclick="openKongModal(\'' + agentName + '\', this)">🔑 Kong 토큰 발급</button>';
+  } else {
+    btn.closest('td').innerHTML = '<span style="font-size:12px;color:#27ae60;font-weight:600">✅ Validation 대기 중</span>';
+  }
+}
+function openKongModal(agentName, btn) {
+  _kongAgentName = agentName;
+  const row = btn ? btn.closest('tr') : null;
+  _kongDeveloper = row ? (row.cells[4] ? row.cells[4].textContent : '—') : '—';
+  document.getElementById('kongAgentName').textContent = agentName;
+  document.getElementById('kongDeveloper').textContent = _kongDeveloper;
+  document.getElementById('kong-before-issue').style.display = 'block';
+  document.getElementById('kong-after-issue').style.display = 'none';
+  document.getElementById('kongTokenModal').classList.add('open');
+}
+function closeKongModal() {
+  document.getElementById('kongTokenModal').classList.remove('open');
+}
+function issueKongToken() {
+  const token = 'kong_access_token_' + Math.random().toString(36).substr(2, 20) + '_' + _kongAgentName.replace(/-/g,'_');
+  document.getElementById('kongIssuedToken').textContent = token;
+  document.getElementById('kong-before-issue').style.display = 'none';
+  document.getElementById('kong-after-issue').style.display = 'block';
+}
+
 /* ─── Validation 모달 ─── */
 let _valA2A = true;
 let _valAgentName = '';
+let _valAgentType = 'builder';
 
-function openValidation(agentName, hasA2A) {
-  _valA2A = hasA2A;
-  _valAgentName = agentName;
-  document.getElementById('valModalTitle').textContent = 'Validation — ' + agentName;
-  document.getElementById('vEndpoint').textContent = 'https://hpp.internal/' + agentName + '/health';
+function selectValType(type, el) {
+  _valAgentType = type;
+  document.querySelectorAll('#valAgentTypeSel .atype-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('val-token-section').style.display = type === 'framework' ? 'block' : 'none';
+}
 
-  // Step 3 A2A 메시지
+function proceedToValidation() {
+  const endpoint = document.getElementById('valEndpointInput').value.trim();
+  if (!endpoint) {
+    alert('Ingress Endpoint를 입력하세요.');
+    document.getElementById('valEndpointInput').focus();
+    return;
+  }
+  if (_valAgentType === 'framework') {
+    const token = document.getElementById('valKongToken').value.trim();
+    if (!token) {
+      alert('Kong Access Token을 입력하세요.\nAdmin으로부터 토큰을 수령한 후 입력해 주세요.');
+      document.getElementById('valKongToken').focus();
+      return;
+    }
+  }
+  document.getElementById('vEndpoint').textContent = endpoint;
+  // Step 2: framework면 Kong Token 인증, builder면 Skip
+  const step2Label = document.getElementById('vstep2Label');
+  const step2Desc  = document.getElementById('vstep2Desc');
+  if (_valAgentType === 'framework') {
+    step2Label.textContent = 'Kong Access Token 인증';
+    step2Desc.textContent  = '발급된 Kong Access Token으로 인증 헤더를 구성해 API 호출 권한을 확인합니다.';
+  } else {
+    step2Label.textContent = 'Kong Token 인증 (Builder 타입 — 건너뜀)';
+    step2Desc.textContent  = 'Builder 타입은 Kong Access Token 없이 플랫폼 내부 인증으로 처리됩니다.';
+  }
+  // A2A 메시지
   const a2aMsg = document.getElementById('vdetail3msg');
-  if (!hasA2A) {
+  if (!_valA2A) {
     a2aMsg.innerHTML = '<span style="color:#9aa3c0">이 Agent는 A2A 연동이 비활성화되어 있어 해당 단계를 건너뜁니다.</span>';
   } else {
     a2aMsg.textContent = 'A2A Card와 스킬을 조회한 뒤, 테스트 값을 입력해 응답 여부를 확인합니다.';
   }
+  // Phase 전환
+  document.getElementById('val-phase-setup').style.display = 'none';
+  document.getElementById('val-phase-steps').style.display = 'block';
+}
 
-  // 초기화
+function backToSetup() {
+  document.getElementById('val-phase-setup').style.display = 'block';
+  document.getElementById('val-phase-steps').style.display = 'none';
   [1,2,3].forEach(n => {
     const el = document.getElementById('vstep' + n);
     el.className = 'val-step';
@@ -3239,12 +3440,10 @@ function openValidation(agentName, hasA2A) {
     document.getElementById('vlog' + n).innerHTML = '';
   });
   document.getElementById('valProgressFill').style.width = '0';
-  const result = document.getElementById('valResult');
-  result.className = 'val-result';
+  document.getElementById('valResult').className = 'val-result';
   document.getElementById('valStartBtn').disabled = false;
   document.getElementById('valStartBtn').textContent = '검증 시작';
-
-  // A2A 인터랙티브 영역 초기화
+  document.getElementById('valStartBtn').onclick = runValidation;
   document.getElementById('a2aCardArea').style.display = 'none';
   document.getElementById('a2aInputSection').style.display = 'none';
   document.getElementById('a2aTestResult').style.display = 'none';
@@ -3253,6 +3452,26 @@ function openValidation(agentName, hasA2A) {
   const testBtn = document.getElementById('a2aTestBtn');
   testBtn.disabled = false;
   testBtn.textContent = '호출 테스트 →';
+}
+
+function openValidation(agentName, hasA2A, agentType) {
+  _valA2A = hasA2A;
+  _valAgentName = agentName;
+  _valAgentType = agentType || 'builder';
+
+  document.getElementById('valModalTitle').textContent = 'Validation — ' + agentName;
+  document.getElementById('valModalSub').textContent   = '엔드포인트와 Agent 타입을 입력한 후 검증을 진행합니다';
+  document.getElementById('valEndpointInput').value = '';
+  document.getElementById('valKongToken').value = '';
+
+  // 타입 선택 초기화
+  document.querySelectorAll('#valAgentTypeSel .atype-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById(_valAgentType === 'framework' ? 'vtypeFramework' : 'vtypeBuilder').classList.add('selected');
+  document.getElementById('val-token-section').style.display = _valAgentType === 'framework' ? 'block' : 'none';
+
+  // Phase 초기화
+  document.getElementById('val-phase-setup').style.display = 'block';
+  document.getElementById('val-phase-steps').style.display = 'none';
 
   document.getElementById('valModal').classList.add('open');
 }
@@ -3298,18 +3517,28 @@ function runValidation() {
     setProgress(33);
   });
 
-  // ── Step 2: Gateway Key 검증 ──
+  // ── Step 2: Kong Token 인증 (framework) / Skip (builder) ──
   t(2000, () => {
     setStep(2, 'running');
     setProgress(38);
-    appendLog(2, '<span class="log-spin">→</span> Authorization 헤더 구성 중...<br>');
+    if (_valAgentType === 'builder') {
+      appendLog(2, '<span style="color:#9aa3c0">Builder 타입 — 플랫폼 내부 인증으로 처리됨 (Kong Token 불필요)</span>');
+    } else {
+      appendLog(2, '<span class="log-spin">→</span> Kong Access Token 헤더 구성 중...<br>');
+    }
   });
   t(3000, () => {
-    appendLog(2, '<span class="log-spin">→</span> Gateway 인증 서버 호출 중...<br>');
+    if (_valAgentType === 'builder') return;
+    appendLog(2, '<span class="log-spin">→</span> Kong Gateway 인증 서버 호출 중...<br>');
   });
   t(3900, () => {
-    appendLog(2, '<span class="log-ok">✓</span> Key 유효성 확인 완료<br>');
-    appendLog(2, '<span class="log-ok">✓</span> 권한 범위: read, invoke, stream<br>');
+    if (_valAgentType === 'builder') {
+      document.getElementById('vicon2').textContent = '—';
+      document.getElementById('vstep2').style.opacity = '0.5';
+    } else {
+      appendLog(2, '<span class="log-ok">✓</span> Kong Access Token 유효성 확인 완료<br>');
+      appendLog(2, '<span class="log-ok">✓</span> 권한 범위: read, invoke, stream<br>');
+    }
     setStep(2, 'pass');
     setProgress(66);
   });
@@ -3357,12 +3586,12 @@ function showResult() {
 /* ─── A2A 인터랙티브 검증 ─── */
 const A2A_SKILLS = [
   {
-    id: 'contract_review', name: '계약서 검토',
-    sample: '{\n  "contract_text": "본 계약은 갑과 을 간의 서비스 이용에 관한 사항을 정합니다. 제1조 (목적) 본 계약은..."\n}'
+    id: 'defect_classify', name: '불량 분류',
+    sample: '{\n  "wafer_id": "W2026-0512",\n  "defect_map": [[0,1,0],[1,0,1],[0,0,1]]\n}'
   },
   {
-    id: 'risk_analysis', name: '리스크 분석',
-    sample: '{\n  "document_text": "계약서 내 면책 조항 및 손해배상 조항에 대한 리스크를 분석합니다."\n}'
+    id: 'yield_forecast', name: '수율 예측',
+    sample: '{\n  "lot_id": "LOT-2026-0388",\n  "process_params": {"temp": 320, "pressure": 4.2, "time_sec": 180}\n}'
   },
 ];
 
