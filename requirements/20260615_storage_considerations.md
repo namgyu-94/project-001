@@ -93,87 +93,99 @@ Airflow 레벨 retry: retries=3, retry_delay=5min
 
 ---
 
-## Case 2 — Developer S3(MinIO) 사용
+## Case 2 — Developer S3(MinIO) 사용 (Backend Proxy 방식)
 
 ### 파일 흐름
 
 ```
-User 업로드 요청
-  → Platform Backend: Developer MinIO에 Presigned PUT URL 생성
-      (Agent 등록 시 입력된 minio_endpoint + AccessKey + SecretKey 사용)
-  → Frontend: Presigned PUT URL로 Developer MinIO에 직접 PUT
-  → 업로드 완료 신호 → 플랫폼 DB 메타데이터 기록 (doc_id, object_path)
+User 파일 선택
+  → Platform Backend (POST /documents/upload)   ← 동일 Origin, CORS 없음
+      Backend가 Developer MinIO에 스트리밍 PUT
+      (Agent 등록 시 저장된 minio_endpoint + K8s Secret 자격증명 사용)
+  → Backend 업로드 완료 확인 → DB 메타데이터 기록 (doc_id, object_path)
+  → PENDING_APPROVAL
   → Developer 승인 → Backend가 Airflow Trigger
       conf: { minio_endpoint, bucket, object_path, doc_id, callback_url }
   → DAG Pod: K8s Secret의 Developer MinIO 자격증명으로 직접 접근
   → 임베딩 → Milvus 등록 → 콜백
 ```
 
+**Presigned URL 불필요**: 브라우저가 Developer MinIO에 직접 접근하지 않으므로 PUT/GET 모두 서버 간 통신으로 처리.
+
 ---
 
 ### 고려사항
 
-#### 1. 업로드 완료 확인 — 프론트엔드 신뢰 문제
+#### 1. 플랫폼 Backend 대역폭 — 파일 경유 부하
 
 | 항목 | 내용 |
 |------|------|
-| 문제 | 브라우저가 Presigned PUT 완료 후 플랫폼에 신호를 안 보내면 메타데이터 미기록 |
-| 대응 | Frontend가 PUT 성공 후 `POST /documents/complete` 호출 (필수 단계) |
-| 추가 검증 | Backend가 MinIO HEAD Object로 파일 실제 존재 여부 확인 후 PENDING_APPROVAL 전환 |
+| 문제 | 모든 업로드 파일이 플랫폼 Backend를 경유 |
+| 대응 | **스트리밍 처리 필수** — 파일을 메모리에 버퍼링하지 않고 MinIO SDK `put_object(stream)` 으로 즉시 전달 |
+| 대용량 파일 | Multipart Upload 적용 (`part_size=10MB`) |
+| 파일 크기 제한 | 업로드 허용 최대 크기 정책 결정 필요 (예: 100MB) |
 
-#### 2. DAG 실행 전 Developer가 파일 삭제
+#### 2. Backend → Developer MinIO 업로드 실패
 
-| 항목 | 내용 |
-|------|------|
-| 원인 | Developer가 자신의 MinIO를 직접 관리하다가 실수로 파일 삭제 |
-| 결과 | DAG Pod에서 `NoSuchKey` 오류 → FAILED |
-| 대응 | 플랫폼은 복구 불가. User에게 재업로드 안내 |
-| 예방 | Agent 등록 문서에 "플랫폼 처리 완료 전 파일 삭제 금지" 명시 |
+| 원인 | 결과 | 대응 |
+|------|------|------|
+| Developer MinIO 네트워크 불가 | 업로드 실패 → User에게 오류 반환 | User 재시도 |
+| 자격증명 오류 (만료·변경) | 403 → 업로드 차단 | Developer가 Agent 설정에서 키 재입력 |
+| 버킷 미존재 | NoSuchBucket 오류 | Agent 등록 시 버킷 존재 여부 사전 검증 필요 |
 
-#### 3. Developer 자격증명 변경 (Key Rotation)
-
-| 항목 | 내용 |
-|------|------|
-| 문제 | Developer가 MinIO AccessKey를 교체하면 플랫폼이 보관 중인 키가 무효화 |
-| 영향 | Presigned URL 생성 실패 → 신규 업로드 불가 / DAG 실행 실패 |
-| 대응 | Agent 설정 화면에서 MinIO 자격증명 재입력 기능 제공 필요 |
-
-#### 4. 플랫폼이 Developer 자격증명 보관 — 보안 리스크
+#### 3. Developer 자격증명 관리
 
 | 항목 | 내용 |
 |------|------|
-| 리스크 | 플랫폼 DB/설정에 Developer MinIO 키가 저장 → 플랫폼 침해 시 Developer 스토리지 노출 |
-| 대응 | 자격증명은 K8s Secret으로만 저장, DB 암호화 |
-| 대안 | Developer가 Upload API를 직접 제공하는 방식 (Case B — 플랫폼이 키 미보유) 으로 전환 가능 |
+| 저장 위치 | K8s Secret — DB에는 Secret 이름만 참조 |
+| Key Rotation | Developer가 키 교체 시 Agent 설정 화면에서 재입력 필요 |
+| 보안 리스크 | 플랫폼이 Developer MinIO 키를 보관 → 플랫폼 침해 시 Developer 스토리지 노출 가능 |
+| 완화 방안 | 키를 암호화 저장, Agent별 최소 권한(해당 버킷 PUT만 허용) 정책 권고 |
+
+#### 4. DAG 실행 전 Developer가 파일 삭제
+
+| 항목 | 내용 |
+|------|------|
+| 원인 | Developer가 자신의 MinIO를 직접 관리하다 실수로 삭제 |
+| 결과 | DAG Pod `NoSuchKey` 오류 → FAILED |
+| 대응 | 플랫폼 복구 불가. User 재업로드 안내 |
+| 예방 | Agent 등록 가이드에 "플랫폼 처리 완료 전 파일 삭제 금지" 명시 |
 
 #### 5. DAG 실패 시 파일 보관 정책
 
 | 상태 | 파일 위치 | 플랫폼 개입 |
 |------|----------|-----------|
-| FAILED | Developer MinIO에 존재 | 플랫폼이 삭제 불가 (소유권 없음) |
+| FAILED | Developer MinIO에 존재 | 삭제 불가 (소유권 없음) |
 | REJECTED | Developer MinIO에 존재 | Developer가 직접 삭제 |
 | COMPLETED | Developer MinIO에 존재 | Developer 정책에 따름 |
 
 플랫폼은 파일 생명주기를 통제할 수 없으므로 **메타데이터 상태 관리만** 담당.
 
-#### 6. Presigned URL 만료 — PUT 실패
+#### 6. Agent 등록 시 사전 검증 항목
 
-- PUT용 Presigned URL을 발급하고 User가 대용량 파일을 업로드하는 중 만료
-- URL 유효시간: 업로드 예상 시간을 고려하여 **30~60분** 권장
-- 만료 시 Frontend에서 재발급 요청 후 재업로드 필요
+Developer가 Agent 등록 시 아래를 자동 검증하여 운영 오류 예방:
+
+```
+① MinIO 엔드포인트 접근 가능 여부 (ping)
+② AccessKey / SecretKey 유효성 (LIST Objects)
+③ 지정 버킷 존재 여부 (HEAD Bucket)
+④ 버킷 PUT 권한 존재 여부 (작은 테스트 파일 PUT 후 삭제)
+```
 
 ---
 
 ## Case 1 vs Case 2 비교 요약
 
-| 고려사항 | Case 1 (플랫폼 S3) | Case 2 (Developer S3) |
-|---------|------------------|----------------------|
-| Presigned URL 만료 | **Pod 실행 시점 재발급**으로 해결 | PUT URL은 길게 설정, GET은 K8s Secret 직접 접근으로 불필요 |
-| DAG 실패 시 파일 | 플랫폼이 보관·삭제 통제 가능 | Developer 스토리지라 플랫폼 개입 불가 |
-| 파일 무결성 | 플랫폼이 보장 | Developer가 파일 삭제 시 복구 불가 |
-| 자격증명 관리 | 플랫폼 MinIO 단일 키 (단순) | Developer별 키 보관 (복잡, 보안 리스크) |
-| 용량 관리 | 플랫폼이 책임 (lifecycle 정책 필요) | Developer 책임 |
-| 재시도 | 플랫폼이 전체 통제 | FAILED 후 User 재업로드 필요한 경우 발생 |
+| 고려사항 | Case 1 (플랫폼 S3) | Case 2 (Developer S3, Proxy) |
+|---------|------------------|------------------------------|
+| 브라우저 CORS | 없음 | **없음** (Backend 경유로 해결) |
+| Presigned URL | Pod 실행 시 재발급 or K8s Secret 직접 접근 | **불필요** (PUT·GET 모두 서버 간) |
+| 플랫폼 대역폭 부하 | 업로드 수신만 | **업로드 수신 + Developer MinIO 전달** |
+| DAG 실패 시 파일 | 플랫폼이 보관·삭제 통제 | Developer 스토리지라 플랫폼 개입 불가 |
+| 파일 무결성 | 플랫폼이 보장 | Developer 삭제 시 복구 불가 |
+| 자격증명 관리 | 플랫폼 MinIO 단일 키 (단순) | Developer별 키 보관 (K8s Secret) |
+| 용량 관리 | 플랫폼 책임 (lifecycle 정책 필요) | Developer 책임 |
+| 재시도 | 플랫폼 전체 통제 | FAILED 후 User 재업로드 필요 경우 있음 |
 | 멱등성 | `doc_id` 기준 중복 체크 필요 | 동일 |
 
 ---

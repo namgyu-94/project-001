@@ -254,6 +254,19 @@ tbody tr:hover td { background: #f8f9ff; }
 .modal-close:hover { color: #12132a; }
 .modal-title { font-size: 17px; font-weight: 800; color: #12132a; margin-bottom: 4px; }
 .modal-subtitle { font-size: 12.5px; color: #9aa3c0; margin-bottom: 28px; }
+/* Agent 상세 모달 */
+.agent-detail-box {
+  background:#fff; border-radius:18px; padding:32px 36px; width:760px; max-width:94vw;
+  box-shadow:0 20px 60px rgba(0,0,0,0.22); position:relative; max-height:90vh; overflow-y:auto;
+}
+.adm-section { margin-bottom:22px; }
+.adm-section-title { font-size:11px; font-weight:700; color:#9aa3c0; text-transform:uppercase; letter-spacing:0.9px; margin-bottom:12px; border-bottom:1.5px solid #f0f2fa; padding-bottom:7px; }
+.adm-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px 20px; }
+.adm-field { display:flex; flex-direction:column; gap:3px; }
+.adm-label { font-size:11px; font-weight:600; color:#9aa3c0; }
+.adm-value { font-size:13px; font-weight:600; color:#12132a; }
+.adm-value.mono { font-family:monospace; font-size:12px; color:#4a6cff; }
+.adm-kb-row { display:flex; align-items:center; gap:12px; padding:12px 14px; background:#f8faff; border-radius:10px; border:1.5px solid #e4e8f4; }
 
 /* 단계 카드 */
 .val-steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
@@ -650,6 +663,45 @@ tbody tr:hover td { background: #f8f9ff; }
   padding: 14px 16px; margin-top: 12px;
 }
 .dag-api-box code { font-family: monospace; font-size: 12px; color: #4a6cff; }
+/* DAG 목록 불러오기 UI */
+.dag-fetch-indicator { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #6a7090; padding: 7px 0 4px; }
+.dag-spinner { width: 14px; height: 14px; border: 2px solid #e4e8f4; border-top-color: #4a6cff; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+.dag-list-wrap { border: 1.5px solid #dce3f8; border-radius: 10px; overflow: hidden; background: #fff; max-height: 216px; overflow-y: auto; margin-top: 6px; }
+.dag-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #f0f3fb; cursor: pointer; transition: background 0.13s; }
+.dag-row:last-child { border-bottom: none; }
+.dag-row:hover { background: #f0f4ff; }
+.dag-row.dag-selected { background: #eaedff; }
+.dag-row-id { font-family: monospace; font-size: 12.5px; color: #2a4de8; font-weight: 700; flex: 1; }
+.dag-row-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.dag-row-tag { font-size: 10.5px; background: #f1f5fb; color: #5a6890; border-radius: 6px; padding: 1px 7px; }
+.dag-row-active { font-size: 10.5px; background: #e6f9ef; color: #15803d; border-radius: 8px; padding: 2px 8px; font-weight: 600; }
+.dag-row-paused { font-size: 10.5px; background: #fef3c7; color: #92400e; border-radius: 8px; padding: 2px 8px; font-weight: 600; }
+.dag-selected-chip { display: inline-flex; align-items: center; gap: 7px; background: #e8eeff; border: 1.5px solid #b3c0f8; border-radius: 8px; padding: 7px 14px; font-size: 12px; color: #2a4de8; font-family: monospace; font-weight: 700; margin-top: 8px; }
+/* DAG 아코디언 */
+.dag-acc-wrap { border: 1.5px solid #dce3f8; border-radius: 10px; overflow: hidden; background: #fff; margin-top: 8px; }
+.dag-acc-item { border-bottom: 1px solid #eef0fb; }
+.dag-acc-item:last-child { border-bottom: none; }
+.dag-acc-hd { display: flex; align-items: center; gap: 9px; padding: 11px 14px; cursor: pointer; transition: background 0.13s; user-select: none; }
+.dag-acc-hd:hover { background: #f5f7ff; }
+.dag-acc-hd.dag-selected { background: #eaedff; border-left: 3px solid #4a6cff; }
+.dag-acc-arrow { font-size: 10px; color: #b0b8d0; transition: transform 0.2s; width: 12px; flex-shrink: 0; }
+.dag-acc-arrow.open { transform: rotate(90deg); color: #4a6cff; }
+.dag-acc-body { display: none; padding: 12px 16px 14px 35px; background: #f8faff; border-top: 1px solid #eef0fb; }
+.dag-acc-body.open { display: block; }
+/* Airflow 인증 박스 */
+.airflow-auth-box { background: #f8faff; border: 1.5px solid #dce3f8; border-radius: 10px; padding: 14px 16px; }
+.airflow-auth-title { font-size: 12.5px; font-weight: 700; color: #4a6cff; margin-bottom: 12px; }
+.airflow-auth-note { font-size: 11.5px; color: #3d7a6e; background: #f0fbf8; border: 1px solid #b2dfdb; border-radius: 7px; padding: 8px 12px; line-height: 1.9; margin-top: 10px; }
+/* 문서 승인 — Airflow 연결 & 인라인 DAG 선택 */
+.ap-conn-box { background:#f8faff; border:1.5px solid #dce3f8; border-radius:10px; padding:12px 16px; margin-bottom:16px; }
+.ap-conn-title { font-size:12px; font-weight:700; color:#4a6cff; margin-bottom:10px; }
+.ap-conn-note { font-size:11.5px; color:#3d7a6e; background:#f0fbf8; border:1px solid #b2dfdb; border-radius:7px; padding:7px 12px; line-height:1.8; margin-top:8px; }
+.dag-cell-tag { display:inline-flex; align-items:center; gap:5px; font-family:monospace; font-size:11px; color:#6a7090; background:#f3f5fb; border:1px solid #e4e8f4; border-radius:6px; padding:3px 8px; }
+.dag-cell-tag.selectable { color:#4a6cff; background:#eef1ff; border-color:#c5cef8; cursor:pointer; }
+.dag-cell-tag.selectable:hover { background:#e0e5ff; }
+.dag-detail-tr td { padding:0 !important; background:#f8faff; }
+.dag-detail-inner { padding:12px 18px 14px; border-top:2px solid #e4e8f4; }
+.dag-detail-inner .dag-acc-wrap { margin-top:6px; max-height:196px; overflow-y:auto; }
 /* 플랫폼 S3 업로드 안내 */
 .platform-s3-badge {
   display: inline-flex; align-items: center; gap: 5px;
@@ -977,7 +1029,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
                     <button class="btn btn-primary btn-xs"
                       onclick="openValidation('process-defect-agent', true, 'framework')">🔍 검증 시작</button>
-                    <button class="btn btn-ghost btn-xs">상세</button>
+                    <button class="btn btn-ghost btn-xs" onclick="openAgentDetail('process-defect-agent')">상세</button>
                   </td>
                 </tr>
                 <tr>
@@ -1004,7 +1056,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
                     <button class="btn btn-ghost btn-xs"
                       onclick="openValidation('yield-prediction-agent', false, 'builder')">재검증</button>
-                    <button class="btn btn-ghost btn-xs">상세</button>
+                    <button class="btn btn-ghost btn-xs" onclick="openAgentDetail('yield-prediction-agent')">상세</button>
                   </td>
                 </tr>
                 <tr>
@@ -1021,7 +1073,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>2026-05-19</td>
                   <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
                     <button class="btn btn-ghost btn-xs" disabled style="opacity:.4">검증 시작</button>
-                    <button class="btn btn-ghost btn-xs">상세</button>
+                    <button class="btn btn-ghost btn-xs" onclick="openAgentDetail('design-verify-agent')">상세</button>
                   </td>
                 </tr>
                 <tr>
@@ -1038,6 +1090,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>2026-04-28</td>
                   <td style="display:flex;gap:5px;padding:13px 14px;flex-wrap:wrap">
                     <button class="btn btn-ghost btn-xs">반려 사유</button>
+                    <button class="btn btn-ghost btn-xs" onclick="openAgentDetail('equipment-anomaly-agent')">상세</button>
                     <button class="btn btn-primary btn-xs">재신청</button>
                   </td>
                 </tr>
@@ -1252,15 +1305,55 @@ tbody tr:hover td { background: #f8f9ff; }
           </div>
           <div id="knowledgeSettings" class="knowledge-section" style="display:none">
             <div class="form-grid">
-              <div class="fg">
-                <label>Airflow DAG ID <span class="req">*</span></label>
-                <input type="text" id="dagIdInput" placeholder="예: legal_doc_embedding_dag">
-                <div style="font-size:11.5px;color:#9aa3c0;margin-top:5px">사용자 문서 승인 시 플랫폼이 이 DAG을 자동으로 Trigger합니다.</div>
-              </div>
+
+              <!-- Airflow 연결 -->
               <div class="fg">
                 <label>Airflow Host URL <span class="req">*</span></label>
-                <input type="text" placeholder="예: https://airflow.internal" value="https://airflow.internal">
+                <input type="text" id="airflowHostInput" placeholder="https://airflow.internal"
+                  value="https://airflow.internal" style="font-family:monospace">
               </div>
+              <div class="fg">
+                <label>Airflow JWT Token <span class="req">*</span></label>
+                <div class="input-row">
+                  <input type="password" id="airflowJwt"
+                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    style="font-family:monospace;font-size:11.5px">
+                  <button class="btn btn-secondary btn-sm" type="button"
+                    onclick="toggleAirflowJwt()">SHOW</button>
+                </div>
+                <div style="font-size:11px;color:#9aa3c0;margin-top:4px">
+                  DAG 조회·Trigger 시 <code style="font-size:11px">Authorization: Bearer {token}</code> 헤더로 전달됩니다.
+                </div>
+              </div>
+              <div class="fg full" style="display:flex;align-items:flex-end">
+                <button class="btn btn-secondary btn-sm" type="button" id="fetchDagsBtn"
+                  onclick="fetchAirflowDags()">🔄 DAG 목록 불러오기</button>
+              </div>
+
+              <!-- DAG 선택 영역 (불러오기 후 표시) -->
+              <div class="fg full" id="dagPickerWrap" style="display:none">
+                <label>Airflow DAG 선택 <span class="req">*</span>
+                  <span style="font-size:11px;font-weight:400;color:#9aa3c0;margin-left:6px">— 계정 소유 DAG만 표시됩니다</span>
+                </label>
+
+                <!-- 로딩·결과 상태 -->
+                <div id="dagFetchStatus" class="dag-fetch-indicator" style="display:none">
+                  <div class="dag-spinner" id="dagSpinner" style="display:none"></div>
+                  <span id="dagStatusText"></span>
+                </div>
+
+                <!-- DAG 아코디언 목록 -->
+                <div id="dagListWrap" style="display:none"></div>
+
+                <!-- 선택된 DAG 칩 -->
+                <div id="dagSelectedChip" style="display:none">
+                  <div class="dag-selected-chip">
+                    ✅ 선택된 DAG:&nbsp;<span id="dagSelectedText"></span>
+                  </div>
+                </div>
+                <input type="hidden" id="dagIdInput" value="">
+              </div>
+
               <div class="fg full">
                 <div class="dag-api-box">
                   <div style="font-size:12.5px;font-weight:700;color:#12132a;margin-bottom:8px">📋 플랫폼 DAG 인터페이스 규격 (Pull 방식)</div>
@@ -2218,7 +2311,7 @@ tbody tr:hover td { background: #f8f9ff; }
       </div>
 
       <!-- Agent별 요약 카드 -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px">
 
         <!-- Agent 1 -->
         <div class="stat-card" style="border-left:4px solid #4a6cff">
@@ -2226,7 +2319,6 @@ tbody tr:hover td { background: #f8f9ff; }
             <span style="font-size:20px">🔬</span>
             <div>
               <div style="font-size:13px;font-weight:800;color:#12132a">process-defect-agent</div>
-              <div class="col-chip" style="margin-top:3px">process_defect_corpus</div>
             </div>
           </div>
           <div style="display:flex;gap:16px">
@@ -2242,7 +2334,6 @@ tbody tr:hover td { background: #f8f9ff; }
             <span style="font-size:20px">📈</span>
             <div>
               <div style="font-size:13px;font-weight:800;color:#12132a">yield-prediction-agent</div>
-              <div class="col-chip" style="margin-top:3px">yield_prediction_corpus</div>
             </div>
           </div>
           <div style="display:flex;gap:16px">
@@ -2252,25 +2343,42 @@ tbody tr:hover td { background: #f8f9ff; }
           </div>
         </div>
 
+        <!-- Agent 3 — Knowledge 미설정 -->
+        <div class="stat-card" style="border-left:4px solid #e67e22;background:#fffbf5">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:20px">🏗</span>
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#12132a">design-verify-agent</div>
+              <span style="font-size:10.5px;font-weight:700;color:#e67e22;background:#fef3e2;border:1px solid #f5c97a;border-radius:5px;padding:1px 6px;margin-top:3px;display:inline-block">⚠ Knowledge 미등록</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px">
+            <div><div style="font-size:20px;font-weight:800;color:#e67e22">1</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#27ae60">0</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#e74c3c">0</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
+          </div>
+        </div>
+
         <!-- 전체 합산 -->
         <div class="stat-card" style="background:#f7f8ff">
           <div style="font-size:12px;font-weight:700;color:#6a7090;margin-bottom:10px">전체 합산 (이번 달)</div>
           <div style="display:flex;gap:16px">
-            <div><div style="font-size:20px;font-weight:800;color:#e67e22">2</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#e67e22">3</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
             <div><div style="font-size:20px;font-weight:800;color:#27ae60">14</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
             <div><div style="font-size:20px;font-weight:800;color:#e74c3c">3</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
           </div>
-          <div style="font-size:11.5px;color:#9aa3c0;margin-top:8px">총 용량: 38.4 MB</div>
+          <div style="font-size:11.5px;color:#9aa3c0;margin-top:8px">총 용량: 43.8 MB</div>
         </div>
       </div>
 
       <div class="card">
+
         <!-- Agent 필터 탭 -->
         <div style="margin-bottom:4px">
           <div style="font-size:11px;font-weight:700;color:#9aa3c0;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px">Agent 선택</div>
           <div class="agent-filter-bar" id="agentFilterBar">
             <div class="af-tab active" data-agent="all" onclick="filterDocByAgent(this,'all')">
-              전체 <span class="af-count af-pend">2</span>
+              전체 <span class="af-count af-pend">3</span>
             </div>
             <div class="af-tab" data-agent="legal" onclick="filterDocByAgent(this,'legal')">
               🔬 process-defect-agent
@@ -2280,6 +2388,10 @@ tbody tr:hover td { background: #f8f9ff; }
               📈 yield-prediction-agent
               <span class="af-count af-pend">1</span>
             </div>
+            <div class="af-tab" data-agent="design-verify" onclick="filterDocByAgent(this,'design-verify')">
+              🏗 design-verify-agent
+              <span class="af-count af-pend" style="background:#e67e22">1</span>
+            </div>
           </div>
         </div>
 
@@ -2287,7 +2399,7 @@ tbody tr:hover td { background: #f8f9ff; }
         <div class="inner-tabs">
           <div class="inner-tab active" onclick="approveTab(this,'tab-pending')">
             ⏳ 승인 대기
-            <span style="background:#e67e22;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px" id="pendingCount">2</span>
+            <span style="background:#e67e22;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px" id="pendingCount">3</span>
           </div>
           <div class="inner-tab" onclick="approveTab(this,'tab-history')">📜 처리 내역</div>
         </div>
@@ -2301,7 +2413,6 @@ tbody tr:hover td { background: #f8f9ff; }
                   <th>파일명</th>
                   <th>업로드 사용자</th>
                   <th>Agent</th>
-                  <th>Collection</th>
                   <th>DAG</th>
                   <th>크기</th>
                   <th>업로드일</th>
@@ -2314,8 +2425,13 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>📄 <b>연간보고서_2025.pdf</b></td>
                   <td>홍길동</td>
                   <td><span style="font-size:12px">📈 yield-prediction-agent</span></td>
-                  <td><span class="col-chip">yield_prediction_corpus</span></td>
-                  <td><code style="font-size:11px;color:#6a7090">general_embedding_dag</code></td>
+                  <td>
+                    <span class="dag-cell-tag selectable" id="dag-tag-r0"
+                      onclick="toggleDagDetail('r0')">
+                      <span id="dag-label-r0">general_embedding_dag</span>
+                      <span style="font-size:10px;color:#7a8fd4">✏</span>
+                    </span>
+                  </td>
                   <td>8.7 MB</td>
                   <td>2026-05-20</td>
                   <td>
@@ -2331,12 +2447,28 @@ tbody tr:hover td { background: #f8f9ff; }
                     </div>
                   </td>
                 </tr>
+                <!-- DAG 선택 아코디언 — row 0 -->
+                <tr class="dag-detail-tr" id="dag-detail-r0" style="display:none">
+                  <td colspan="8">
+                    <div class="dag-detail-inner">
+                      <div style="font-size:12px;font-weight:700;color:#12132a;margin-bottom:8px">
+                        📋 DAG 선택 — <span style="font-weight:400;color:#6a7090">연간보고서_2025.pdf</span>
+                      </div>
+                      <div id="dag-acc-r0" class="dag-acc-wrap"></div>
+                    </div>
+                  </td>
+                </tr>
                 <tr data-agent="legal">
                   <td>📄 <b>회의록_05월_전략.docx</b></td>
                   <td>이수진</td>
                   <td><span style="font-size:12px">🔬 process-defect-agent</span></td>
-                  <td><span class="col-chip">process_defect_corpus</span></td>
-                  <td><code style="font-size:11px;color:#6a7090">legal_doc_embedding_dag</code></td>
+                  <td>
+                    <span class="dag-cell-tag selectable" id="dag-tag-r1"
+                      onclick="toggleDagDetail('r1')">
+                      <span id="dag-label-r1">legal_doc_embedding_dag</span>
+                      <span style="font-size:10px;color:#7a8fd4">✏</span>
+                    </span>
+                  </td>
                   <td>0.9 MB</td>
                   <td>2026-05-20</td>
                   <td>
@@ -2349,6 +2481,54 @@ tbody tr:hover td { background: #f8f9ff; }
                     <div style="display:flex;gap:5px">
                       <button class="btn btn-success btn-sm" onclick="approveDoc(this)">승인</button>
                       <button class="btn btn-danger btn-sm" onclick="rejectDoc(this)">반려</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- DAG 선택 아코디언 — row 1 -->
+                <tr class="dag-detail-tr" id="dag-detail-r1" style="display:none">
+                  <td colspan="8">
+                    <div class="dag-detail-inner">
+                      <div style="font-size:12px;font-weight:700;color:#12132a;margin-bottom:8px">
+                        📋 DAG 선택 — <span style="font-weight:400;color:#6a7090">회의록_05월_전략.docx</span>
+                      </div>
+                      <div id="dag-acc-r1" class="dag-acc-wrap"></div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Knowledge 미등록 예제 row -->
+                <tr data-agent="design-verify" style="background:#fffcf5">
+                  <td>📄 <b>설계개요서_v2.pdf</b></td>
+                  <td>김민수</td>
+                  <td><span style="font-size:12px">🏗 design-verify-agent</span></td>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+                      <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#c0601a;background:#fef3e2;border:1px solid #f5c97a;border-radius:6px;padding:3px 8px;font-weight:700;white-space:nowrap">
+                        ⚠ Knowledge 미등록
+                      </span>
+                      <button class="btn btn-ghost btn-xs"
+                        onclick="openAgentDetail('design-verify-agent')"
+                        style="font-size:10.5px;padding:2px 8px;color:#4a6cff;border-color:#c5cef8">
+                        → Knowledge 설정하기
+                      </button>
+                    </div>
+                  </td>
+                  <td>5.1 MB</td>
+                  <td>2026-05-21</td>
+                  <td>
+                    <span class="req-body-preview" onclick="showReqBody(this)"
+                      data-body='{"chunk_size":512,"chunk_overlap":64,"embed_model":"text-embedding-3-large","metadata":{"source":"agentMarket","doc_type":"design_doc"}}'>
+                      {"chunk_size":512,... <span style="color:#4a6cff;font-size:11px">더보기</span>
+                    </span>
+                  </td>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:5px">
+                      <div style="display:flex;gap:5px">
+                        <button class="btn btn-success btn-sm" disabled
+                          style="opacity:.35;cursor:not-allowed" title="Knowledge 설정 후 승인 가능합니다">승인</button>
+                        <button class="btn btn-danger btn-sm" onclick="rejectDoc(this)">반려</button>
+                      </div>
+                      <div style="font-size:10.5px;color:#c0601a;white-space:nowrap">Knowledge 설정 후 승인 가능</div>
                     </div>
                   </td>
                 </tr>
@@ -2365,14 +2545,13 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="tbl-wrap">
             <table>
               <thead>
-                <tr><th>파일명</th><th>사용자</th><th>Agent</th><th>Collection</th><th>크기</th><th>처리일</th><th>결과</th><th>처리자</th></tr>
+                <tr><th>파일명</th><th>사용자</th><th>Agent</th><th>크기</th><th>처리일</th><th>결과</th><th>처리자</th></tr>
               </thead>
               <tbody>
                 <tr data-agent="legal">
                   <td>📄 NDA_계약서_v3.pdf</td>
                   <td>홍길동</td>
                   <td>🔬 process-defect-agent</td>
-                  <td><span class="col-chip">process_defect_corpus</span></td>
                   <td>2.3 MB</td><td>2026-05-18</td>
                   <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
                   <td>이공정</td>
@@ -2381,7 +2560,6 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>📄 계약서_초안_2026.docx</td>
                   <td>박민준</td>
                   <td>🔬 process-defect-agent</td>
-                  <td><span class="col-chip">process_defect_corpus</span></td>
                   <td>1.1 MB</td><td>2026-05-19</td>
                   <td><span class="status-pill sp-approved">승인 · 임베딩 중</span></td>
                   <td>이공정</td>
@@ -2390,7 +2568,6 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>📄 내부규정_인사편람.pdf</td>
                   <td>최지수</td>
                   <td>📈 yield-prediction-agent</td>
-                  <td><span class="col-chip">yield_prediction_corpus</span></td>
                   <td>4.2 MB</td><td>2026-05-19</td>
                   <td><span class="status-pill sp-rejected">반려 — 형식 부적합</span></td>
                   <td>김수율</td>
@@ -2399,7 +2576,6 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>📄 분기실적보고서_Q1.pdf</td>
                   <td>강민서</td>
                   <td>📈 yield-prediction-agent</td>
-                  <td><span class="col-chip">yield_prediction_corpus</span></td>
                   <td>3.6 MB</td><td>2026-05-17</td>
                   <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
                   <td>김수율</td>
@@ -3718,6 +3894,488 @@ function applyReset() {
   applyGoStep(1);
 }
 
+/* ─── 문서 승인 패널 — DAG 선택 (백엔드가 DAG 목록 제공) ─── */
+const _docDagSel = {};
+
+function renderDocDagAcc(rowId) {
+  const wrap = document.getElementById(`dag-acc-${rowId}`);
+  if (!wrap) return;
+  const currentDag = _docDagSel[rowId] || document.getElementById(`dag-label-${rowId}`).textContent.trim();
+  wrap.innerHTML = MOCK_AIRFLOW_DAGS.map((dag, i) => {
+    const isSel = currentDag === dag.dag_id;
+    return `
+      <div class="dag-acc-item">
+        <div class="dag-acc-hd${isSel ? ' dag-selected' : ''}"
+             onclick="toggleDocDagAcc('${rowId}', ${i})">
+          <span class="dag-acc-arrow${isSel ? ' open' : ''}" id="da-arrow-${rowId}-${i}">▶</span>
+          <span class="dag-row-id" style="flex:1">${dag.dag_id}</span>
+          <span class="${dag.active ? 'dag-row-active' : 'dag-row-paused'}">
+            ${dag.active ? '● 활성' : '○ 일시정지'}
+          </span>
+        </div>
+        <div class="dag-acc-body${isSel ? ' open' : ''}" id="da-body-${rowId}-${i}">
+          <div style="font-size:12px;color:#5a6288;margin-bottom:8px">${dag.description}</div>
+          <div style="display:flex;gap:16px;font-size:11.5px;color:#6a7090;margin-bottom:10px">
+            <span>📅 스케줄: <code style="font-size:11px;color:#4a6cff">${dag.schedule}</code></span>
+            <span>⏱ 마지막 실행: <b style="color:#12132a">${dag.last_run}</b></span>
+          </div>
+          <div class="dag-row-tags" style="margin-bottom:10px">
+            ${dag.tags.map(t => `<span class="dag-row-tag">${t}</span>`).join('')}
+          </div>
+          <button class="btn btn-sm ${isSel ? 'btn-secondary' : 'btn-primary'}" type="button"
+                  id="da-btn-${rowId}-${i}"
+                  onclick="selectDocDag('${rowId}','${dag.dag_id}',${i})"
+                  ${isSel ? 'disabled' : ''}>
+            ${isSel ? '✅ 현재 선택됨' : '이 DAG으로 설정'}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleDagDetail(rowId) {
+  const tr = document.getElementById(`dag-detail-${rowId}`);
+  if (!tr) return;
+  tr.style.display = tr.style.display === 'none' ? '' : 'none';
+}
+
+function toggleDocDagAcc(rowId, idx) {
+  const body  = document.getElementById(`da-body-${rowId}-${idx}`);
+  const arrow = document.getElementById(`da-arrow-${rowId}-${idx}`);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function selectDocDag(rowId, dagId, idx) {
+  _docDagSel[rowId] = dagId;
+  // 라벨 칩 업데이트
+  const lbl = document.getElementById(`dag-label-${rowId}`);
+  if (lbl) lbl.textContent = dagId;
+  // 아코디언 버튼 상태 초기화 후 선택 항목 표시
+  MOCK_AIRFLOW_DAGS.forEach((_, i) => {
+    const btn = document.getElementById(`da-btn-${rowId}-${i}`);
+    const hd  = document.querySelector(`#da-body-${rowId}-${i}`)?.previousElementSibling;
+    if (btn) { btn.disabled = (i === idx); btn.textContent = (i === idx) ? '✅ 현재 선택됨' : '이 DAG으로 설정'; btn.className = `btn btn-sm ${i === idx ? 'btn-secondary' : 'btn-primary'}`; }
+    if (hd)  hd.classList.toggle('dag-selected', i === idx);
+  });
+  // detail row 닫기
+  const tr = document.getElementById(`dag-detail-${rowId}`);
+  if (tr) tr.style.display = 'none';
+}
+
+/* ─── Airflow DAG 목록 불러오기 (시뮬레이션) ─── */
+const MOCK_AIRFLOW_DAGS = [
+  { dag_id: 'legal_doc_embedding_dag',   description: '계약서 · 법률 문서 임베딩',     active: true,  tags: ['legal','embedding'],   schedule: '@once',    last_run: '2026-06-14 09:22' },
+  { dag_id: 'general_embedding_dag',     description: '범용 문서 임베딩 파이프라인',   active: true,  tags: ['embedding','general'], schedule: '@once',    last_run: '2026-06-13 15:41' },
+  { dag_id: 'process_defect_dag',        description: '공정 불량 분석 데이터 처리',    active: true,  tags: ['process','analysis'],  schedule: '0 2 * * *',last_run: '2026-06-15 02:00' },
+  { dag_id: 'yield_prediction_pipeline', description: '수율 예측 모델 학습 데이터',    active: false, tags: ['yield','ml'],          schedule: '@weekly',  last_run: '2026-06-08 03:00' },
+  { dag_id: 'doc_chunking_dag',          description: '문서 청킹 · 전처리 파이프라인', active: true,  tags: ['preprocess','chunk'],  schedule: '@once',    last_run: '2026-06-15 11:05' },
+];
+let _selectedDagId = null;
+
+function toggleAirflowJwt() {
+  const inp = document.getElementById('airflowJwt');
+  const btn = inp.nextElementSibling;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? 'SHOW' : 'HIDE';
+}
+
+function fetchAirflowDags() {
+  const host = (document.getElementById('airflowHostInput').value || '').trim();
+  const jwt  = (document.getElementById('airflowJwt').value || '').trim();
+  if (!host) { alert('Airflow Host URL을 입력하세요.'); return; }
+  if (!jwt)  { alert('JWT Token을 입력하세요.'); return; }
+
+  const btn        = document.getElementById('fetchDagsBtn');
+  const pickerWrap = document.getElementById('dagPickerWrap');
+  const statusEl   = document.getElementById('dagFetchStatus');
+  const spinner    = document.getElementById('dagSpinner');
+  const statusTxt  = document.getElementById('dagStatusText');
+  const listWrap   = document.getElementById('dagListWrap');
+  const chipWrap   = document.getElementById('dagSelectedChip');
+
+  btn.disabled = true;
+  btn.textContent = '불러오는 중...';
+  pickerWrap.style.display = '';
+  statusEl.style.display   = 'flex';
+  spinner.style.display    = 'block';
+  statusTxt.textContent    = `📋 GET ${host}/api/v1/dags?owner_filter=dev@sky.com 조회 중…`;
+  listWrap.style.display   = 'none';
+  chipWrap.style.display   = 'none';
+
+  setTimeout(() => {
+    spinner.style.display = 'none';
+    statusTxt.textContent = `✅ ${MOCK_AIRFLOW_DAGS.length}개 DAG 조회 완료`;
+
+    listWrap.innerHTML = '<div class="dag-acc-wrap">' +
+      MOCK_AIRFLOW_DAGS.map((dag, i) => `
+        <div class="dag-acc-item">
+          <div class="dag-acc-hd${_selectedDagId === dag.dag_id ? ' dag-selected' : ''}"
+               onclick="toggleDagAcc(${i})">
+            <span class="dag-acc-arrow${_selectedDagId === dag.dag_id ? ' open' : ''}" id="dag-arrow-${i}">▶</span>
+            <span class="dag-row-id" style="flex:1">${dag.dag_id}</span>
+            <div class="dag-row-tags" style="margin-right:8px">
+              ${dag.tags.map(t => `<span class="dag-row-tag">${t}</span>`).join('')}
+            </div>
+            <span class="${dag.active ? 'dag-row-active' : 'dag-row-paused'}">
+              ${dag.active ? '● 활성' : '○ 일시정지'}
+            </span>
+          </div>
+          <div class="dag-acc-body${_selectedDagId === dag.dag_id ? ' open' : ''}" id="dag-body-${i}">
+            <div style="font-size:12px;color:#5a6288;margin-bottom:8px">${dag.description}</div>
+            <div style="display:flex;gap:16px;font-size:11.5px;color:#6a7090;margin-bottom:12px">
+              <span>📅 스케줄: <code style="font-size:11px;color:#4a6cff">${dag.schedule}</code></span>
+              <span>⏱ 마지막 실행: <span style="color:#12132a">${dag.last_run}</span></span>
+            </div>
+            <button class="btn btn-sm ${_selectedDagId === dag.dag_id ? 'btn-secondary' : 'btn-primary'}"
+                    type="button" id="dag-sel-btn-${i}"
+                    onclick="selectDag('${dag.dag_id}', ${i})"
+                    ${_selectedDagId === dag.dag_id ? 'disabled' : ''}>
+              ${_selectedDagId === dag.dag_id ? '✅ 선택됨' : '이 DAG 선택'}
+            </button>
+          </div>
+        </div>`).join('') +
+      '</div>';
+
+    listWrap.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '🔄 DAG 불러오기';
+  }, 1600);
+}
+
+function toggleDagAcc(idx) {
+  const body  = document.getElementById(`dag-body-${idx}`);
+  const arrow = document.getElementById(`dag-arrow-${idx}`);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function selectDag(dagId, idx) {
+  _selectedDagId = dagId;
+  document.getElementById('dagIdInput').value            = dagId;
+  document.getElementById('dagSelectedText').textContent = dagId;
+  document.getElementById('dagSelectedChip').style.display = '';
+
+  document.querySelectorAll('.dag-acc-hd').forEach(h => h.classList.remove('dag-selected'));
+  MOCK_AIRFLOW_DAGS.forEach((_, i) => {
+    const btn = document.getElementById(`dag-sel-btn-${i}`);
+    if (!btn) return;
+    btn.disabled    = (i === idx);
+    btn.textContent = (i === idx) ? '✅ 선택됨' : '이 DAG 선택';
+    btn.className   = `btn btn-sm ${i === idx ? 'btn-secondary' : 'btn-primary'}`;
+  });
+  const hd = document.querySelectorAll('.dag-acc-hd')[idx];
+  if (hd) hd.classList.add('dag-selected');
+}
+
+/* ─── Agent 상세 모달 ─── */
+const AGENT_DETAIL_DATA = {
+  'process-defect-agent': {
+    displayName: '공정 불량 분석 Agent',
+    category: '공정 분석', type: 'framework', security: 'L2',
+    publicYn: true, a2a: true,
+    routePath: '/agents/process-defect', upstreamUrl: 'http://10.0.1.5:8080',
+    skills: ['불량 탐지', '공정 분석', '원인 추적'],
+    description: '공정 라인 센서 데이터를 분석하여 불량 원인을 실시간으로 탐지합니다.',
+    appliedDate: '2026-05-10', status: 'approved',
+    knowledge: { enabled: true, airflowHost: 'https://airflow.internal', jwt: 'eyJhbGciOiJIUzI1NiJ9.dev_process', dagId: 'process_defect_dag' },
+  },
+  'yield-prediction-agent': {
+    displayName: '수율 예측 Agent',
+    category: '수율·품질', type: 'builder', security: 'L1',
+    publicYn: true, a2a: false,
+    routePath: '/agents/yield-prediction', upstreamUrl: 'http://10.0.2.8:8080',
+    skills: ['수율 예측', '품질 분석', 'ML 추론'],
+    description: '생산 공정 데이터를 기반으로 수율을 예측하고 품질 이슈를 사전에 감지합니다.',
+    appliedDate: '2026-05-01', status: 'approved',
+    knowledge: { enabled: true, airflowHost: 'https://airflow.internal', jwt: 'eyJhbGciOiJIUzI1NiJ9.dev_yield', dagId: 'general_embedding_dag' },
+  },
+  'design-verify-agent': {
+    displayName: '설계 검증 Agent',
+    category: '설계 검증', type: 'framework', security: 'L2',
+    publicYn: true, a2a: true,
+    routePath: '/agents/design-verify', upstreamUrl: 'http://10.0.3.2:8080',
+    skills: ['설계 검증', '규격 확인', '도면 분석'],
+    description: '제품 설계 도면과 규격서를 분석하여 설계 오류를 자동으로 검증합니다.',
+    appliedDate: '2026-05-19', status: 'pending',
+    knowledge: { enabled: false },
+  },
+  'equipment-anomaly-agent': {
+    displayName: '장비 이상감지 Agent',
+    category: '장비 모니터링', type: 'framework', security: 'L1',
+    publicYn: false, a2a: false,
+    routePath: '/agents/equipment-anomaly', upstreamUrl: 'http://10.0.4.1:8080',
+    skills: ['이상 탐지', '장비 모니터링', '알림 발송'],
+    description: '장비 센서 데이터를 실시간으로 모니터링하여 이상 징후를 사전에 감지합니다.',
+    appliedDate: '2026-04-28', status: 'rejected',
+    knowledge: { enabled: false },
+  },
+};
+
+let _currentDetailAgent = null;
+let _detailSelectedDag  = null;
+
+const _STATUS_LABEL = {
+  approved: '<span class="status-pill sp-active">승인 완료</span>',
+  pending:  '<span class="status-pill sp-pending">검토 중</span>',
+  rejected: '<span class="status-pill sp-rejected">반려</span>',
+};
+const _TYPE_LABEL = {
+  framework: '<span class="badge" style="background:#e8f4ff;color:#2471a3;font-size:11px">⚙️ Framework</span>',
+  builder:   '<span class="badge" style="background:#f0e8ff;color:#7d3c98;font-size:11px">🧱 Builder</span>',
+};
+
+function openAgentDetail(agentId) {
+  _currentDetailAgent = agentId;
+  _detailSelectedDag  = AGENT_DETAIL_DATA[agentId]?.knowledge?.dagId || null;
+  renderDetailView();
+  document.getElementById('agentDetailModal').classList.add('open');
+}
+
+function closeAgentDetail() {
+  document.getElementById('agentDetailModal').classList.remove('open');
+}
+
+function renderDetailView() {
+  const d = AGENT_DETAIL_DATA[_currentDetailAgent];
+  document.getElementById('agentDetailContent').innerHTML = `
+    <div class="modal-title">🤖 Agent 상세 정보</div>
+    <div class="modal-subtitle">${d.displayName}</div>
+
+    <div class="adm-section">
+      <div class="adm-section-title">기본 정보</div>
+      <div class="adm-grid">
+        <div class="adm-field"><span class="adm-label">Agent ID</span><span class="adm-value" style="font-family:monospace;font-size:12px">${_currentDetailAgent}</span></div>
+        <div class="adm-field"><span class="adm-label">카테고리</span><span class="adm-value">${d.category}</span></div>
+        <div class="adm-field"><span class="adm-label">Agent Type</span><span class="adm-value">${_TYPE_LABEL[d.type]}</span></div>
+        <div class="adm-field"><span class="adm-label">보안 등급</span><span class="adm-value">${d.security}</span></div>
+        <div class="adm-field"><span class="adm-label">공개 여부</span><span class="adm-value">${d.publicYn ? '✅ 공개' : '— 비공개'}</span></div>
+        <div class="adm-field"><span class="adm-label">A2A 허용</span><span class="adm-value">${d.a2a ? '✅ 허용' : '— 미사용'}</span></div>
+        <div class="adm-field"><span class="adm-label">승인 상태</span><span class="adm-value">${_STATUS_LABEL[d.status]}</span></div>
+        <div class="adm-field"><span class="adm-label">등록 신청일</span><span class="adm-value">${d.appliedDate}</span></div>
+      </div>
+    </div>
+
+    <div class="adm-section">
+      <div class="adm-section-title">설명</div>
+      <div style="font-size:13px;color:#5a6288;line-height:1.7">${d.description}</div>
+    </div>
+
+    <div class="adm-section">
+      <div class="adm-section-title">접근 URL</div>
+      <div class="adm-grid" style="grid-template-columns:1fr 1fr">
+        <div class="adm-field"><span class="adm-label">외부 접근 URL (Kong Route)</span><span class="adm-value mono">${d.routePath}</span></div>
+        <div class="adm-field"><span class="adm-label">내부 서버 URL (Upstream)</span><span class="adm-value mono">${d.upstreamUrl}</span></div>
+      </div>
+    </div>
+
+    <div class="adm-section">
+      <div class="adm-section-title">Skills</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        ${d.skills.map(s => `<span class="skill-chip selected" style="cursor:default">${s}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="adm-section" id="detailKbSection">
+      <div class="adm-section-title">🧠 Knowledge 설정</div>
+      ${renderDetailKbView(d)}
+    </div>
+
+    <div class="form-footer" style="margin-top:4px">
+      <button class="btn btn-secondary" onclick="closeAgentDetail()">닫기</button>
+    </div>`;
+}
+
+function renderDetailKbView(d) {
+  if (d.knowledge.enabled) {
+    return `
+      <div class="adm-kb-row">
+        <span class="kb-chip">🧠 활성</span>
+        <div class="adm-grid" style="flex:1;grid-template-columns:repeat(3,1fr);gap:10px">
+          <div class="adm-field"><span class="adm-label">Airflow Host</span><span class="adm-value mono">${d.knowledge.airflowHost}</span></div>
+          <div class="adm-field"><span class="adm-label">JWT Token</span><span class="adm-value mono">eyJ••••••••</span></div>
+          <div class="adm-field"><span class="adm-label">DAG ID</span><span class="adm-value mono">${d.knowledge.dagId}</span></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="startKnowledgeEdit()">✏ 수정</button>
+      </div>`;
+  }
+  return `
+    <div class="adm-kb-row">
+      <span class="kb-chip off">미설정</span>
+      <span style="font-size:12.5px;color:#9aa3c0;flex:1">등록 신청 시 Knowledge 기능을 활성화하지 않았습니다.</span>
+      <button class="btn btn-primary btn-sm" onclick="startKnowledgeEdit()">+ Knowledge 활성화</button>
+    </div>`;
+}
+
+function startKnowledgeEdit() {
+  const d = AGENT_DETAIL_DATA[_currentDetailAgent];
+  const kb = d.knowledge;
+  document.getElementById('detailKbSection').innerHTML = `
+    <div class="adm-section-title">🧠 Knowledge 설정 <span style="font-size:11px;color:#4a6cff;font-weight:400">— 수정 중</span></div>
+    <div class="knowledge-section">
+      <div class="toggle-row" style="margin-bottom:14px">
+        <label class="tog">
+          <input type="checkbox" id="detailKbToggle" ${kb.enabled ? 'checked' : ''}
+            onchange="document.getElementById('detailKbFields').style.display=this.checked?'':'none'">
+          <div class="tog-track"></div>
+          <span class="tog-lbl">Knowledge 기능 사용</span>
+        </label>
+      </div>
+      <div id="detailKbFields" style="${kb.enabled ? '' : 'display:none'}">
+        <div class="form-grid">
+          <div class="fg">
+            <label>Airflow Host URL <span class="req">*</span></label>
+            <input type="text" id="detailAirflowHost" value="${kb.airflowHost || 'https://airflow.internal'}" style="font-family:monospace">
+          </div>
+          <div class="fg">
+            <label>Airflow JWT Token <span class="req">*</span></label>
+            <div class="input-row">
+              <input type="password" id="detailAirflowJwt" value="${kb.jwt || ''}"
+                placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                style="font-family:monospace;font-size:11.5px">
+              <button class="btn btn-secondary btn-sm" type="button" onclick="
+                var i=document.getElementById('detailAirflowJwt');
+                i.type=i.type==='password'?'text':'password';
+                this.textContent=i.type==='password'?'SHOW':'HIDE'">SHOW</button>
+            </div>
+            <div style="font-size:11px;color:#9aa3c0;margin-top:4px">
+              DAG 조회·Trigger 시 <code style="font-size:11px">Authorization: Bearer {token}</code>으로 전달됩니다.
+            </div>
+          </div>
+          <div class="fg full" style="display:flex;align-items:flex-end">
+            <button class="btn btn-secondary btn-sm" id="detailFetchDagsBtn"
+              onclick="fetchDetailDags()">🔄 DAG 목록 불러오기</button>
+          </div>
+          <div class="fg full" id="detailDagPickerWrap" style="${kb.dagId ? '' : 'display:none'}">
+            <label>Airflow DAG 선택 <span class="req">*</span></label>
+            <div id="detailDagStatus" class="dag-fetch-indicator" style="display:none">
+              <div class="dag-spinner" id="detailDagSpinner" style="display:none"></div>
+              <span id="detailDagStatusText"></span>
+            </div>
+            <div id="detailDagListWrap" style="display:none"></div>
+            <div id="detailDagSelectedChip" style="${kb.dagId ? '' : 'display:none'}">
+              <div class="dag-selected-chip">✅ 선택된 DAG:&nbsp;<span id="detailDagSelectedText">${kb.dagId || ''}</span></div>
+            </div>
+            <input type="hidden" id="detailDagIdInput" value="${kb.dagId || ''}">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-primary" onclick="saveKnowledgeEdit()">저장</button>
+      <button class="btn btn-secondary" onclick="renderDetailView()">취소</button>
+    </div>`;
+}
+
+function fetchDetailDags() {
+  const host = (document.getElementById('detailAirflowHost')?.value || '').trim();
+  const jwt  = (document.getElementById('detailAirflowJwt')?.value || '').trim();
+  if (!host) { alert('Airflow Host URL을 입력하세요.'); return; }
+  if (!jwt)  { alert('JWT Token을 입력하세요.'); return; }
+
+  const btn       = document.getElementById('detailFetchDagsBtn');
+  const pickWrap  = document.getElementById('detailDagPickerWrap');
+  const statusEl  = document.getElementById('detailDagStatus');
+  const spinner   = document.getElementById('detailDagSpinner');
+  const statusTxt = document.getElementById('detailDagStatusText');
+  const listWrap  = document.getElementById('detailDagListWrap');
+
+  btn.disabled = true; btn.textContent = '불러오는 중...';
+  pickWrap.style.display = '';
+  statusEl.style.display = 'flex';
+  spinner.style.display  = 'block';
+  statusTxt.textContent  = `📋 GET ${host}/api/v1/dags?owner_filter=dev@sky.com 조회 중…`;
+  listWrap.style.display = 'none';
+
+  setTimeout(() => {
+    spinner.style.display = 'none';
+    statusTxt.textContent = `✅ ${MOCK_AIRFLOW_DAGS.length}개 DAG 조회 완료`;
+
+    listWrap.innerHTML = '<div class="dag-acc-wrap">' +
+      MOCK_AIRFLOW_DAGS.map((dag, i) => {
+        const sel = _detailSelectedDag === dag.dag_id;
+        return `
+          <div class="dag-acc-item">
+            <div class="dag-acc-hd${sel ? ' dag-selected' : ''}" onclick="toggleDetailDagAcc(${i})">
+              <span class="dag-acc-arrow${sel ? ' open' : ''}" id="dd-arrow-${i}">▶</span>
+              <span class="dag-row-id" style="flex:1">${dag.dag_id}</span>
+              <span class="${dag.active ? 'dag-row-active' : 'dag-row-paused'}">${dag.active ? '● 활성' : '○ 일시정지'}</span>
+            </div>
+            <div class="dag-acc-body${sel ? ' open' : ''}" id="dd-body-${i}">
+              <div style="font-size:12px;color:#5a6288;margin-bottom:8px">${dag.description}</div>
+              <div style="display:flex;gap:16px;font-size:11.5px;color:#6a7090;margin-bottom:10px">
+                <span>📅 스케줄: <code style="font-size:11px;color:#4a6cff">${dag.schedule}</code></span>
+                <span>⏱ 마지막 실행: <b style="color:#12132a">${dag.last_run}</b></span>
+              </div>
+              <div class="dag-row-tags" style="margin-bottom:10px">
+                ${dag.tags.map(t => `<span class="dag-row-tag">${t}</span>`).join('')}
+              </div>
+              <button class="btn btn-sm ${sel ? 'btn-secondary' : 'btn-primary'}" id="dd-btn-${i}"
+                onclick="selectDetailDag('${dag.dag_id}',${i})" ${sel ? 'disabled' : ''}>
+                ${sel ? '✅ 현재 선택됨' : '이 DAG으로 설정'}
+              </button>
+            </div>
+          </div>`;
+      }).join('') + '</div>';
+
+    listWrap.style.display = 'block';
+    btn.disabled = false; btn.textContent = '🔄 DAG 목록 불러오기';
+  }, 1200);
+}
+
+function toggleDetailDagAcc(idx) {
+  ['body','arrow'].forEach(t => {
+    const el = document.getElementById(`dd-${t === 'body' ? 'body' : 'arrow'}-${idx}`);
+    if (el) el.classList.toggle('open');
+  });
+}
+
+function selectDetailDag(dagId, idx) {
+  _detailSelectedDag = dagId;
+  document.getElementById('detailDagIdInput').value = dagId;
+  document.getElementById('detailDagSelectedText').textContent = dagId;
+  document.getElementById('detailDagSelectedChip').style.display = '';
+  MOCK_AIRFLOW_DAGS.forEach((_, i) => {
+    const btn = document.getElementById(`dd-btn-${i}`);
+    const hd  = document.getElementById(`dd-body-${i}`)?.previousElementSibling;
+    if (btn) { btn.disabled = i===idx; btn.textContent = i===idx ? '✅ 현재 선택됨' : '이 DAG으로 설정'; btn.className = `btn btn-sm ${i===idx ? 'btn-secondary' : 'btn-primary'}`; }
+    if (hd)  hd.classList.toggle('dag-selected', i===idx);
+  });
+}
+
+function saveKnowledgeEdit() {
+  const enabled = document.getElementById('detailKbToggle')?.checked ?? false;
+  if (enabled) {
+    const host = (document.getElementById('detailAirflowHost')?.value || '').trim();
+    const jwt  = (document.getElementById('detailAirflowJwt')?.value || '').trim();
+    const dag  = (document.getElementById('detailDagIdInput')?.value || '').trim();
+    if (!host) { alert('Airflow Host URL을 입력하세요.'); return; }
+    if (!jwt)  { alert('JWT Token을 입력하세요.'); return; }
+    if (!dag)  { alert('DAG을 선택하세요.'); return; }
+    AGENT_DETAIL_DATA[_currentDetailAgent].knowledge = { enabled: true, airflowHost: host, jwt, dagId: dag };
+  } else {
+    AGENT_DETAIL_DATA[_currentDetailAgent].knowledge = { enabled: false };
+  }
+  // 목록 테이블의 Knowledge 칩 업데이트
+  document.querySelectorAll('#dev-list tbody tr').forEach(row => {
+    const name = row.querySelector('td b')?.textContent?.trim();
+    if (name === _currentDetailAgent) {
+      const chip = row.querySelector('.kb-chip');
+      if (chip) { chip.className = enabled ? 'kb-chip' : 'kb-chip off'; chip.textContent = enabled ? '🧠 활성' : '미설정'; }
+    }
+  });
+  renderDetailView();
+  alert('✅ Knowledge 설정이 저장되었습니다.');
+}
+
+// 문서 승인 패널 — 백엔드에서 받아온 DAG 목록으로 아코디언 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  ['r0','r1'].forEach(rowId => renderDocDagAcc(rowId));
+});
+
 // Skill 태그 추가
 function addSkillTag(event) {
   if (event.key === 'Enter' || event.key === ',') {
@@ -3735,5 +4393,14 @@ function addSkillTag(event) {
   }
 }
 </script>
+<!-- ════ Agent 상세 모달 ════ -->
+<div class="modal-overlay" id="agentDetailModal"
+  onclick="if(event.target===this)closeAgentDetail()">
+  <div class="agent-detail-box">
+    <button class="modal-close" onclick="closeAgentDetail()">✕</button>
+    <div id="agentDetailContent"></div>
+  </div>
+</div>
+
 </body>
 </html>
