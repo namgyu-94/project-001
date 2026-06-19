@@ -190,6 +190,187 @@ Developer가 Agent 등록 시 아래를 자동 검증하여 운영 오류 예방
 
 ---
 
+## 파일 보관 정책 상세 분석
+
+작성일: 2026-06-16
+
+---
+
+### Case 1 — 플랫폼 S3가 있다고 가정
+
+**처리 흐름**
+
+```
+User 업로드
+  → Platform B/E → 플랫폼 S3 저장 → PENDING_APPROVAL
+  → Developer 승인
+  → Market B/E가 Airflow Trigger
+  → DAG Pod: GET /api/documents/{doc_id}/presigned-url  ← 실행 시점에 발급
+      Presigned URL로 플랫폼 S3에서 파일 Pull
+  → 임베딩 → Milvus 등록 → 콜백
+```
+
+---
+
+#### 1-A. Developer 승인 이후 End-User가 문서를 다운로드하지 않는다는 가정
+
+```
+Developer 승인
+  → Market B/E가 Airflow Trigger (conf: { doc_id, callback_url })
+  → DAG Pod 실행 시점에 Presigned URL 발급 요청
+      GET /api/documents/{doc_id}/presigned-url
+  → DAG Pod가 Presigned URL로 플랫폼 S3에서 파일 Pull
+  → DAG Pod → B/E 콜백: pulling 완료 알림
+      POST /api/documents/{doc_id}/status { status: "processing" }
+  → B/E: 플랫폼 S3에서 해당 파일 즉시 삭제
+      (Milvus 임베딩 파이프라인이 파일을 수신한 것이 확인됐으므로 원본 불필요)
+  → 임베딩 완료 후 최종 콜백
+      POST /api/documents/{doc_id}/status { status: "completed" }
+```
+
+**보관 정책 결정:**
+
+| 시점 | 파일 상태 | 처리 |
+|------|----------|------|
+| PENDING_APPROVAL | 플랫폼 S3 보관 | TTL 7일 — 미승인 시 자동 삭제 |
+| DAG pulling 완료 콜백 수신 | 역할 종료 | **즉시 삭제** |
+| FAILED (pulling 실패) | 재시도 가능 | 30일 보관 후 자동 삭제 |
+| REJECTED | 재업로드 원칙 | 즉시 삭제 |
+
+> pulling 완료 콜백을 받은 시점이 삭제 트리거. DAG이 파일을 정상 수신했음이 확인됐으므로 플랫폼 S3에 원본을 유지할 이유가 없다.
+
+---
+
+#### 1-B. Developer 승인 이후에도 End-User가 문서를 다운로드한다는 가정
+
+```
+Developer 승인
+  → Market B/E가 Airflow Trigger
+  → DAG Pod가 Presigned URL로 플랫폼 S3에서 파일 Pull → 임베딩 완료
+  → End-User가 원본 파일 다운로드 요청
+      GET /api/documents/{doc_id}/download
+  → B/E: Presigned URL 재발급 → End-User에게 전달
+  → End-User가 플랫폼 S3에서 직접 다운로드
+```
+
+**보관 정책 결정:**
+
+| 시점 | 파일 상태 | 처리 |
+|------|----------|------|
+| PENDING_APPROVAL | 플랫폼 S3 보관 | TTL 7일 |
+| COMPLETED (임베딩 완료) | 원본 보관 필요 | **보관 유지** (User 다운로드 목적) |
+| 보관 만료 | 정책 기간 경과 | N일 후 자동 삭제 (MinIO lifecycle rule) |
+
+> 이 가정에서는 COMPLETED 이후에도 원본이 플랫폼 S3에 남아있어야 한다.
+> 보관 기간 N을 결정해야 함 (예: 90일, 1년, 영구).
+> 보관 기간이 길어질수록 플랫폼 S3 비용이 비례하여 증가한다.
+
+**1-A vs 1-B 선택 기준:**
+
+| 고려사항 | 1-A (삭제) | 1-B (보관) |
+|---------|-----------|-----------|
+| S3 비용 | 최소 | 보관 기간에 비례 |
+| End-User 원본 다운로드 | 불가 | 가능 |
+| 개인정보 노출 기간 | 최소화 | 보관 기간만큼 존재 |
+| 구현 복잡도 | 단순 | 다운로드 API 추가 필요 |
+
+---
+
+### Case 2 — Developer 할당 S3가 있다고 가정
+
+**처리 흐름**
+
+```
+User 업로드
+  → Platform B/E (Streaming Proxy)
+      Agent 등록 시 저장된 minio_endpoint + K8s Secret 자격증명으로
+      Developer MinIO에 스트리밍 PUT
+  → B/E 업로드 완료 확인 → DB 메타데이터 기록 (doc_id, object_path)
+  → PENDING_APPROVAL
+  → Developer 승인
+  → Market B/E가 Airflow Trigger
+      conf: { minio_endpoint, bucket, object_path, doc_id, callback_url }
+  → DAG Pod: K8s Secret의 Developer MinIO 자격증명으로 직접 GET
+      (Presigned URL 불필요 — 서버 간 직접 접근)
+  → 임베딩 → Milvus 등록 → 콜백
+```
+
+---
+
+#### 2-A. Developer 승인 이후 End-User가 문서를 다운로드하지 않는다는 가정
+
+```
+Developer 승인
+  → Market B/E가 Airflow Trigger
+      conf: { minio_endpoint, bucket, object_path, doc_id, callback_url }
+  → DAG Pod: K8s Secret으로 Developer MinIO에서 직접 GET
+  → DAG Pod → B/E 콜백: pulling 완료 알림
+      POST /api/documents/{doc_id}/status { status: "processing" }
+  → B/E: 상태 기록 (PROCESSING)
+      ※ 플랫폼은 Developer MinIO 파일을 삭제할 수 없음 — 소유권 없음
+  → 임베딩 완료 후 최종 콜백
+      POST /api/documents/{doc_id}/status { status: "completed" }
+  → B/E: Developer에게 "처리 완료, 원본 파일 삭제 권장" 알림 전송
+```
+
+**보관 정책 결정:**
+
+| 시점 | 파일 위치 | 플랫폼 개입 가능 여부 | 처리 |
+|------|----------|---------------------|------|
+| PENDING_APPROVAL | Developer MinIO | ❌ 삭제 불가 | 메타데이터 TTL 7일 — 만료 시 "미승인 파일 삭제 요청" 알림 |
+| pulling 완료 (PROCESSING) | Developer MinIO | ❌ | 상태 기록만 |
+| COMPLETED | Developer MinIO | ❌ | Developer에게 삭제 권고 알림 전송 |
+| FAILED | Developer MinIO | ❌ | FAILED 기록 + 재시도 가능 (conf 재사용) |
+| REJECTED | Developer MinIO | ❌ | "반려 파일 삭제 요청" 알림 전송 |
+
+**플랫폼이 직접 삭제하지 못하므로 Developer 자율 처리 방식 3가지:**
+
+| 방식 | 설명 | 전제 조건 |
+|------|------|----------|
+| A. DAG 내 삭제 | 임베딩 성공 후 DAG Task에서 DELETE 실행 | DAG에 MinIO DELETE 권한 필요 |
+| B. 플랫폼 삭제 요청 알림 | COMPLETED 후 Developer에게 알림 전송 | 강제성 없음 — Developer 수동 처리 |
+| C. Developer Lifecycle Rule | MinIO 버킷에 N일 자동 삭제 규칙 적용 | Agent 등록 가이드에 의무화 명시 |
+
+> **권장: A 방식** — DAG이 파일을 성공적으로 처리했다면 DAG 자신이 삭제하는 것이 가장 확실하다.  
+> DELETE 권한은 Agent 등록 시 AccessKey 검증 단계(④)에 추가하면 된다.
+
+---
+
+#### 2-B. Developer 승인 이후에도 End-User가 문서를 다운로드한다는 가정
+
+```
+Developer 승인
+  → Market B/E가 Airflow Trigger → DAG 처리 → COMPLETED
+  → End-User가 원본 파일 다운로드 요청
+      GET /api/documents/{doc_id}/download
+  → B/E: Developer MinIO Presigned URL 발급
+      minio_client.presigned_get_object(bucket, object_path, expires=15min)
+  → End-User가 Developer MinIO에서 직접 다운로드
+```
+
+**플랫폼 S3 (Case 1-B)와의 차이점:**
+
+| 항목 | Case 1-B (플랫폼 S3) | Case 2-B (Developer S3) |
+|------|---------------------|------------------------|
+| 다운로드 Presigned URL 발급 주체 | 플랫폼 B/E (플랫폼 MinIO 키 사용) | 플랫폼 B/E (Developer MinIO 키 사용) |
+| 파일 보관 책임 | 플랫폼 | Developer |
+| End-User 다운로드 가능 기간 | 플랫폼 보관 정책에 따름 | Developer MinIO에 파일이 존재하는 동안 |
+| Developer가 파일 삭제 시 | 플랫폼이 복구 가능 | ❌ 복구 불가 — End-User 다운로드 차단 |
+
+**보관 정책 결정:**
+
+플랫폼은 Developer MinIO 파일의 존재를 보장할 수 없으므로, End-User 다운로드를 지원하려면 Agent 등록 약관에 다음을 명시해야 한다:
+
+> "Knowledge 기능 활성 Agent의 Developer는 구독 사용자가 업로드한 문서를 플랫폼이 지정한 보관 기간 동안 삭제하지 않을 책임이 있습니다."
+
+| 상태 | 파일 | 처리 |
+|------|------|------|
+| COMPLETED | Developer MinIO 보관 | Developer 책임 보관 (약관) |
+| 보관 만료 | 정책 기간 경과 | Developer Lifecycle Rule 또는 DAG 내 지연 삭제 |
+| Developer가 임의 삭제 | End-User 다운로드 불가 | 플랫폼은 오류 반환만 가능 |
+
+---
+
 ## 공통 결정 필요 사항
 
 1. **FAILED 문서 보관 기간**: 며칠 유지 후 삭제할 것인가?
@@ -197,3 +378,5 @@ Developer가 Agent 등록 시 아래를 자동 검증하여 운영 오류 예방
 3. **User 알림**: 상태 변경 시 이메일/UI 알림 여부
 4. **COMPLETED 후 원본 삭제**: 임베딩 완료 후 S3 원본 파일 삭제 여부 (Case 1)
 5. **재처리 요청**: UI에서 User/Developer가 FAILED 문서를 수동으로 재시도할 수 있어야 하는가?
+6. **Case 2 DAG DELETE 권한**: Agent 등록 시 AccessKey에 DELETE 권한을 의무화할 것인가? (2-A 방식 A 전제 조건)
+7. **End-User 다운로드 지원 여부**: 1-A/2-A (삭제) vs 1-B/2-B (보관) 중 정책 확정 필요
