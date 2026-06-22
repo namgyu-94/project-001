@@ -746,6 +746,48 @@ tbody tr:hover td { background: #f8f9ff; }
 .mvs-item.mvs-pass .mvs-label { color: #15803d; font-weight: 600; }
 .mvs-item.mvs-fail .mvs-label { color: #c0392b; }
 .mvs-detail { font-size: 11px; color: #9aa3c0; font-family: monospace; }
+
+/* ───────────── 업로드 타입 토글 ───────────── */
+.upload-type-toggle {
+  display: flex; gap: 0; border: 2px solid #e4e8f4; border-radius: 10px;
+  overflow: hidden; margin-bottom: 20px;
+}
+.utt-btn {
+  flex: 1; padding: 11px 0; text-align: center; font-size: 13.5px; font-weight: 700;
+  cursor: pointer; color: #9aa3c0; background: #fff; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.utt-btn:hover { background: #f4f6ff; color: #4a6cff; }
+.utt-btn.active { background: #4a6cff; color: #fff; }
+.utt-btn:first-child { border-right: 2px solid #e4e8f4; }
+
+/* 텍스트 입력 영역 */
+.text-paste-area {
+  border: 2px dashed #c8d4f8; border-radius: 12px; padding: 16px;
+  background: #f8f9ff;
+}
+.text-paste-area textarea {
+  width: 100%; min-height: 200px; border: 1.5px solid #e4e8f4;
+  border-radius: 8px; padding: 14px; font-size: 13px; line-height: 1.7;
+  resize: vertical; outline: none; font-family: inherit; color: #1a1a2e;
+}
+.text-paste-area textarea:focus { border-color: #7c9fff; }
+
+/* ───────────── Knowledge 패널 최상위 탭 ───────────── */
+.knowledge-type-tabs {
+  display: flex; gap: 0; border-bottom: 2px solid #e8ecf8; margin-bottom: 20px;
+}
+.kt-tab {
+  padding: 11px 28px; font-size: 14px; font-weight: 700; color: #9aa3c0;
+  cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: all 0.15s; display: flex; align-items: center; gap: 7px;
+}
+.kt-tab:hover { color: #4a6cff; }
+.kt-tab.active { color: #4a6cff; border-bottom-color: #4a6cff; }
+.kt-badge {
+  background: #e67e22; color: #fff; font-size: 10px; font-weight: 700;
+  padding: 1px 7px; border-radius: 10px;
+}
 </style>
 </head>
 <body>
@@ -778,8 +820,8 @@ tbody tr:hover td { background: #f8f9ff; }
       <span class="ni-icon">📊</span> 내 현황
     </div>
     <div class="nav-item" id="nav-doc-approve" onclick="show('doc-approve')">
-      <span class="ni-icon">🗂</span> 문서 승인
-      <span class="nav-badge" id="doc-approve-badge">2</span>
+      <span class="ni-icon">🧠</span> Knowledge
+      <span class="nav-badge" id="doc-approve-badge">3</span>
     </div>
     <div class="nav-item" id="nav-apply" onclick="show('apply')">
       <span class="ni-icon">📝</span> 등록 신청
@@ -2171,9 +2213,10 @@ tbody tr:hover td { background: #f8f9ff; }
     <!-- ════════════════ 문서 업로드 ════════════════ -->
     <div class="panel" id="panel-doc-upload">
       <div class="info-box">
-        구독 중인 Agent의 Vector DB Collection에 문서를 업로드합니다.
-        파일은 <b>플랫폼 S3</b>에 임시 저장되며, <b>개발자 승인</b> 후 플랫폼이 등록된 Airflow DAG을 자동으로 Trigger하여 Milvus VectorDB에 임베딩합니다.
-        <span class="platform-s3-badge" style="margin-left:8px">🖧 플랫폼 S3 관리 — Airflow Host · JWT Token 입력 불필요</span>
+        구독 중인 Agent의 Vector DB Collection에 콘텐츠를 업로드합니다.
+        <b>파일 업로드</b> 또는 <b>텍스트 직접 입력</b> 중 원하는 방식을 선택하세요.
+        업로드된 내용은 <b>개발자 승인</b> 후 Airflow DAG이 실행되어 Milvus VectorDB에 임베딩됩니다.
+        <span class="platform-s3-badge" style="margin-left:8px">🖧 플랫폼 S3 관리</span>
       </div>
 
       <div class="card" style="position:relative">
@@ -2183,7 +2226,17 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="up-sub" id="uploadSub">잠시만 기다려 주세요</div>
         </div>
 
-        <!-- Step 1: 대상 Agent / Collection 선택 -->
+        <!-- 업로드 타입 선택 -->
+        <div class="upload-type-toggle">
+          <div class="utt-btn active" id="utt-file" onclick="switchUploadType('file')">
+            📂 파일 업로드
+          </div>
+          <div class="utt-btn" id="utt-text" onclick="switchUploadType('text')">
+            📝 텍스트 입력
+          </div>
+        </div>
+
+        <!-- Step 1: 대상 Agent / Collection 선택 (공통) -->
         <div class="card-title">① 대상 Agent / Collection 선택</div>
         <div class="form-grid">
           <div class="fg">
@@ -2204,20 +2257,42 @@ tbody tr:hover td { background: #f8f9ff; }
 
         <hr class="section-sep">
 
-        <!-- Step 2: 파일 업로드 -->
-        <div class="card-title">② 파일 업로드</div>
-        <div class="drop-zone" id="dropZone"
-          ondragover="event.preventDefault();this.classList.add('drag-over')"
-          ondragleave="this.classList.remove('drag-over')"
-          ondrop="handleDrop(event)"
-          onclick="document.getElementById('fileInput').click()">
-          <div class="dz-icon">📂</div>
-          <div class="dz-title">파일을 드래그하거나 클릭하여 선택</div>
-          <div class="dz-hint">지원 형식: PDF, DOCX, TXT, MD &nbsp;·&nbsp; 최대 50MB / 파일</div>
+        <!-- ── 파일 업로드 영역 ── -->
+        <div id="upload-area-file">
+          <div class="card-title">② 파일 업로드</div>
+          <div class="drop-zone" id="dropZone"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="handleDrop(event)"
+            onclick="document.getElementById('fileInput').click()">
+            <div class="dz-icon">📂</div>
+            <div class="dz-title">파일을 드래그하거나 클릭하여 선택</div>
+            <div class="dz-hint">지원 형식: PDF, DOCX, TXT, MD &nbsp;·&nbsp; 최대 50MB / 파일</div>
+          </div>
+          <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md"
+            style="display:none" onchange="handleFileSelect(this.files)">
+          <div class="file-list" id="fileList"></div>
         </div>
-        <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md"
-          style="display:none" onchange="handleFileSelect(this.files)">
-        <div class="file-list" id="fileList"></div>
+
+        <!-- ── 텍스트 입력 영역 ── -->
+        <div id="upload-area-text" style="display:none">
+          <div class="card-title">② 텍스트 입력</div>
+          <div class="form-grid" style="margin-bottom:14px">
+            <div class="fg full">
+              <label>제목 <span class="req">*</span></label>
+              <input type="text" id="textUploadTitle" placeholder="예) 공정 표준 절차서 v3.0">
+            </div>
+          </div>
+          <div class="text-paste-area">
+            <div style="font-size:12px;font-weight:700;color:#6a7090;margin-bottom:8px">
+              📋 내용 붙여넣기 또는 직접 입력
+            </div>
+            <textarea id="textUploadContent" oninput="updateTextCharCount()" placeholder="VectorDB에 등록할 텍스트를 여기에 붙여넣으세요.&#10;&#10;지원 형식: 일반 텍스트, Markdown&#10;최대 50,000자"></textarea>
+            <div style="display:flex;justify-content:flex-end;margin-top:6px">
+              <span id="textCharCount" style="font-size:11px;color:#9aa3c0">0 / 50,000자</span>
+            </div>
+          </div>
+        </div>
 
         <hr class="section-sep">
 
@@ -2251,7 +2326,7 @@ tbody tr:hover td { background: #f8f9ff; }
         </div>
 
         <div class="form-footer">
-          <button class="btn btn-secondary">초기화</button>
+          <button class="btn btn-secondary" onclick="resetUploadForm()">초기화</button>
           <button class="btn btn-primary" onclick="simulateUpload()">📤 업로드 요청</button>
         </div>
       </div>
@@ -2394,12 +2469,26 @@ tbody tr:hover td { background: #f8f9ff; }
     </div>
 
 
-    <!-- ════════════════ Developer: 문서 승인 ════════════════ -->
+    <!-- ════════════════ Developer: Knowledge ════════════════ -->
     <div class="panel" id="panel-doc-approve">
+      <!-- Knowledge 최상위 탭 -->
+      <div class="knowledge-type-tabs">
+        <div class="kt-tab active" id="kt-doc" onclick="switchKnowledgeTab('doc')">
+          📄 문서 승인
+          <span class="kt-badge" id="kt-doc-badge">2</span>
+        </div>
+        <div class="kt-tab" id="kt-text" onclick="switchKnowledgeTab('text')">
+          📝 텍스트 승인
+          <span class="kt-badge" id="kt-text-badge">1</span>
+        </div>
+      </div>
+
+      <!-- ══════ 문서 승인 탭 내용 ══════ -->
+      <div id="knowledge-tab-doc">
+
       <div class="info-box">
-        사용자가 플랫폼 S3에 업로드한 문서를 검토합니다.
+        사용자가 플랫폼 S3에 업로드한 <b>문서 파일</b>을 검토합니다.
         <b>승인</b> 시 플랫폼 백엔드가 등록된 Airflow DAG을 자동 Trigger합니다.
-        DAG은 <code style="font-size:11.5px;background:#e8eeff;padding:1px 5px;border-radius:4px">GET /api/documents/{doc_id}/path</code> API로 S3 경로를 조회한 뒤 임베딩 처리를 수행합니다.
         <b>반려</b> 시 플랫폼 S3에서 파일이 즉시 삭제됩니다.
       </div>
 
@@ -2679,6 +2768,187 @@ tbody tr:hover td { background: #f8f9ff; }
         </div>
 
       </div><!-- /card -->
+      </div><!-- /knowledge-tab-doc -->
+
+      <!-- ══════ 텍스트 승인 탭 내용 ══════ -->
+      <div id="knowledge-tab-text" style="display:none">
+
+        <div class="info-box">
+          사용자가 직접 입력한 <b>텍스트 콘텐츠</b>를 검토합니다.
+          <b>승인</b> 시 플랫폼이 텍스트를 청크 분할 후 Airflow DAG을 통해 VectorDB에 임베딩합니다.
+          <b>반려</b> 시 해당 텍스트는 즉시 삭제됩니다.
+        </div>
+
+        <!-- 텍스트 요약 카드 -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px">
+          <div class="stat-card" style="border-left:4px solid #4a6cff">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="font-size:20px">🔬</span>
+              <div style="font-size:13px;font-weight:800;color:#12132a">process-defect-agent</div>
+            </div>
+            <div style="display:flex;gap:16px">
+              <div><div style="font-size:20px;font-weight:800;color:#e67e22">1</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
+              <div><div style="font-size:20px;font-weight:800;color:#27ae60">3</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
+              <div><div style="font-size:20px;font-weight:800;color:#e74c3c">0</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-left:4px solid #27ae60">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="font-size:20px">📈</span>
+              <div style="font-size:13px;font-weight:800;color:#12132a">yield-prediction-agent</div>
+            </div>
+            <div style="display:flex;gap:16px">
+              <div><div style="font-size:20px;font-weight:800;color:#e67e22">0</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
+              <div><div style="font-size:20px;font-weight:800;color:#27ae60">2</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
+              <div><div style="font-size:20px;font-weight:800;color:#e74c3c">1</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
+            </div>
+          </div>
+          <div class="stat-card" style="background:#f7f8ff">
+            <div style="font-size:12px;font-weight:700;color:#6a7090;margin-bottom:10px">전체 합산 (이번 달)</div>
+            <div style="display:flex;gap:16px">
+              <div><div style="font-size:20px;font-weight:800;color:#e67e22">1</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
+              <div><div style="font-size:20px;font-weight:800;color:#27ae60">5</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
+              <div><div style="font-size:20px;font-weight:800;color:#e74c3c">1</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
+            </div>
+            <div style="font-size:11.5px;color:#9aa3c0;margin-top:8px">총 문자: 약 28,000자</div>
+          </div>
+          <div class="stat-card" style="background:#f0fdf4">
+            <div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:8px">💡 텍스트 입력 안내</div>
+            <div style="font-size:11.5px;color:#4b7060;line-height:1.6">
+              사용자가 직접 작성·붙여넣기한 텍스트입니다.<br>
+              파일 없이 바로 VectorDB에 임베딩됩니다.
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <!-- Agent 필터 탭 -->
+          <div style="margin-bottom:4px">
+            <div style="font-size:11px;font-weight:700;color:#9aa3c0;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px">Agent 선택</div>
+            <div class="agent-filter-bar" id="textAgentFilterBar">
+              <div class="af-tab active" data-agent="all" onclick="filterTextByAgent(this,'all')">
+                전체 <span class="af-count af-pend">1</span>
+              </div>
+              <div class="af-tab" data-agent="process-text" onclick="filterTextByAgent(this,'process-text')">
+                🔬 process-defect-agent
+                <span class="af-count af-pend">1</span>
+              </div>
+              <div class="af-tab" data-agent="yield-text" onclick="filterTextByAgent(this,'yield-text')">
+                📈 yield-prediction-agent
+                <span class="af-count af-pend">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 승인 대기 / 처리 내역 탭 -->
+          <div class="inner-tabs">
+            <div class="inner-tab active" onclick="textApproveTab(this,'tab-text-pending')">
+              ⏳ 승인 대기
+              <span style="background:#e67e22;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px" id="textPendingCount">1</span>
+            </div>
+            <div class="inner-tab" onclick="textApproveTab(this,'tab-text-history')">📜 처리 내역</div>
+          </div>
+
+          <!-- 텍스트 승인 대기 -->
+          <div id="tab-text-pending">
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>제목</th>
+                    <th>업로드 사용자</th>
+                    <th>Agent</th>
+                    <th>문자 수</th>
+                    <th>등록일</th>
+                    <th>내용 미리보기</th>
+                    <th>처리</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-agent="process-text">
+                    <td>📝 <b>공정 이상 사례 정리 메모</b></td>
+                    <td>홍길동</td>
+                    <td><span style="font-size:12px">🔬 process-defect-agent</span></td>
+                    <td>4,320자</td>
+                    <td>2026-06-20</td>
+                    <td>
+                      <span class="req-body-preview" style="cursor:pointer;color:#4a6cff;font-size:12px"
+                        onclick="showTextPreview('2024년 3월 공정라인 B에서 발생한 불량 패턴 분석. 주요 원인: 온도 편차 ±2.3°C 초과 시 수율 저하 관찰됨. 대응 조치: 센서 보정 주기를 72h → 24h로 단축. 추가 검토 필요 항목: 라인 A 동일 조건 비교 분석...', '공정 이상 사례 정리 메모')">
+                        내용 보기 <span style="font-size:11px">👁</span>
+                      </span>
+                    </td>
+                    <td>
+                      <div style="display:flex;gap:5px">
+                        <button class="btn btn-success btn-sm" onclick="approveTextDoc(this)">승인</button>
+                        <button class="btn btn-danger btn-sm" onclick="rejectTextDoc(this)">반려</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="emptyTextPending" style="display:none;text-align:center;padding:32px;color:#9aa3c0;font-size:13px;font-weight:600">
+              ✅ 선택한 Agent에 대기 중인 텍스트가 없습니다
+            </div>
+          </div>
+
+          <!-- 텍스트 처리 내역 -->
+          <div id="tab-text-history" style="display:none">
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr><th>제목</th><th>사용자</th><th>Agent</th><th>문자 수</th><th>처리일</th><th>결과</th><th>처리자</th></tr>
+                </thead>
+                <tbody>
+                  <tr data-agent="process-text">
+                    <td>📝 설비 점검 체크리스트 요약</td>
+                    <td>이수진</td>
+                    <td>🔬 process-defect-agent</td>
+                    <td>2,180자</td><td>2026-06-18</td>
+                    <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
+                    <td>이공정</td>
+                  </tr>
+                  <tr data-agent="process-text">
+                    <td>📝 불량 코드 분류 기준 문서</td>
+                    <td>박민준</td>
+                    <td>🔬 process-defect-agent</td>
+                    <td>5,640자</td><td>2026-06-17</td>
+                    <td><span class="status-pill sp-approved">승인 · 임베딩 중</span></td>
+                    <td>이공정</td>
+                  </tr>
+                  <tr data-agent="yield-text">
+                    <td>📝 수율 이슈 원인 분석 노트</td>
+                    <td>최지수</td>
+                    <td>📈 yield-prediction-agent</td>
+                    <td>3,900자</td><td>2026-06-15</td>
+                    <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
+                    <td>김수율</td>
+                  </tr>
+                  <tr data-agent="yield-text">
+                    <td>📝 Q1 수율 회의 논의 내용</td>
+                    <td>강민서</td>
+                    <td>📈 yield-prediction-agent</td>
+                    <td>1,250자</td><td>2026-06-14</td>
+                    <td><span class="status-pill sp-rejected">반려 — 내용 불충분</span></td>
+                    <td>김수율</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div><!-- /card -->
+      </div><!-- /knowledge-tab-text -->
+
+      <!-- 텍스트 미리보기 모달 -->
+      <div class="modal-overlay" id="textPreviewModal">
+        <div class="modal-box" style="max-width:560px">
+          <button class="modal-close" onclick="document.getElementById('textPreviewModal').classList.remove('open')">✕</button>
+          <div class="modal-title" id="textPreviewTitle">텍스트 내용 미리보기</div>
+          <div style="background:#f8f9ff;border:1.5px solid #e4e8f4;border-radius:10px;padding:16px;margin-top:16px;max-height:300px;overflow-y:auto;line-height:1.8;font-size:13px;color:#2d3452;white-space:pre-wrap" id="textPreviewBody"></div>
+        </div>
+      </div>
+
     </div><!-- /panel-doc-approve -->
 
     <!-- ════════════════ Admin: 내 현황 ════════════════ -->
@@ -3440,7 +3710,7 @@ const META = {
   'user-status':{ title: '내 현황',        desc: '구독 중인 Agent별 사용 현황을 확인하세요',                   crumb: 'agentMarket > 내 현황' },
   'doc-upload': { title: '문서 업로드',    desc: 'Agent Vector DB Collection에 문서를 업로드합니다',           crumb: 'agentMarket > 문서 업로드' },
   'doc-status': { title: '내 문서 현황',   desc: '업로드한 문서의 처리 상태를 확인합니다',                     crumb: 'agentMarket > 내 문서 현황' },
-  'doc-approve':{ title: '문서 승인',      desc: '사용자가 업로드한 문서를 검토하고 임베딩 여부를 결정합니다', crumb: 'agentMarket > Developer > 문서 승인' },
+  'doc-approve':{ title: 'Knowledge',     desc: '사용자가 등록한 문서·텍스트를 검토하고 VectorDB 임베딩 여부를 결정합니다', crumb: 'agentMarket > Developer > Knowledge' },
   register:     { title: 'Agent 등록',     desc: '관리자가 직접 Agent를 등록합니다',                           crumb: 'agentMarket > 관리자 > Agent 등록' },
   approve:      { title: '등록 승인',      desc: '개발자가 신청한 Agent를 검토하고 승인·반려합니다',           crumb: 'agentMarket > 관리자 > 등록 승인' },
   gwkey:        { title: 'Gateway Key',    desc: '승인된 Agent의 접근 키를 발급·관리합니다',                   crumb: 'agentMarket > 관리자 > Gateway Key' },
@@ -3586,20 +3856,35 @@ function toggleJwt() {
 function simulateUpload() {
   const agent = document.getElementById('uploadAgentSelect').value;
   if (!agent) { alert('대상 Agent를 선택하세요.'); return; }
-  if (!document.getElementById('dagSelect').value) { alert('Airflow DAG을 선택하세요.'); return; }
-  if (!document.getElementById('jwtInput').value) { alert('JWT Token을 입력하세요.'); return; }
+
+  const isText = document.getElementById('utt-text')?.classList.contains('active');
+
+  if (isText) {
+    const title = document.getElementById('textUploadTitle')?.value.trim();
+    const content = document.getElementById('textUploadContent')?.value.trim();
+    if (!title) { alert('제목을 입력하세요.'); return; }
+    if (!content || content.length < 10) { alert('등록할 텍스트 내용을 입력하세요. (최소 10자)'); return; }
+  } else {
+    const fileList = document.getElementById('fileList');
+    if (!fileList || fileList.children.length === 0) { alert('업로드할 파일을 선택하세요.'); return; }
+  }
 
   const ol = document.getElementById('uploadOverlay');
   const msg = document.getElementById('uploadMsg');
   const sub = document.getElementById('uploadSub');
 
   ol.classList.add('show');
-  msg.textContent = 'S3 업로드 중...';
-  sub.textContent = '파일을 S3 버킷에 저장하고 있습니다';
+  if (isText) {
+    msg.textContent = '텍스트 저장 중...';
+    sub.textContent = '플랫폼 S3에 텍스트를 저장하고 있습니다';
+  } else {
+    msg.textContent = 'S3 업로드 중...';
+    sub.textContent = '파일을 S3 버킷에 저장하고 있습니다';
+  }
 
   setTimeout(() => {
-    msg.textContent = 'Airflow DAG 호출 중...';
-    sub.textContent = 'JWT 인증 및 DAG trigger 요청 중';
+    msg.textContent = '요청 등록 중...';
+    sub.textContent = '개발자 승인 대기열에 추가 중';
   }, 1800);
 
   setTimeout(() => {
@@ -3607,18 +3892,118 @@ function simulateUpload() {
     sub.textContent = '개발자 승인 후 Vector DB에 임베딩됩니다';
     setTimeout(() => {
       ol.classList.remove('show');
-      alert('✅ 업로드 완료\n\nS3에 저장되었습니다.\n개발자 승인 후 Airflow DAG이 실행되어 Vector DB에 임베딩됩니다.');
+      if (isText) {
+        alert('✅ 텍스트 등록 완료\n\n텍스트가 저장되었습니다.\n개발자 승인 후 Airflow DAG이 실행되어 Vector DB에 임베딩됩니다.');
+      } else {
+        alert('✅ 업로드 완료\n\nS3에 저장되었습니다.\n개발자 승인 후 Airflow DAG이 실행되어 Vector DB에 임베딩됩니다.');
+      }
     }, 1000);
   }, 3400);
 }
 
-/* ─── 문서 승인 탭 ─── */
+/* ─── 업로드 타입 전환 (파일 / 텍스트) ─── */
+function switchUploadType(type) {
+  ['file','text'].forEach(t => {
+    document.getElementById('utt-' + t).classList.toggle('active', t === type);
+    const area = document.getElementById('upload-area-' + t);
+    if (area) area.style.display = t === type ? 'block' : 'none';
+  });
+}
+
+function resetUploadForm() {
+  const titleEl = document.getElementById('textUploadTitle');
+  const contentEl = document.getElementById('textUploadContent');
+  const fileList = document.getElementById('fileList');
+  if (titleEl) titleEl.value = '';
+  if (contentEl) { contentEl.value = ''; updateTextCharCount(); }
+  if (fileList) fileList.innerHTML = '';
+  const agent = document.getElementById('uploadAgentSelect');
+  if (agent) { agent.value = ''; onAgentSelect(''); }
+}
+
+function updateTextCharCount() {
+  const el = document.getElementById('textUploadContent');
+  const counter = document.getElementById('textCharCount');
+  if (el && counter) counter.textContent = (el.value.length).toLocaleString() + ' / 50,000자';
+}
+
+/* ─── Knowledge 최상위 탭 전환 ─── */
+function switchKnowledgeTab(tab) {
+  ['doc','text'].forEach(t => {
+    document.getElementById('kt-' + t).classList.toggle('active', t === tab);
+    document.getElementById('knowledge-tab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+/* ─── 문서 승인 탭 (문서 탭 내 pending/history) ─── */
 function approveTab(el, tabId) {
-  document.querySelectorAll('#panel-doc-approve .inner-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#knowledge-tab-doc .inner-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   ['tab-pending','tab-history'].forEach(id => {
     document.getElementById(id).style.display = id === tabId ? 'block' : 'none';
   });
+}
+
+/* ─── 텍스트 승인 탭 (텍스트 탭 내 pending/history) ─── */
+function textApproveTab(el, tabId) {
+  document.querySelectorAll('#knowledge-tab-text .inner-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-text-pending','tab-text-history'].forEach(id => {
+    document.getElementById(id).style.display = id === tabId ? 'block' : 'none';
+  });
+}
+
+/* 텍스트 Agent 필터 */
+function filterTextByAgent(el, agent) {
+  document.querySelectorAll('#textAgentFilterBar .af-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-text-pending','tab-text-history'].forEach(tabId => {
+    document.querySelectorAll('#' + tabId + ' tbody tr').forEach(row => {
+      row.style.display = (agent === 'all' || row.dataset.agent === agent) ? '' : 'none';
+    });
+  });
+  const pendingRows = [...document.querySelectorAll('#tab-text-pending tbody tr')]
+    .filter(r => r.style.display !== 'none');
+  const empty = document.getElementById('emptyTextPending');
+  if (empty) empty.style.display = pendingRows.length === 0 ? 'block' : 'none';
+}
+
+function approveTextDoc(btn) {
+  const row = btn.closest('tr');
+  const lastCell = row.cells[row.cells.length - 1];
+  lastCell.innerHTML = '<span class="status-pill sp-approved" style="white-space:nowrap">✅ 승인 · 임베딩 중</span>';
+  setTimeout(() => {
+    lastCell.innerHTML = '<span class="status-pill sp-active">VectorDB 등록 완료</span>';
+    row.style.opacity = '0.5';
+  }, 2500);
+  _decreaseTextBadge();
+}
+
+function rejectTextDoc(btn) {
+  const reason = prompt('반려 사유를 입력하세요 (사용자에게 전달됩니다):');
+  if (reason !== null) {
+    const row = btn.closest('tr');
+    const lastCell = row.cells[row.cells.length - 1];
+    lastCell.innerHTML = '<span class="status-pill sp-rejected">반려</span>';
+    row.style.opacity = '0.5';
+    _decreaseTextBadge();
+  }
+}
+
+function _decreaseTextBadge() {
+  const ktBadge = document.getElementById('kt-text-badge');
+  const tabBadge = document.getElementById('textPendingCount');
+  const navBadge = document.getElementById('doc-approve-badge');
+  [ktBadge, tabBadge].forEach(b => {
+    if (b) { const n = Math.max(0, (+b.textContent || 1) - 1); b.textContent = n || ''; }
+  });
+  if (navBadge) { const n = Math.max(0, (+navBadge.textContent || 1) - 1); navBadge.textContent = n || ''; }
+}
+
+function showTextPreview(content, title) {
+  document.getElementById('textPreviewTitle').textContent = '📝 ' + (title || '텍스트 내용 미리보기');
+  document.getElementById('textPreviewBody').textContent = content;
+  document.getElementById('textPreviewModal').classList.add('open');
 }
 
 /* Agent 필터 */
