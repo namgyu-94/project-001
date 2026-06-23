@@ -3223,7 +3223,11 @@ tbody tr:hover td { background: #f8f9ff; }
                 </thead>
                 <tbody>
                   <tr data-agent="process-text">
-                    <td>📝 설비 점검 체크리스트 요약</td>
+                    <td>
+                      <div style="font-weight:700;color:#12132a;margin-bottom:5px">📝 설비 점검 체크리스트 요약</div>
+                      <div class="text-inline-preview" id="tip-h1">월간 설비 점검 항목 체크리스트를 요약한 문서입니다.<br>항목별 점검 주기(일별/주별/월별)와 담당자 구분을 포함하며,<br>이상 발생 시 조치 코드 및 에스컬레이션 경로도 기술되어 있습니다.</div>
+                      <span class="tip-toggle" onclick="toggleTextPreview('h1')">▼ 내용 펼치기</span>
+                    </td>
                     <td><span class="new-chip">🆕 신규</span></td>
                     <td>이수진</td>
                     <td>🔬 process-defect-agent</td>
@@ -3233,7 +3237,11 @@ tbody tr:hover td { background: #f8f9ff; }
                     <td><button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'text')" style="color:#e74c3c;border-color:#fca5a5">🗑</button></td>
                   </tr>
                   <tr data-agent="process-text">
-                    <td>📝 불량 코드 분류 기준 문서</td>
+                    <td>
+                      <div style="font-weight:700;color:#12132a;margin-bottom:5px">📝 불량 코드 분류 기준 문서</div>
+                      <div class="text-inline-preview" id="tip-h2">공정 라인별 불량 발생 유형을 코드화한 분류 기준 문서입니다.<br>A/B/C 등급 기준, 외관·치수·기능 불량 판정 기준이 포함되며,<br>각 코드별 처리 절차(재작업·폐기·특채) 및 승인 권한자 정보가 수록되어 있습니다.</div>
+                      <span class="tip-toggle" onclick="toggleTextPreview('h2')">▼ 내용 펼치기</span>
+                    </td>
                     <td><span class="new-chip">🆕 신규</span></td>
                     <td>박민준</td>
                     <td>🔬 process-defect-agent</td>
@@ -3243,7 +3251,11 @@ tbody tr:hover td { background: #f8f9ff; }
                     <td><button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'text')" style="color:#e74c3c;border-color:#fca5a5">🗑</button></td>
                   </tr>
                   <tr data-agent="yield-text">
-                    <td>📝 수율 이슈 원인 분석 노트</td>
+                    <td>
+                      <div style="font-weight:700;color:#12132a;margin-bottom:5px">📝 수율 이슈 원인 분석 노트</div>
+                      <div class="text-inline-preview" id="tip-h3">2026년 5월 수율 저하(목표 대비 -4.2%) 원인 분석 노트입니다.<br>주요 원인: 식각 공정 온도 균일도 편차 및 포토 공정 노광량 드리프트.<br>개선 조치로 온도 PID 튜닝 및 노광 에너지 재보정이 적용되었습니다.</div>
+                      <span class="tip-toggle" onclick="toggleTextPreview('h3')">▼ 내용 펼치기</span>
+                    </td>
                     <td><span class="new-chip">🆕 신규</span></td>
                     <td>최지수</td>
                     <td>📈 yield-prediction-agent</td>
@@ -3253,7 +3265,11 @@ tbody tr:hover td { background: #f8f9ff; }
                     <td><button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'text')" style="color:#e74c3c;border-color:#fca5a5">🗑</button></td>
                   </tr>
                   <tr data-agent="yield-text">
-                    <td>📝 Q1 수율 회의 논의 내용</td>
+                    <td>
+                      <div style="font-weight:700;color:#12132a;margin-bottom:5px">📝 Q1 수율 회의 논의 내용</div>
+                      <div class="text-inline-preview" id="tip-h4">2026년 1분기 수율 개선 회의 요약 노트입니다.<br>다양한 개선안이 논의되었으나 구체적 수치나 원인 데이터가 포함되지 않아<br>Knowledge 등록 기준(근거 데이터 포함 필수)을 충족하지 못하였습니다.</div>
+                      <span class="tip-toggle" onclick="toggleTextPreview('h4')">▼ 내용 펼치기</span>
+                    </td>
                     <td><span class="new-chip">🆕 신규</span></td>
                     <td>강민서</td>
                     <td>📈 yield-prediction-agent</td>
