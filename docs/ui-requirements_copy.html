@@ -825,6 +825,20 @@ tbody tr:hover td { background: #f8f9ff; }
   background: #e67e22; color: #fff; font-size: 10px; font-weight: 700;
   padding: 1px 7px; border-radius: 10px;
 }
+
+/* ───────────── 텍스트 인라인 미리보기 (내 문서 현황) ───────────── */
+.text-inline-preview {
+  font-size: 12px; color: #5a6288; line-height: 1.6;
+  background: #f8f9ff; border-radius: 6px; padding: 7px 10px;
+  border: 1px solid #e4e8f4; margin-top: 5px;
+  max-height: 80px; overflow: hidden; transition: max-height 0.3s ease;
+}
+.text-inline-preview.expanded { max-height: 400px; overflow-y: auto; }
+.tip-toggle {
+  display: inline-block; font-size: 11px; font-weight: 700; color: #4a6cff;
+  cursor: pointer; margin-top: 4px; user-select: none;
+}
+.tip-toggle:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -842,11 +856,8 @@ tbody tr:hover td { background: #f8f9ff; }
     <div class="nav-item" id="nav-user-status" onclick="show('user-status')">
       <span class="ni-icon">📊</span> 내 현황
     </div>
-    <div class="nav-item" id="nav-doc-upload" onclick="show('doc-upload')">
-      <span class="ni-icon">📤</span> 문서 업로드
-    </div>
-    <div class="nav-item" id="nav-doc-status" onclick="show('doc-status')">
-      <span class="ni-icon">📋</span> 내 문서 현황
+    <div class="nav-item" id="nav-knowledge" onclick="show('knowledge')">
+      <span class="ni-icon">🧠</span> Knowledge
     </div>
   </div>
 
@@ -857,7 +868,7 @@ tbody tr:hover td { background: #f8f9ff; }
       <span class="ni-icon">📊</span> 내 현황
     </div>
     <div class="nav-item" id="nav-doc-approve" onclick="show('doc-approve')">
-      <span class="ni-icon">🧠</span> Knowledge
+      <span class="ni-icon">📁</span> Knowledge 관리
       <span class="nav-badge" id="doc-approve-badge">3</span>
     </div>
     <div class="nav-item" id="nav-apply" onclick="show('apply')">
@@ -2165,8 +2176,8 @@ tbody tr:hover td { background: #f8f9ff; }
         <div class="sac-foot">
           <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">process_defect_corpus</code></div>
           <div style="margin-left:auto;display:flex;gap:8px">
-            <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
-            <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
+            <button class="btn btn-secondary btn-sm" onclick="show('knowledge');switchUserKnowledgeTab('upload')">📤 문서 업로드</button>
+            <button class="btn btn-ghost btn-sm" onclick="show('knowledge');switchUserKnowledgeTab('status')">📋 내 문서 현황</button>
           </div>
         </div>
       </div>
@@ -2230,8 +2241,8 @@ tbody tr:hover td { background: #f8f9ff; }
         <div class="sac-foot">
           <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">yield_prediction_corpus</code></div>
           <div style="margin-left:auto;display:flex;gap:8px">
-            <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
-            <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
+            <button class="btn btn-secondary btn-sm" onclick="show('knowledge');switchUserKnowledgeTab('upload')">📤 문서 업로드</button>
+            <button class="btn btn-ghost btn-sm" onclick="show('knowledge');switchUserKnowledgeTab('status')">📋 내 문서 현황</button>
           </div>
         </div>
       </div>
@@ -2248,109 +2259,122 @@ tbody tr:hover td { background: #f8f9ff; }
 
 
     <!-- ════════════════ 문서 업로드 ════════════════ -->
-    <div class="panel" id="panel-doc-upload">
-      <div class="info-box">
-        구독 중인 Agent의 Vector DB Collection에 콘텐츠를 업로드합니다.
-        <b>파일 업로드</b> 또는 <b>텍스트 직접 입력</b> 중 원하는 방식을 선택하세요.
-        업로드된 내용은 <b>개발자 승인</b> 후 Airflow DAG이 실행되어 Milvus VectorDB에 임베딩됩니다.
-        <span class="platform-s3-badge" style="margin-left:8px">🖧 플랫폼 S3 관리</span>
+    <!-- ════════════════ MY: Knowledge (업로드 + 내 문서 현황 통합) ════════════════ -->
+    <div class="panel" id="panel-knowledge">
+      <!-- 최상위 탭: 업로드 / 내 문서 현황 -->
+      <div class="knowledge-type-tabs" style="margin-bottom:20px">
+        <div class="kt-tab active" id="kn-tab-upload" onclick="switchUserKnowledgeTab('upload')">
+          📤 업로드
+        </div>
+        <div class="kt-tab" id="kn-tab-status" onclick="switchUserKnowledgeTab('status')">
+          📋 내 문서 현황
+        </div>
       </div>
 
-      <div class="card" style="position:relative">
-        <div class="upload-overlay" id="uploadOverlay">
-          <div class="up-spinner"></div>
-          <div class="up-msg" id="uploadMsg">S3 업로드 중...</div>
-          <div class="up-sub" id="uploadSub">잠시만 기다려 주세요</div>
+      <!-- ══ 업로드 영역 ══ -->
+      <div id="kn-section-upload">
+        <div class="info-box">
+          구독 중인 Agent의 Vector DB Collection에 콘텐츠를 업로드합니다.
+          <b>파일 업로드</b> 또는 <b>텍스트 직접 입력</b> 중 원하는 방식을 선택하세요.
+          업로드된 내용은 <b>개발자 승인</b> 후 Airflow DAG이 실행되어 Milvus VectorDB에 임베딩됩니다.
+          <span class="platform-s3-badge" style="margin-left:8px">🖧 플랫폼 S3 관리</span>
         </div>
 
-        <!-- 업로드 타입 선택 -->
-        <div class="upload-type-toggle">
-          <div class="utt-btn active" id="utt-file" onclick="switchUploadType('file')">
-            📂 파일 업로드
+        <div class="card" style="position:relative">
+          <div class="upload-overlay" id="uploadOverlay">
+            <div class="up-spinner"></div>
+            <div class="up-msg" id="uploadMsg">S3 업로드 중...</div>
+            <div class="up-sub" id="uploadSub">잠시만 기다려 주세요</div>
           </div>
-          <div class="utt-btn" id="utt-text" onclick="switchUploadType('text')">
-            📝 텍스트 입력
-          </div>
-        </div>
 
-        <!-- Step 1: 대상 Agent / Collection 선택 (공통) -->
-        <div class="card-title">① 대상 Agent / Collection 선택</div>
-        <div class="form-grid">
-          <div class="fg">
-            <label>Agent 선택 <span class="req">*</span></label>
-            <select id="uploadAgentSelect" onchange="onAgentSelect(this.value)">
-              <option value="">— 구독 중인 Agent 선택 —</option>
-              <option value="process">🔬 공정 불량 분석 Agent</option>
-              <option value="yield">📈 수율 예측 Agent</option>
-            </select>
+          <!-- 업로드 타입 선택 -->
+          <div class="upload-type-toggle">
+            <div class="utt-btn active" id="utt-file" onclick="switchUploadType('file')">
+              📂 파일 업로드
+            </div>
+            <div class="utt-btn" id="utt-text" onclick="switchUploadType('text')">
+              📝 텍스트 입력
+            </div>
           </div>
-          <div class="fg">
-            <label>Vector DB Collection</label>
-            <input type="text" id="collectionDisplay" readonly
-              style="background:#f5f7ff;color:#4a6cff;font-family:monospace;font-size:12.5px"
-              placeholder="Agent 선택 시 자동 표시">
+
+          <!-- Step 1: 대상 Agent / Collection 선택 (공통) -->
+          <div class="card-title">① 대상 Agent / Collection 선택</div>
+          <div class="form-grid">
+            <div class="fg">
+              <label>Agent 선택 <span class="req">*</span></label>
+              <select id="uploadAgentSelect" onchange="onAgentSelect(this.value)">
+                <option value="">— 구독 중인 Agent 선택 —</option>
+                <option value="process">🔬 공정 불량 분석 Agent</option>
+                <option value="yield">📈 수율 예측 Agent</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Vector DB Collection</label>
+              <input type="text" id="collectionDisplay" readonly
+                style="background:#f5f7ff;color:#4a6cff;font-family:monospace;font-size:12.5px"
+                placeholder="Agent 선택 시 자동 표시">
+            </div>
           </div>
-        </div>
 
-        <hr class="section-sep">
+          <hr class="section-sep">
 
-        <!-- ── 파일 업로드 영역 ── -->
-        <div id="upload-area-file">
-          <div class="card-title">② 파일 업로드</div>
-          <div class="drop-zone" id="dropZone"
-            ondragover="event.preventDefault();this.classList.add('drag-over')"
-            ondragleave="this.classList.remove('drag-over')"
-            ondrop="handleDrop(event)"
-            onclick="document.getElementById('fileInput').click()">
-            <div class="dz-icon">📂</div>
-            <div class="dz-title">파일을 드래그하거나 클릭하여 선택</div>
-            <div class="dz-hint">지원 형식: PDF, DOCX, TXT, MD &nbsp;·&nbsp; 최대 50MB / 파일</div>
+          <!-- ── 파일 업로드 영역 ── -->
+          <div id="upload-area-file">
+            <div class="card-title">② 파일 업로드</div>
+            <div class="drop-zone" id="dropZone"
+              ondragover="event.preventDefault();this.classList.add('drag-over')"
+              ondragleave="this.classList.remove('drag-over')"
+              ondrop="handleDrop(event)"
+              onclick="document.getElementById('fileInput').click()">
+              <div class="dz-icon">📂</div>
+              <div class="dz-title">파일을 드래그하거나 클릭하여 선택</div>
+              <div class="dz-hint">지원 형식: PDF, DOCX, TXT, MD &nbsp;·&nbsp; 최대 50MB / 파일</div>
+            </div>
+            <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md"
+              style="display:none" onchange="handleFileSelect(this.files)">
+            <div class="file-list" id="fileList"></div>
           </div>
-          <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md"
-            style="display:none" onchange="handleFileSelect(this.files)">
-          <div class="file-list" id="fileList"></div>
-        </div>
 
-        <!-- ── 텍스트 입력 영역 ── -->
-        <div id="upload-area-text" style="display:none">
-          <div class="card-title">② 텍스트 입력</div>
-          <div class="form-grid" style="margin-bottom:14px">
+          <!-- ── 텍스트 입력 영역 ── -->
+          <div id="upload-area-text" style="display:none">
+            <div class="card-title">② 텍스트 입력</div>
+            <div class="form-grid" style="margin-bottom:14px">
+              <div class="fg full">
+                <label>제목 <span class="req">*</span></label>
+                <input type="text" id="textUploadTitle" placeholder="예) 공정 표준 절차서 v3.0">
+              </div>
+            </div>
+            <div class="text-paste-area">
+              <div style="font-size:12px;font-weight:700;color:#6a7090;margin-bottom:8px">
+                📋 내용 붙여넣기 또는 직접 입력
+              </div>
+              <textarea id="textUploadContent" oninput="updateTextCharCount()" placeholder="VectorDB에 등록할 텍스트를 여기에 붙여넣으세요.&#10;&#10;지원 형식: 일반 텍스트, Markdown&#10;최대 50,000자"></textarea>
+              <div style="display:flex;justify-content:flex-end;margin-top:6px">
+                <span id="textCharCount" style="font-size:11px;color:#9aa3c0">0 / 50,000자</span>
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-sep">
+
+          <!-- Step 3: 처리 설정 -->
+          <div class="card-title">③ 처리 설정 <span style="font-size:12px;font-weight:400;color:#9aa3c0">— 플랫폼이 자동 처리합니다</span></div>
+          <div class="form-grid">
+            <div class="fg">
+              <label>처리 DAG <span style="font-size:11px;color:#9aa3c0;font-weight:400">(Agent 설정 기준 자동)</span></label>
+              <input type="text" id="dagSelect" readonly
+                style="background:#f5f7ff;color:#4a6cff;font-family:monospace;font-size:12.5px"
+                placeholder="Agent 선택 시 자동 표시">
+            </div>
+            <div class="fg">
+              <label>저장 경로 <span style="font-size:11px;color:#9aa3c0;font-weight:400">(플랫폼 S3 자동 할당)</span></label>
+              <input type="text" readonly
+                style="background:#f5f7ff;color:#9aa3c0;font-family:monospace;font-size:11.5px"
+                placeholder="platform-s3/agents/{id}/users/{uid}/{file}">
+            </div>
             <div class="fg full">
-              <label>제목 <span class="req">*</span></label>
-              <input type="text" id="textUploadTitle" placeholder="예) 공정 표준 절차서 v3.0">
-            </div>
-          </div>
-          <div class="text-paste-area">
-            <div style="font-size:12px;font-weight:700;color:#6a7090;margin-bottom:8px">
-              📋 내용 붙여넣기 또는 직접 입력
-            </div>
-            <textarea id="textUploadContent" oninput="updateTextCharCount()" placeholder="VectorDB에 등록할 텍스트를 여기에 붙여넣으세요.&#10;&#10;지원 형식: 일반 텍스트, Markdown&#10;최대 50,000자"></textarea>
-            <div style="display:flex;justify-content:flex-end;margin-top:6px">
-              <span id="textCharCount" style="font-size:11px;color:#9aa3c0">0 / 50,000자</span>
-            </div>
-          </div>
-        </div>
-
-        <hr class="section-sep">
-
-        <!-- Step 3: 처리 설정 -->
-        <div class="card-title">③ 처리 설정 <span style="font-size:12px;font-weight:400;color:#9aa3c0">— 플랫폼이 자동 처리합니다</span></div>
-        <div class="form-grid">
-          <div class="fg">
-            <label>처리 DAG <span style="font-size:11px;color:#9aa3c0;font-weight:400">(Agent 설정 기준 자동)</span></label>
-            <input type="text" id="dagSelect" readonly
-              style="background:#f5f7ff;color:#4a6cff;font-family:monospace;font-size:12.5px"
-              placeholder="Agent 선택 시 자동 표시">
-          </div>
-          <div class="fg">
-            <label>저장 경로 <span style="font-size:11px;color:#9aa3c0;font-weight:400">(플랫폼 S3 자동 할당)</span></label>
-            <input type="text" readonly
-              style="background:#f5f7ff;color:#9aa3c0;font-family:monospace;font-size:11.5px"
-              placeholder="platform-s3/agents/{id}/users/{uid}/{file}">
-          </div>
-          <div class="fg full">
-            <label>임베딩 파라미터 <span style="font-size:11px;color:#9aa3c0;font-weight:400">(선택 — 기본값 사용 가능)</span></label>
-            <textarea class="json-editor" id="reqBody" spellcheck="false">{
+              <label>임베딩 파라미터 <span style="font-size:11px;color:#9aa3c0;font-weight:400">(선택 — 기본값 사용 가능)</span></label>
+              <textarea class="json-editor" id="reqBody" spellcheck="false">{
   "chunk_size": 512,
   "chunk_overlap": 64,
   "embed_model": "text-embedding-3-large",
@@ -2359,195 +2383,198 @@ tbody tr:hover td { background: #f8f9ff; }
     "doc_type": "general"
   }
 }</textarea>
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <button class="btn btn-secondary" onclick="resetUploadForm()">초기화</button>
+            <button class="btn btn-primary" onclick="simulateUpload()">📤 업로드 요청</button>
+          </div>
+        </div>
+      </div><!-- /kn-section-upload -->
+
+      <!-- ══ 내 문서 현황 영역 ══ -->
+      <div id="kn-section-status" style="display:none">
+        <div class="stat-row" style="grid-template-columns:repeat(4,1fr)">
+          <div class="stat-card">
+            <div class="sc-label">📤 총 등록</div>
+            <div class="sc-value">12</div>
+            <div class="sc-sub">파일 8 · 텍스트 4</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">✅ Vector DB 등록</div>
+            <div class="sc-value">8</div>
+            <div class="sc-sub" style="color:#9aa3c0">임베딩 완료</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">⏳ 검토 대기</div>
+            <div class="sc-value">3</div>
+            <div class="sc-sub" style="color:#e67e22">개발자 승인 대기</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">❌ 반려</div>
+            <div class="sc-value">1</div>
+            <div class="sc-sub" style="color:#9aa3c0">수정 후 재등록 필요</div>
           </div>
         </div>
 
-        <div class="form-footer">
-          <button class="btn btn-secondary" onclick="resetUploadForm()">초기화</button>
-          <button class="btn btn-primary" onclick="simulateUpload()">📤 업로드 요청</button>
+        <!-- 파일 / 텍스트 탭 -->
+        <div class="inner-tabs" id="kn-status-inner-tabs">
+          <div class="inner-tab active" onclick="docStatusTab(this,'dst-file')">📄 파일 문서</div>
+          <div class="inner-tab" onclick="docStatusTab(this,'dst-text')">📝 텍스트</div>
         </div>
-      </div>
-    </div>
 
-
-    <!-- ════════════════ 내 문서 현황 ════════════════ -->
-    <div class="panel" id="panel-doc-status">
-      <div class="stat-row" style="grid-template-columns:repeat(4,1fr)">
-        <div class="stat-card">
-          <div class="sc-label">📤 총 등록</div>
-          <div class="sc-value">12</div>
-          <div class="sc-sub">파일 8 · 텍스트 4</div>
-        </div>
-        <div class="stat-card">
-          <div class="sc-label">✅ Vector DB 등록</div>
-          <div class="sc-value">8</div>
-          <div class="sc-sub" style="color:#9aa3c0">임베딩 완료</div>
-        </div>
-        <div class="stat-card">
-          <div class="sc-label">⏳ 검토 대기</div>
-          <div class="sc-value">3</div>
-          <div class="sc-sub" style="color:#e67e22">개발자 승인 대기</div>
-        </div>
-        <div class="stat-card">
-          <div class="sc-label">❌ 반려</div>
-          <div class="sc-value">1</div>
-          <div class="sc-sub" style="color:#9aa3c0">수정 후 재등록 필요</div>
-        </div>
-      </div>
-
-      <!-- 파일 / 텍스트 탭 -->
-      <div class="inner-tabs">
-        <div class="inner-tab active" onclick="docStatusTab(this,'dst-file')">📄 파일 문서</div>
-        <div class="inner-tab" onclick="docStatusTab(this,'dst-text')">📝 텍스트</div>
-      </div>
-
-      <!-- ── 파일 문서 탭 ── -->
-      <div id="dst-file">
-        <div class="card">
-          <div class="card-title">📋 업로드 파일 목록</div>
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>파일명</th>
-                  <th>대상 Agent</th>
-                  <th>업로드일</th>
-                  <th>크기</th>
-                  <th>처리 단계</th>
-                  <th>Milvus 컬렉션</th>
-                  <th>비고</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- ① 등록 완료 -->
-                <tr>
-                  <td>📄 <b>NDA_계약서_v3.pdf</b></td>
-                  <td>🔬 공정 불량 분석</td>
-                  <td>2026-05-18</td>
-                  <td>2.3 MB</td>
-                  <td>
-                    <div class="doc-pipeline">
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">S3 저장</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">승인</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">DAG 실행</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">임베딩</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">VectorDB</span></div>
-                    </div>
-                  </td>
-                  <td><code style="font-size:11px;color:#4a6cff">process_defect_corpus</code></td>
-                  <td><span class="badge badge-green" style="font-size:11px">등록 완료</span></td>
-                </tr>
-                <!-- ② DAG 실행 / 임베딩 중 -->
-                <tr>
-                  <td>📄 <b>계약서_초안_2026.docx</b></td>
-                  <td>🔬 공정 불량 분석</td>
-                  <td>2026-05-19</td>
-                  <td>1.1 MB</td>
-                  <td>
-                    <div class="doc-pipeline">
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">S3 저장</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">승인</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-run"><div class="dp-dot">⚙</div><span class="dp-lbl">DAG 실행</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-emb"><div class="dp-dot" style="background:#0ea5e9">…</div><span class="dp-lbl" style="color:#0ea5e9">임베딩 중</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">VectorDB</span></div>
-                    </div>
-                  </td>
-                  <td><span style="color:#ccc;font-size:12px">처리 중…</span></td>
-                  <td><span class="badge badge-orange" style="font-size:11px">임베딩 중</span></td>
-                </tr>
-                <!-- ③ 승인 대기 -->
-                <tr>
-                  <td>📄 <b>연간보고서_2025.pdf</b></td>
-                  <td>📈 수율 예측</td>
-                  <td>2026-05-20</td>
-                  <td>8.7 MB</td>
-                  <td>
-                    <div class="doc-pipeline">
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">S3 저장</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-wait"><div class="dp-dot">⏸</div><span class="dp-lbl">승인 대기</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">DAG 실행</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">임베딩</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">VectorDB</span></div>
-                    </div>
-                  </td>
-                  <td><span style="color:#ccc;font-size:12px">—</span></td>
-                  <td><span class="badge badge-orange" style="font-size:11px">개발자 승인 대기</span></td>
-                </tr>
-                <!-- ④ 반려 -->
-                <tr>
-                  <td>📄 <b>내부규정_인사편람.pdf</b></td>
-                  <td>📈 수율 예측</td>
-                  <td>2026-05-20</td>
-                  <td>4.2 MB</td>
-                  <td>
-                    <div class="doc-pipeline">
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">S3 저장</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-fail"><div class="dp-dot">✕</div><span class="dp-lbl">반려</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">DAG 실행</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">임베딩</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">VectorDB</span></div>
-                    </div>
-                  </td>
-                  <td><span style="color:#ccc;font-size:12px">—</span></td>
-                  <td><span class="badge badge-red" style="font-size:11px" title="형식 부적합 — PDF/DOCX만 허용">반려: 형식 부적합</span></td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- ── 파일 문서 탭 ── -->
+        <div id="dst-file">
+          <div class="card">
+            <div class="card-title">📋 업로드 파일 목록</div>
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>파일명</th>
+                    <th>대상 Agent</th>
+                    <th>업로드일</th>
+                    <th>크기</th>
+                    <th>처리 단계</th>
+                    <th>Milvus 컬렉션</th>
+                    <th>비고</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- ① 등록 완료 -->
+                  <tr>
+                    <td>📄 <b>NDA_계약서_v3.pdf</b></td>
+                    <td>🔬 공정 불량 분석</td>
+                    <td>2026-05-18</td>
+                    <td>2.3 MB</td>
+                    <td>
+                      <div class="doc-pipeline">
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">S3 저장</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">승인</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">DAG 실행</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">임베딩</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">VectorDB</span></div>
+                      </div>
+                    </td>
+                    <td><code style="font-size:11px;color:#4a6cff">process_defect_corpus</code></td>
+                    <td><span class="badge badge-green" style="font-size:11px">등록 완료</span></td>
+                  </tr>
+                  <!-- ② DAG 실행 / 임베딩 중 -->
+                  <tr>
+                    <td>📄 <b>계약서_초안_2026.docx</b></td>
+                    <td>🔬 공정 불량 분석</td>
+                    <td>2026-05-19</td>
+                    <td>1.1 MB</td>
+                    <td>
+                      <div class="doc-pipeline">
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">S3 저장</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">승인</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-run"><div class="dp-dot">⚙</div><span class="dp-lbl">DAG 실행</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-emb"><div class="dp-dot" style="background:#0ea5e9">…</div><span class="dp-lbl" style="color:#0ea5e9">임베딩 중</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">VectorDB</span></div>
+                      </div>
+                    </td>
+                    <td><span style="color:#ccc;font-size:12px">처리 중…</span></td>
+                    <td><span class="badge badge-orange" style="font-size:11px">임베딩 중</span></td>
+                  </tr>
+                  <!-- ③ 승인 대기 -->
+                  <tr>
+                    <td>📄 <b>연간보고서_2025.pdf</b></td>
+                    <td>📈 수율 예측</td>
+                    <td>2026-05-20</td>
+                    <td>8.7 MB</td>
+                    <td>
+                      <div class="doc-pipeline">
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">S3 저장</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-wait"><div class="dp-dot">⏸</div><span class="dp-lbl">승인 대기</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">DAG 실행</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">임베딩</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">VectorDB</span></div>
+                      </div>
+                    </td>
+                    <td><span style="color:#ccc;font-size:12px">—</span></td>
+                    <td><span class="badge badge-orange" style="font-size:11px">개발자 승인 대기</span></td>
+                  </tr>
+                  <!-- ④ 반려 -->
+                  <tr>
+                    <td>📄 <b>내부규정_인사편람.pdf</b></td>
+                    <td>📈 수율 예측</td>
+                    <td>2026-05-20</td>
+                    <td>4.2 MB</td>
+                    <td>
+                      <div class="doc-pipeline">
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">S3 저장</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-fail"><div class="dp-dot">✕</div><span class="dp-lbl">반려</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">DAG 실행</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">임베딩</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-none"><div class="dp-dot">○</div><span class="dp-lbl">VectorDB</span></div>
+                      </div>
+                    </td>
+                    <td><span style="color:#ccc;font-size:12px">—</span></td>
+                    <td><span class="badge badge-red" style="font-size:11px" title="형식 부적합 — PDF/DOCX만 허용">반려: 형식 부적합</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- ── 텍스트 탭 ── -->
-      <div id="dst-text" style="display:none">
-        <div class="card">
-          <div class="card-title">📝 텍스트 등록 목록</div>
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>제목</th>
-                  <th>대상 Agent</th>
-                  <th>등록일</th>
-                  <th>문자 수</th>
-                  <th>처리 단계</th>
-                  <th>Milvus 컬렉션</th>
-                  <th>상태</th>
-                  <th>작업</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- ① VectorDB 등록 완료 — 수정 가능 -->
-                <tr id="dst-text-row-1">
-                  <td>📝 <b>공정 이상 사례 정리 메모</b></td>
-                  <td>🔬 공정 불량 분석</td>
-                  <td>2026-06-18</td>
-                  <td>4,320자</td>
-                  <td>
-                    <div class="doc-pipeline">
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">저장</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">승인</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">임베딩</span></div>
-                      <span class="dp-arrow">›</span>
-                      <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">VectorDB</span></div>
-                    </div>
+        <!-- ── 텍스트 탭 ── -->
+        <div id="dst-text" style="display:none">
+          <div class="card">
+            <div class="card-title">📝 텍스트 등록 목록</div>
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>제목 / 내용 미리보기</th>
+                    <th>대상 Agent</th>
+                    <th>등록일</th>
+                    <th>문자 수</th>
+                    <th>처리 단계</th>
+                    <th>Milvus 컬렉션</th>
+                    <th>상태</th>
+                    <th>작업</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- ① VectorDB 등록 완료 — 수정 가능 -->
+                  <tr id="dst-text-row-1">
+                    <td>
+                      <div style="font-weight:700;color:#12132a;margin-bottom:5px">📝 공정 이상 사례 정리 메모</div>
+                      <div class="text-inline-preview" id="tip-1">2024년 3월 공정라인 B에서 발생한 불량 패턴 분석.<br>주요 원인: 온도 편차 ±2.3°C 초과 시 수율 저하 관찰됨.<br>대응 조치: 센서 보정 주기를 72h → 24h로 단축.<br>추가 검토 필요 항목: 라인 A 동일 조건 비교 분석 및 원인 규명.</div>
+                      <span class="tip-toggle" onclick="toggleTextPreview('1')">▼ 내용 펼치기</span>
+                    </td>
+                    <td>🔬 공정 불량 분석</td>
+                    <td>2026-06-18</td>
+                    <td>4,320자</td>
+                    <td>
+                      <div class="doc-pipeline">
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">저장</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">승인</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">임베딩</span></div>
+                        <span class="dp-arrow">›</span>
+                        <div class="dp-step dp-done"><div class="dp-dot">✓</div><span class="dp-lbl">VectorDB</span></div>
+                      </div>
                   </td>
                   <td><code style="font-size:11px;color:#4a6cff">process_defect_corpus</code></td>
                   <td><span class="badge badge-green" style="font-size:11px">등록 완료</span></td>
@@ -2560,7 +2587,11 @@ tbody tr:hover td { background: #f8f9ff; }
                 </tr>
                 <!-- ② VectorDB 등록 완료 -->
                 <tr id="dst-text-row-2">
-                  <td>📝 <b>불량 코드 분류 기준 문서</b></td>
+                  <td>
+                    <div style="font-weight:700;color:#12132a;margin-bottom:5px">📝 불량 코드 분류 기준 문서</div>
+                    <div class="text-inline-preview" id="tip-2">불량 코드 체계:<br>A0xx — 외관 불량 (A001: 스크래치, A002: 변색)<br>B0xx — 치수 불량 (B001: 과대, B002: 과소)<br>C0xx — 기능 불량 (C001: 단락, C002: 개방)<br><br>판정 기준: 3회 연속 동일 코드 발생 시 라인 중단 후 원인 분석 필수.</div>
+                    <span class="tip-toggle" onclick="toggleTextPreview('2')">▼ 내용 펼치기</span>
+                  </td>
                   <td>🔬 공정 불량 분석</td>
                   <td>2026-06-17</td>
                   <td>5,640자</td>
@@ -2586,7 +2617,11 @@ tbody tr:hover td { background: #f8f9ff; }
                 </tr>
                 <!-- ③ 등록 완료 (수율 예측) -->
                 <tr id="dst-text-row-3">
-                  <td>📝 <b>수율 이슈 원인 분석 노트</b></td>
+                  <td>
+                    <div style="font-weight:700;color:#12132a;margin-bottom:5px">📝 수율 이슈 원인 분석 노트</div>
+                    <div class="text-inline-preview" id="tip-3">Q1 수율 저하 원인 분석 결과:<br>1. 원자재 순도 편차 (납품사 A → B 교체 이후 발생)<br>2. 온도 프로파일 최적화 미흡<br>3. 설비 PM 주기 초과<br><br>개선 방향: 납품사 재검토 및 PM 주기 단축(30일→21일).</div>
+                    <span class="tip-toggle" onclick="toggleTextPreview('3')">▼ 내용 펼치기</span>
+                  </td>
                   <td>📈 수율 예측</td>
                   <td>2026-06-15</td>
                   <td>3,900자</td>
@@ -2613,8 +2648,10 @@ tbody tr:hover td { background: #f8f9ff; }
                 <!-- ④ Upsert 승인 대기 -->
                 <tr id="dst-text-row-4">
                   <td>
-                    📝 <b>공정 이상 사례 정리 메모</b>
-                    <div style="margin-top:4px"><span class="upsert-chip">↑ Upsert 수정 요청</span></div>
+                    <div style="font-weight:700;color:#12132a;margin-bottom:4px">📝 공정 이상 사례 정리 메모</div>
+                    <div style="margin-bottom:5px"><span class="upsert-chip">↑ Upsert 수정 요청</span></div>
+                    <div class="text-inline-preview" id="tip-4">2024년 3월 공정라인 B에서 발생한 불량 패턴 분석 (수정본).<br>주요 원인: 온도 편차 ±2.3°C 초과 시 수율 저하 관찰됨.<br>대응 조치: 센서 보정 주기를 72h → 24h로 단축.<br>추가 검토 필요 항목: 라인 A/C 동일 조건 비교 분석 및 센서 교체 이력 검토 필요.</div>
+                    <span class="tip-toggle" onclick="toggleTextPreview('4')">▼ 내용 펼치기</span>
                   </td>
                   <td>🔬 공정 불량 분석</td>
                   <td>2026-06-21</td>
@@ -2638,9 +2675,10 @@ tbody tr:hover td { background: #f8f9ff; }
             </table>
           </div>
         </div>
-      </div>
+      </div><!-- /dst-text -->
+      </div><!-- /kn-section-status -->
 
-      <!-- 텍스트 수정 모달 -->
+      <!-- 텍스트 수정 모달 (User) -->
       <div class="modal-overlay" id="textEditModal">
         <div class="modal-box" style="max-width:640px">
           <button class="modal-close" onclick="closeTextEdit()">✕</button>
@@ -2678,10 +2716,10 @@ tbody tr:hover td { background: #f8f9ff; }
         </div>
       </div>
 
-    </div>
+    </div><!-- /panel-knowledge -->
 
 
-    <!-- ════════════════ Developer: Knowledge ════════════════ -->
+    <!-- ════════════════ Developer: Knowledge 관리 ════════════════ -->
     <div class="panel" id="panel-doc-approve">
       <!-- Knowledge 최상위 탭 -->
       <div class="knowledge-type-tabs">
@@ -2835,9 +2873,11 @@ tbody tr:hover td { background: #f8f9ff; }
                     </span>
                   </td>
                   <td>
-                    <div style="display:flex;gap:5px">
+                    <div style="display:flex;gap:5px;flex-wrap:wrap">
+                      <button class="btn btn-ghost btn-sm" onclick="downloadDoc(this,'연간보고서_2025.pdf')" title="다운로드">⬇</button>
                       <button class="btn btn-success btn-sm" onclick="approveDoc(this)">승인</button>
                       <button class="btn btn-danger btn-sm" onclick="rejectDoc(this)">반려</button>
+                      <button class="btn btn-ghost btn-sm" onclick="deleteKnowledgeItem(this,'doc')" title="삭제" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
                     </div>
                   </td>
                 </tr>
@@ -2872,9 +2912,11 @@ tbody tr:hover td { background: #f8f9ff; }
                     </span>
                   </td>
                   <td>
-                    <div style="display:flex;gap:5px">
+                    <div style="display:flex;gap:5px;flex-wrap:wrap">
+                      <button class="btn btn-ghost btn-sm" onclick="downloadDoc(this,'회의록_05월_전략.docx')" title="다운로드">⬇</button>
                       <button class="btn btn-success btn-sm" onclick="approveDoc(this)">승인</button>
                       <button class="btn btn-danger btn-sm" onclick="rejectDoc(this)">반려</button>
+                      <button class="btn btn-ghost btn-sm" onclick="deleteKnowledgeItem(this,'doc')" title="삭제" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
                     </div>
                   </td>
                 </tr>
@@ -2917,10 +2959,12 @@ tbody tr:hover td { background: #f8f9ff; }
                   </td>
                   <td>
                     <div style="display:flex;flex-direction:column;gap:5px">
-                      <div style="display:flex;gap:5px">
+                      <div style="display:flex;gap:5px;flex-wrap:wrap">
+                        <button class="btn btn-ghost btn-sm" onclick="downloadDoc(this,'설계개요서_v2.pdf')" title="다운로드">⬇</button>
                         <button class="btn btn-success btn-sm" disabled
                           style="opacity:.35;cursor:not-allowed" title="Knowledge 설정 후 승인 가능합니다">승인</button>
                         <button class="btn btn-danger btn-sm" onclick="rejectDoc(this)">반려</button>
+                        <button class="btn btn-ghost btn-sm" onclick="deleteKnowledgeItem(this,'doc')" title="삭제" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
                       </div>
                       <div style="font-size:10.5px;color:#c0601a;white-space:nowrap">Knowledge 설정 후 승인 가능</div>
                     </div>
@@ -2939,7 +2983,7 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="tbl-wrap">
             <table>
               <thead>
-                <tr><th>파일명</th><th>사용자</th><th>Agent</th><th>크기</th><th>처리일</th><th>결과</th><th>처리자</th></tr>
+                <tr><th>파일명</th><th>사용자</th><th>Agent</th><th>크기</th><th>처리일</th><th>결과</th><th>처리자</th><th>관리</th></tr>
               </thead>
               <tbody>
                 <tr data-agent="legal">
@@ -2949,6 +2993,12 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>2.3 MB</td><td>2026-05-18</td>
                   <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
                   <td>이공정</td>
+                  <td>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-ghost btn-xs" onclick="downloadDoc(this,'NDA_계약서_v3.pdf')" title="다운로드">⬇</button>
+                      <button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'doc')" title="삭제" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
+                    </div>
+                  </td>
                 </tr>
                 <tr data-agent="legal">
                   <td>📄 계약서_초안_2026.docx</td>
@@ -2957,6 +3007,12 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>1.1 MB</td><td>2026-05-19</td>
                   <td><span class="status-pill sp-approved">승인 · 임베딩 중</span></td>
                   <td>이공정</td>
+                  <td>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-ghost btn-xs" onclick="downloadDoc(this,'계약서_초안_2026.docx')" title="다운로드">⬇</button>
+                      <button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'doc')" title="삭제" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
+                    </div>
+                  </td>
                 </tr>
                 <tr data-agent="doc-summary">
                   <td>📄 내부규정_인사편람.pdf</td>
@@ -2965,6 +3021,9 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>4.2 MB</td><td>2026-05-19</td>
                   <td><span class="status-pill sp-rejected">반려 — 형식 부적합</span></td>
                   <td>김수율</td>
+                  <td>
+                    <button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'doc')" title="삭제" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
+                  </td>
                 </tr>
                 <tr data-agent="doc-summary">
                   <td>📄 분기실적보고서_Q1.pdf</td>
@@ -2973,6 +3032,12 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>3.6 MB</td><td>2026-05-17</td>
                   <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
                   <td>김수율</td>
+                  <td>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-ghost btn-xs" onclick="downloadDoc(this,'분기실적보고서_Q1.pdf')" title="다운로드">⬇</button>
+                      <button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'doc')" title="삭제" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -3080,7 +3145,12 @@ tbody tr:hover td { background: #f8f9ff; }
                 <tbody>
                   <!-- 신규 등록 -->
                   <tr data-agent="process-text">
-                    <td>📝 <b>공정 이상 사례 정리 메모</b></td>
+                    <td>
+                      <div style="font-weight:700;margin-bottom:4px">📝 공정 이상 사례 정리 메모</div>
+                      <div style="font-size:12px;color:#5a6288;line-height:1.6;background:#f8f9ff;border-radius:6px;padding:7px 10px;border:1px solid #e4e8f4;max-height:72px;overflow:hidden">
+                        2024년 3월 공정라인 B에서 발생한 불량 패턴 분석.<br>주요 원인: 온도 편차 ±2.3°C 초과 시 수율 저하 관찰됨.<br>대응 조치: 센서 보정 주기를 72h → 24h로 단축...
+                      </div>
+                    </td>
                     <td><span class="new-chip">🆕 신규 등록</span></td>
                     <td>홍길동</td>
                     <td><span style="font-size:12px">🔬 process-defect-agent</span></td>
@@ -3093,17 +3163,24 @@ tbody tr:hover td { background: #f8f9ff; }
                       </span>
                     </td>
                     <td>
-                      <div style="display:flex;gap:5px">
-                        <button class="btn btn-success btn-sm" onclick="approveTextDoc(this)">승인</button>
-                        <button class="btn btn-danger btn-sm" onclick="rejectTextDoc(this)">반려</button>
+                      <div style="display:flex;flex-direction:column;gap:4px">
+                        <div style="display:flex;gap:4px;flex-wrap:wrap">
+                          <button class="btn btn-ghost btn-sm" style="color:#4a6cff;border-color:#c5cef8"
+                            onclick="devEditText('공정 이상 사례 정리 메모','2024년 3월 공정라인 B에서 발생한 불량 패턴 분석.\n주요 원인: 온도 편차 ±2.3°C 초과 시 수율 저하 관찰됨.\n대응 조치: 센서 보정 주기를 72h → 24h로 단축.\n추가 검토 필요 항목: 라인 A 동일 조건 비교 분석 및 원인 규명.', this)">✏ 수정</button>
+                          <button class="btn btn-success btn-sm" onclick="approveTextDoc(this)">승인</button>
+                          <button class="btn btn-danger btn-sm" onclick="rejectTextDoc(this)">반려</button>
+                          <button class="btn btn-ghost btn-sm" onclick="deleteKnowledgeItem(this,'text')" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
+                        </div>
                       </div>
                     </td>
                   </tr>
                   <!-- Upsert 수정 요청 -->
                   <tr data-agent="process-text" style="background:#fdf8ff">
                     <td>
-                      📝 <b>공정 이상 사례 정리 메모</b>
-                      <div style="font-size:10.5px;color:#7c3aed;margin-top:3px">기존 벡터 갱신 요청</div>
+                      <div style="font-weight:700;margin-bottom:4px">📝 공정 이상 사례 정리 메모 <span class="upsert-chip" style="font-size:10px">↑ Upsert</span></div>
+                      <div style="font-size:12px;color:#5a6288;line-height:1.6;background:#f8f9ff;border-radius:6px;padding:7px 10px;border:1px solid #e4e8f4;max-height:72px;overflow:hidden">
+                        2024년 3월 공정라인 B에서 발생한 불량 패턴 분석 (수정).<br>주요 원인: 온도 편차 ±2.3°C 초과 시 수율 저하 관찰됨.<br>라인 A/C 동일 조건 비교 분석 및 센서 교체 이력 검토 필요...
+                      </div>
                     </td>
                     <td><span class="upsert-chip">↑ Upsert 수정</span></td>
                     <td>홍길동</td>
@@ -3118,9 +3195,12 @@ tbody tr:hover td { background: #f8f9ff; }
                     </td>
                     <td>
                       <div style="display:flex;flex-direction:column;gap:4px">
-                        <div style="display:flex;gap:5px">
+                        <div style="display:flex;gap:4px;flex-wrap:wrap">
+                          <button class="btn btn-ghost btn-sm" style="color:#4a6cff;border-color:#c5cef8"
+                            onclick="devEditText('공정 이상 사례 정리 메모 (수정)','2024년 3월 공정라인 B에서 발생한 불량 패턴 분석 (수정).\n주요 원인: 온도 편차 ±2.3°C 초과 시 수율 저하 관찰됨.\n대응 조치: 센서 보정 주기를 72h → 24h로 단축.\n추가 검토 필요 항목: 라인 A/C 동일 조건 비교 분석 및 센서 교체 이력 검토 필요.', this)">✏ 수정</button>
                           <button class="btn btn-success btn-sm" onclick="approveTextDoc(this)">승인</button>
                           <button class="btn btn-danger btn-sm" onclick="rejectTextDoc(this)">반려</button>
+                          <button class="btn btn-ghost btn-sm" onclick="deleteKnowledgeItem(this,'text')" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
                         </div>
                         <div style="font-size:10px;color:#7c3aed">승인 시 Milvus Upsert 실행</div>
                       </div>
@@ -3139,7 +3219,7 @@ tbody tr:hover td { background: #f8f9ff; }
             <div class="tbl-wrap">
               <table>
                 <thead>
-                  <tr><th>제목</th><th>구분</th><th>사용자</th><th>Agent</th><th>문자 수</th><th>처리일</th><th>결과</th><th>처리자</th></tr>
+                  <tr><th>제목</th><th>구분</th><th>사용자</th><th>Agent</th><th>문자 수</th><th>처리일</th><th>결과</th><th>처리자</th><th>관리</th></tr>
                 </thead>
                 <tbody>
                   <tr data-agent="process-text">
@@ -3150,6 +3230,7 @@ tbody tr:hover td { background: #f8f9ff; }
                     <td>2,180자</td><td>2026-06-18</td>
                     <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
                     <td>이공정</td>
+                    <td><button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'text')" style="color:#e74c3c;border-color:#fca5a5">🗑</button></td>
                   </tr>
                   <tr data-agent="process-text">
                     <td>📝 불량 코드 분류 기준 문서</td>
@@ -3159,6 +3240,7 @@ tbody tr:hover td { background: #f8f9ff; }
                     <td>5,640자</td><td>2026-06-17</td>
                     <td><span class="status-pill sp-approved">승인 · 임베딩 중</span></td>
                     <td>이공정</td>
+                    <td><button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'text')" style="color:#e74c3c;border-color:#fca5a5">🗑</button></td>
                   </tr>
                   <tr data-agent="yield-text">
                     <td>📝 수율 이슈 원인 분석 노트</td>
@@ -3168,6 +3250,7 @@ tbody tr:hover td { background: #f8f9ff; }
                     <td>3,900자</td><td>2026-06-15</td>
                     <td><span class="status-pill sp-active">승인 · VectorDB 등록</span></td>
                     <td>김수율</td>
+                    <td><button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'text')" style="color:#e74c3c;border-color:#fca5a5">🗑</button></td>
                   </tr>
                   <tr data-agent="yield-text">
                     <td>📝 Q1 수율 회의 논의 내용</td>
@@ -3177,6 +3260,7 @@ tbody tr:hover td { background: #f8f9ff; }
                     <td>1,250자</td><td>2026-06-14</td>
                     <td><span class="status-pill sp-rejected">반려 — 내용 불충분</span></td>
                     <td>김수율</td>
+                    <td><button class="btn btn-ghost btn-xs" onclick="deleteKnowledgeItem(this,'text')" style="color:#e74c3c;border-color:#fca5a5">🗑</button></td>
                   </tr>
                 </tbody>
               </table>
@@ -3192,6 +3276,36 @@ tbody tr:hover td { background: #f8f9ff; }
           <button class="modal-close" onclick="document.getElementById('textPreviewModal').classList.remove('open')">✕</button>
           <div class="modal-title" id="textPreviewTitle">텍스트 내용 미리보기</div>
           <div style="background:#f8f9ff;border:1.5px solid #e4e8f4;border-radius:10px;padding:16px;margin-top:16px;max-height:300px;overflow-y:auto;line-height:1.8;font-size:13px;color:#2d3452;white-space:pre-wrap" id="textPreviewBody"></div>
+        </div>
+      </div>
+
+      <!-- Developer 텍스트 수정 모달 -->
+      <div class="modal-overlay" id="devTextEditModal">
+        <div class="modal-box" style="max-width:640px">
+          <button class="modal-close" onclick="closeDevTextEdit()">✕</button>
+          <div class="modal-title">✏ 텍스트 수정 (Developer)</div>
+          <div class="modal-subtitle">승인 전 텍스트 내용을 직접 수정할 수 있습니다. 수정 후 승인하면 수정된 내용이 VectorDB에 임베딩됩니다.</div>
+
+          <div class="text-edit-meta">
+            <div><b id="devEditMetaTitle">—</b></div>
+          </div>
+
+          <div class="text-edit-label">내용 수정</div>
+          <textarea id="devTextEditContent" style="width:100%;min-height:240px;border:1.5px solid #e4e8f4;border-radius:8px;padding:14px;font-size:13px;line-height:1.7;resize:vertical;outline:none;font-family:inherit;color:#1a1a2e" onfocus="this.style.borderColor='#7c9fff'" onblur="this.style.borderColor='#e4e8f4'"></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:4px">
+            <span id="devEditCharCount" style="font-size:11px;color:#9aa3c0">0자</span>
+          </div>
+
+          <div class="upsert-info-box" style="margin-top:14px">
+            <span style="font-size:15px;flex-shrink:0">ℹ️</span>
+            <div>수정된 내용은 <b>저장</b> 후 승인 버튼을 눌러야 실제 임베딩됩니다. 저장만 할 경우 대기 상태로 남습니다.</div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:18px">
+            <button class="btn btn-secondary" onclick="closeDevTextEdit()">취소</button>
+            <button class="btn btn-ghost" onclick="saveDevTextEdit()">💾 저장만</button>
+            <button class="btn btn-success" onclick="saveAndApproveDevText()">✅ 저장 후 승인</button>
+          </div>
         </div>
       </div>
 
@@ -3503,8 +3617,8 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="sac-foot">
             <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">process_defect_corpus</code></div>
             <div style="margin-left:auto;display:flex;gap:8px">
-              <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
-              <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
+              <button class="btn btn-secondary btn-sm" onclick="show('knowledge');switchUserKnowledgeTab('upload')">📤 문서 업로드</button>
+              <button class="btn btn-ghost btn-sm" onclick="show('knowledge');switchUserKnowledgeTab('status')">📋 내 문서 현황</button>
             </div>
           </div>
         </div>
@@ -3541,8 +3655,8 @@ tbody tr:hover td { background: #f8f9ff; }
           <div class="sac-foot">
             <div style="font-size:12px;color:#9aa3c0">collection: <code style="color:#4a6cff">yield_prediction_corpus</code></div>
             <div style="margin-left:auto;display:flex;gap:8px">
-              <button class="btn btn-secondary btn-sm" onclick="show('doc-upload')">📤 문서 업로드</button>
-              <button class="btn btn-ghost btn-sm" onclick="show('doc-status')">📋 내 문서 현황</button>
+              <button class="btn btn-secondary btn-sm" onclick="show('knowledge');switchUserKnowledgeTab('upload')">📤 문서 업로드</button>
+              <button class="btn btn-ghost btn-sm" onclick="show('knowledge');switchUserKnowledgeTab('status')">📋 내 문서 현황</button>
             </div>
           </div>
         </div>
@@ -3950,18 +4064,17 @@ function updateAccountDisplay() {
 }
 
 const META = {
-  marketplace:  { title: 'MARKETPLACE',    desc: '등록된 Agent를 탐색하고 구독하세요',                         crumb: 'agentMarket > MARKETPLACE' },
-  developer:    { title: '내 현황',        desc: '신청한 Agent 상태 및 구독·사용 지표를 확인하세요',           crumb: 'agentMarket > 내 현황' },
-  apply:        { title: '등록 신청',      desc: '관리자 검토 후 승인되면 Gateway Key가 발급됩니다',           crumb: 'agentMarket > 등록 신청' },
-  'user-status':{ title: '내 현황',        desc: '구독 중인 Agent별 사용 현황을 확인하세요',                   crumb: 'agentMarket > 내 현황' },
-  'doc-upload': { title: '문서 업로드',    desc: 'Agent Vector DB Collection에 문서를 업로드합니다',           crumb: 'agentMarket > 문서 업로드' },
-  'doc-status': { title: '내 문서 현황',   desc: '업로드한 문서의 처리 상태를 확인합니다',                     crumb: 'agentMarket > 내 문서 현황' },
-  'doc-approve':{ title: 'Knowledge',     desc: '사용자가 등록한 문서·텍스트를 검토하고 VectorDB 임베딩 여부를 결정합니다', crumb: 'agentMarket > Developer > Knowledge' },
-  register:     { title: 'Agent 등록',     desc: '관리자가 직접 Agent를 등록합니다',                           crumb: 'agentMarket > 관리자 > Agent 등록' },
-  approve:      { title: '등록 승인',      desc: '개발자가 신청한 Agent를 검토하고 승인·반려합니다',           crumb: 'agentMarket > 관리자 > 등록 승인' },
-  gwkey:        { title: 'Gateway Key',    desc: '승인된 Agent의 접근 키를 발급·관리합니다',                   crumb: 'agentMarket > 관리자 > Gateway Key' },
-  milvus:       { title: 'Milvus 컬렉션', desc: 'Agent별 벡터 DB 컬렉션 현황을 조회합니다',                   crumb: 'agentMarket > 관리자 > Milvus' },
-  'admin-status':{ title: '내 현황',     desc: '플랫폼 전체 현황 및 내 Agent · 구독 현황을 확인하세요',      crumb: 'agentMarket > 내 현황' },
+  marketplace:  { title: 'MARKETPLACE',       desc: '등록된 Agent를 탐색하고 구독하세요',                         crumb: 'agentMarket > MARKETPLACE' },
+  developer:    { title: '내 현황',           desc: '신청한 Agent 상태 및 구독·사용 지표를 확인하세요',           crumb: 'agentMarket > 내 현황' },
+  apply:        { title: '등록 신청',         desc: '관리자 검토 후 승인되면 Gateway Key가 발급됩니다',           crumb: 'agentMarket > 등록 신청' },
+  'user-status':{ title: '내 현황',           desc: '구독 중인 Agent별 사용 현황을 확인하세요',                   crumb: 'agentMarket > 내 현황' },
+  knowledge:    { title: 'Knowledge',         desc: '문서·텍스트를 업로드하고 처리 현황을 확인합니다',            crumb: 'agentMarket > MY > Knowledge' },
+  'doc-approve':{ title: 'Knowledge 관리',    desc: '사용자가 등록한 문서·텍스트를 검토하고 VectorDB 임베딩 여부를 결정합니다', crumb: 'agentMarket > Developer > Knowledge 관리' },
+  register:     { title: 'Agent 등록',        desc: '관리자가 직접 Agent를 등록합니다',                           crumb: 'agentMarket > 관리자 > Agent 등록' },
+  approve:      { title: '등록 승인',         desc: '개발자가 신청한 Agent를 검토하고 승인·반려합니다',           crumb: 'agentMarket > 관리자 > 등록 승인' },
+  gwkey:        { title: 'Gateway Key',       desc: '승인된 Agent의 접근 키를 발급·관리합니다',                   crumb: 'agentMarket > 관리자 > Gateway Key' },
+  milvus:       { title: 'Milvus 컬렉션',    desc: 'Agent별 벡터 DB 컬렉션 현황을 조회합니다',                   crumb: 'agentMarket > 관리자 > Milvus' },
+  'admin-status':{ title: '내 현황',         desc: '플랫폼 전체 현황 및 내 Agent · 구독 현황을 확인하세요',      crumb: 'agentMarket > 내 현황' },
 };
 
 function show(id) {
@@ -4252,14 +4365,98 @@ function showTextPreview(content, title) {
   document.getElementById('textPreviewModal').classList.add('open');
 }
 
-/* ─── 내 문서 현황 탭 전환 (파일 / 텍스트) ─── */
+/* ─── MY Knowledge 탭 전환 (업로드 / 내 문서 현황) ─── */
+function switchUserKnowledgeTab(tab) {
+  ['upload','status'].forEach(t => {
+    const tabEl = document.getElementById('kn-tab-' + t);
+    const sec = document.getElementById('kn-section-' + t);
+    if (tabEl) tabEl.classList.toggle('active', t === tab);
+    if (sec) sec.style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+/* ─── 내 문서 현황 내부 탭 전환 (파일 / 텍스트) ─── */
 function docStatusTab(el, tabId) {
-  document.querySelectorAll('#panel-doc-status .inner-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#kn-status-inner-tabs .inner-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   ['dst-file','dst-text'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = id === tabId ? 'block' : 'none';
   });
+}
+
+/* ─── 텍스트 인라인 미리보기 토글 ─── */
+function toggleTextPreview(id) {
+  const preview = document.getElementById('tip-' + id);
+  const toggle = preview ? preview.nextElementSibling : null;
+  if (!preview || !toggle) return;
+  const expanded = preview.classList.toggle('expanded');
+  toggle.textContent = expanded ? '▲ 내용 접기' : '▼ 내용 펼치기';
+}
+
+/* ─── Developer 텍스트 수정 모달 ─── */
+let _devEditTargetRow = null;
+
+function devEditText(title, content, btn) {
+  _devEditTargetRow = btn ? btn.closest('tr') : null;
+  document.getElementById('devEditMetaTitle').textContent = title || '—';
+  const ta = document.getElementById('devTextEditContent');
+  ta.value = content || '';
+  ta.oninput = function() {
+    document.getElementById('devEditCharCount').textContent = this.value.length + '자';
+  };
+  document.getElementById('devEditCharCount').textContent = (content || '').length + '자';
+  document.getElementById('devTextEditModal').classList.add('open');
+}
+
+function closeDevTextEdit() {
+  document.getElementById('devTextEditModal').classList.remove('open');
+  _devEditTargetRow = null;
+}
+
+function saveDevTextEdit() {
+  const content = document.getElementById('devTextEditContent').value.trim();
+  if (content.length < 5) { alert('수정할 내용을 입력하세요.'); return; }
+  closeDevTextEdit();
+  setTimeout(() => alert('💾 텍스트가 저장되었습니다.\n(승인 버튼을 눌러야 VectorDB에 임베딩됩니다)'), 100);
+}
+
+function saveAndApproveDevText() {
+  const content = document.getElementById('devTextEditContent').value.trim();
+  if (content.length < 5) { alert('수정할 내용을 입력하세요.'); return; }
+  const row = _devEditTargetRow;
+  closeDevTextEdit();
+  if (row) {
+    const lastCell = row.cells[row.cells.length - 1];
+    lastCell.innerHTML = '<span class="status-pill sp-approved" style="white-space:nowrap">✅ 수정 후 승인 · 임베딩 중</span>';
+    setTimeout(() => {
+      lastCell.innerHTML = '<span class="status-pill sp-active">VectorDB 등록 완료</span>';
+      row.style.opacity = '0.5';
+    }, 2500);
+    _decreaseTextBadge();
+  }
+}
+
+/* ─── Developer 다운로드 시뮬레이션 ─── */
+function downloadDoc(btn, filename) {
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.innerHTML = '✅';
+    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1200);
+    alert('📥 다운로드가 시작됩니다: ' + filename + '\n(프로토타입 — 실제 파일 다운로드는 백엔드 연동 필요)');
+  }, 800);
+}
+
+/* ─── Knowledge 항목 삭제 (Developer 관리) ─── */
+function deleteKnowledgeItem(btn, type) {
+  const label = type === 'doc' ? '문서' : '텍스트';
+  if (!confirm('이 ' + label + '를 삭제하겠습니까?\n삭제 시 S3 저장 파일 및 VectorDB 벡터도 함께 제거됩니다.')) return;
+  const row = btn.closest('tr');
+  row.style.transition = 'opacity 0.3s';
+  row.style.opacity = '0';
+  setTimeout(() => row.remove(), 300);
 }
 
 /* ─── 텍스트 수정 모달 ─── */
