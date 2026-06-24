@@ -485,6 +485,37 @@ tbody tr:hover td { background: #f8f9ff; }
 .af-pend { background: #fff4e0; color: #e67e22; }
 .af-tab.active .af-pend { background: rgba(255,255,255,0.25); color: #fff; }
 
+/* ───────────── Agent 커스텀 드롭다운 ───────────── */
+.cs-wrap { position:relative; display:inline-block; min-width:300px; }
+.cs-trigger {
+  display:flex; align-items:center; gap:10px;
+  border:1.5px solid #e4e8f4; border-radius:8px; padding:9px 14px;
+  font-size:13px; font-weight:600; color:#333; background:#fff;
+  cursor:pointer; user-select:none; transition:border 0.15s;
+}
+.cs-trigger:hover { border-color:#7c9fff; }
+.cs-trigger.open { border-color:#4a6cff; }
+.cs-arrow { margin-left:auto; font-size:11px; color:#aab0c6; transition:transform 0.2s; }
+.cs-trigger.open .cs-arrow { transform:rotate(180deg); color:#4a6cff; }
+.cs-panel {
+  display:none; position:absolute; top:calc(100% + 4px); left:0;
+  background:#fff; border:1.5px solid #e4e8f4; border-radius:10px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.1); z-index:200; overflow:hidden; min-width:100%;
+}
+.cs-panel.open { display:block; }
+.cs-option {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px; cursor:pointer; transition:background 0.12s; gap:16px;
+}
+.cs-option:not(:last-child) { border-bottom:1px solid #f3f4f8; }
+.cs-option:hover { background:#f4f6ff; }
+.cs-option.cs-selected { background:#eef1ff; }
+.cs-option-name { font-size:13px; font-weight:600; color:#12132a; }
+.cs-counts { display:flex; gap:10px; font-size:11.5px; font-weight:700; white-space:nowrap; }
+.cs-pend { color:#e67e22; }
+.cs-appr { color:#27ae60; }
+.cs-rej  { color:#e74c3c; }
+
 /* 컬렉션 정보 칩 */
 .col-chip {
   display: inline-flex; align-items: center; gap: 5px; font-family: monospace;
@@ -699,6 +730,8 @@ tbody tr:hover td { background: #f8f9ff; }
 .dag-cell-tag { display:inline-flex; align-items:center; gap:5px; font-family:monospace; font-size:11px; color:#6a7090; background:#f3f5fb; border:1px solid #e4e8f4; border-radius:6px; padding:3px 8px; }
 .dag-cell-tag.selectable { color:#4a6cff; background:#eef1ff; border-color:#c5cef8; cursor:pointer; }
 .dag-cell-tag.selectable:hover { background:#e0e5ff; }
+.dag-cell-tag.dag-unset { color:#c0601a; background:#fff4e6; border-color:#fbd6a5; cursor:pointer; font-family:inherit; font-weight:700; }
+.dag-cell-tag.dag-unset:hover { background:#ffe8c7; }
 .dag-detail-tr td { padding:0 !important; background:#f8faff; }
 .dag-detail-inner { padding:12px 18px 14px; border-top:2px solid #e4e8f4; }
 .dag-detail-inner .dag-acc-wrap { margin-top:6px; max-height:196px; overflow-y:auto; }
@@ -2743,86 +2776,61 @@ tbody tr:hover td { background: #f8f9ff; }
       </div>
 
       <!-- Agent별 요약 카드 -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px">
-
-        <!-- Agent 1 -->
-        <div class="stat-card" style="border-left:4px solid #4a6cff">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="font-size:20px">🔬</span>
-            <div>
-              <div style="font-size:13px;font-weight:800;color:#12132a">process-defect-agent</div>
-            </div>
+      <div style="margin-bottom:22px">
+        <div class="stat-card" style="background:#f7f8ff;display:inline-flex;align-items:center;gap:32px;padding:18px 28px">
+          <div style="font-size:12px;font-weight:700;color:#6a7090">전체 합산 (이번 달)</div>
+          <div style="display:flex;gap:24px">
+            <div><div style="font-size:24px;font-weight:800;color:#e67e22">3</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
+            <div><div style="font-size:24px;font-weight:800;color:#27ae60">14</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
+            <div><div style="font-size:24px;font-weight:800;color:#e74c3c">3</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
           </div>
-          <div style="display:flex;gap:16px">
-            <div><div style="font-size:20px;font-weight:800;color:#e67e22">1</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#27ae60">8</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#e74c3c">1</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
-          </div>
-        </div>
-
-        <!-- Agent 2 -->
-        <div class="stat-card" style="border-left:4px solid #27ae60">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="font-size:20px">📈</span>
-            <div>
-              <div style="font-size:13px;font-weight:800;color:#12132a">yield-prediction-agent</div>
-            </div>
-          </div>
-          <div style="display:flex;gap:16px">
-            <div><div style="font-size:20px;font-weight:800;color:#e67e22">1</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#27ae60">6</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#e74c3c">2</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
-          </div>
-        </div>
-
-        <!-- Agent 3 — Knowledge 미설정 -->
-        <div class="stat-card" style="border-left:4px solid #e67e22;background:#fffbf5">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="font-size:20px">🏗</span>
-            <div>
-              <div style="font-size:13px;font-weight:800;color:#12132a">design-verify-agent</div>
-              <span style="font-size:10.5px;font-weight:700;color:#e67e22;background:#fef3e2;border:1px solid #f5c97a;border-radius:5px;padding:1px 6px;margin-top:3px;display:inline-block">⚠ Knowledge 미등록</span>
-            </div>
-          </div>
-          <div style="display:flex;gap:16px">
-            <div><div style="font-size:20px;font-weight:800;color:#e67e22">1</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#27ae60">0</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#e74c3c">0</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
-          </div>
-        </div>
-
-        <!-- 전체 합산 -->
-        <div class="stat-card" style="background:#f7f8ff">
-          <div style="font-size:12px;font-weight:700;color:#6a7090;margin-bottom:10px">전체 합산 (이번 달)</div>
-          <div style="display:flex;gap:16px">
-            <div><div style="font-size:20px;font-weight:800;color:#e67e22">3</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#27ae60">14</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#e74c3c">3</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
-          </div>
-          <div style="font-size:11.5px;color:#9aa3c0;margin-top:8px">총 용량: 43.8 MB</div>
+          <div style="font-size:11.5px;color:#9aa3c0;border-left:1px solid #e4e8f4;padding-left:24px">총 용량: 43.8 MB</div>
         </div>
       </div>
 
       <div class="card">
 
-        <!-- Agent 필터 탭 -->
-        <div style="margin-bottom:4px">
-          <div style="font-size:11px;font-weight:700;color:#9aa3c0;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px">Agent 선택</div>
-          <div class="agent-filter-bar" id="agentFilterBar">
-            <div class="af-tab active" data-agent="all" onclick="filterDocByAgent(this,'all')">
-              전체 <span class="af-count af-pend">3</span>
+        <!-- Agent 필터 드롭다운 -->
+        <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:12px;font-weight:700;color:#6a7090;white-space:nowrap">Agent 선택</span>
+          <div class="cs-wrap" id="docAgentWrap">
+            <div class="cs-trigger" id="docAgentTrigger" onclick="toggleCs('doc')">
+              <span id="docAgentLabel">전체</span>
+              <span class="cs-arrow">▾</span>
             </div>
-            <div class="af-tab" data-agent="legal" onclick="filterDocByAgent(this,'legal')">
-              🔬 process-defect-agent
-              <span class="af-count af-pend">1</span>
-            </div>
-            <div class="af-tab" data-agent="doc-summary" onclick="filterDocByAgent(this,'doc-summary')">
-              📈 yield-prediction-agent
-              <span class="af-count af-pend">1</span>
-            </div>
-            <div class="af-tab" data-agent="design-verify" onclick="filterDocByAgent(this,'design-verify')">
-              🏗 design-verify-agent
-              <span class="af-count af-pend" style="background:#e67e22">1</span>
+            <div class="cs-panel" id="docAgentPanel">
+              <div class="cs-option cs-selected" onclick="pickDocAgent(this,'all','전체')">
+                <span class="cs-option-name">전체</span>
+                <span class="cs-counts">
+                  <span class="cs-pend">대기 3</span>
+                  <span class="cs-appr">승인 14</span>
+                  <span class="cs-rej">반려 3</span>
+                </span>
+              </div>
+              <div class="cs-option" onclick="pickDocAgent(this,'legal','🔬 process-defect-agent')">
+                <span class="cs-option-name">🔬 process-defect-agent</span>
+                <span class="cs-counts">
+                  <span class="cs-pend">대기 1</span>
+                  <span class="cs-appr">승인 8</span>
+                  <span class="cs-rej">반려 1</span>
+                </span>
+              </div>
+              <div class="cs-option" onclick="pickDocAgent(this,'doc-summary','📈 yield-prediction-agent')">
+                <span class="cs-option-name">📈 yield-prediction-agent</span>
+                <span class="cs-counts">
+                  <span class="cs-pend">대기 1</span>
+                  <span class="cs-appr">승인 6</span>
+                  <span class="cs-rej">반려 2</span>
+                </span>
+              </div>
+              <div class="cs-option" onclick="pickDocAgent(this,'design-verify','🏗 design-verify-agent')">
+                <span class="cs-option-name">🏗 design-verify-agent</span>
+                <span class="cs-counts">
+                  <span class="cs-pend">대기 1</span>
+                  <span class="cs-appr">승인 0</span>
+                  <span class="cs-rej">반려 0</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -2871,10 +2879,9 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>홍길동</td>
                   <td><span style="font-size:12px">📈 yield-prediction-agent</span></td>
                   <td>
-                    <span class="dag-cell-tag selectable" id="dag-tag-r0"
-                      onclick="toggleDagDetail('r0')">
-                      <span id="dag-label-r0">general_embedding_dag</span>
-                      <span style="font-size:10px;color:#7a8fd4">✏</span>
+                    <span class="dag-cell-tag dag-unset" id="dag-tag-r0"
+                      onclick="toggleDagDetail('r0')" title="클릭하여 DAG 설정">
+                      ⚠ DAG 설정 필요
                     </span>
                   </td>
                   <td>8.7 MB</td>
@@ -2888,7 +2895,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>
                     <div style="display:flex;gap:5px;flex-wrap:wrap">
                       <button class="btn btn-ghost btn-sm" onclick="downloadDoc(this,'연간보고서_2025.pdf')" title="다운로드">⬇</button>
-                      <button class="btn btn-success btn-sm" onclick="approveDoc(this)">승인</button>
+                      <button class="btn btn-success btn-sm" id="approve-btn-r0" onclick="approveDoc(this)" disabled style="opacity:.4;cursor:not-allowed" title="DAG을 먼저 설정하세요">승인</button>
                       <button class="btn btn-danger btn-sm" onclick="rejectDoc(this)">반려</button>
                       <button class="btn btn-ghost btn-sm" onclick="deleteKnowledgeItem(this,'doc')" title="삭제" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
                     </div>
@@ -2910,10 +2917,9 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>이수진</td>
                   <td><span style="font-size:12px">🔬 process-defect-agent</span></td>
                   <td>
-                    <span class="dag-cell-tag selectable" id="dag-tag-r1"
-                      onclick="toggleDagDetail('r1')">
-                      <span id="dag-label-r1">legal_doc_embedding_dag</span>
-                      <span style="font-size:10px;color:#7a8fd4">✏</span>
+                    <span class="dag-cell-tag dag-unset" id="dag-tag-r1"
+                      onclick="toggleDagDetail('r1')" title="클릭하여 DAG 설정">
+                      ⚠ DAG 설정 필요
                     </span>
                   </td>
                   <td>0.9 MB</td>
@@ -2927,7 +2933,7 @@ tbody tr:hover td { background: #f8f9ff; }
                   <td>
                     <div style="display:flex;gap:5px;flex-wrap:wrap">
                       <button class="btn btn-ghost btn-sm" onclick="downloadDoc(this,'회의록_05월_전략.docx')" title="다운로드">⬇</button>
-                      <button class="btn btn-success btn-sm" onclick="approveDoc(this)">승인</button>
+                      <button class="btn btn-success btn-sm" id="approve-btn-r1" onclick="approveDoc(this)" disabled style="opacity:.4;cursor:not-allowed" title="DAG을 먼저 설정하세요">승인</button>
                       <button class="btn btn-danger btn-sm" onclick="rejectDoc(this)">반려</button>
                       <button class="btn btn-ghost btn-sm" onclick="deleteKnowledgeItem(this,'doc')" title="삭제" style="color:#e74c3c;border-color:#fca5a5">🗑</button>
                     </div>
@@ -3088,62 +3094,52 @@ tbody tr:hover td { background: #f8f9ff; }
         </div>
 
         <!-- 텍스트 요약 카드 -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px">
-          <div class="stat-card" style="border-left:4px solid #4a6cff">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-              <span style="font-size:20px">🔬</span>
-              <div style="font-size:13px;font-weight:800;color:#12132a">process-defect-agent</div>
+        <div style="margin-bottom:22px">
+          <div class="stat-card" style="background:#f7f8ff;display:inline-flex;align-items:center;gap:32px;padding:18px 28px">
+            <div style="font-size:12px;font-weight:700;color:#6a7090">전체 합산 (이번 달)</div>
+            <div style="display:flex;gap:24px">
+              <div><div style="font-size:24px;font-weight:800;color:#e67e22">1</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
+              <div><div style="font-size:24px;font-weight:800;color:#27ae60">5</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
+              <div><div style="font-size:24px;font-weight:800;color:#e74c3c">1</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
             </div>
-            <div style="display:flex;gap:16px">
-              <div><div style="font-size:20px;font-weight:800;color:#e67e22">1</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
-              <div><div style="font-size:20px;font-weight:800;color:#27ae60">3</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
-              <div><div style="font-size:20px;font-weight:800;color:#e74c3c">0</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
-            </div>
-          </div>
-          <div class="stat-card" style="border-left:4px solid #27ae60">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-              <span style="font-size:20px">📈</span>
-              <div style="font-size:13px;font-weight:800;color:#12132a">yield-prediction-agent</div>
-            </div>
-            <div style="display:flex;gap:16px">
-              <div><div style="font-size:20px;font-weight:800;color:#e67e22">0</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
-              <div><div style="font-size:20px;font-weight:800;color:#27ae60">2</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
-              <div><div style="font-size:20px;font-weight:800;color:#e74c3c">1</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
-            </div>
-          </div>
-          <div class="stat-card" style="background:#f7f8ff">
-            <div style="font-size:12px;font-weight:700;color:#6a7090;margin-bottom:10px">전체 합산 (이번 달)</div>
-            <div style="display:flex;gap:16px">
-              <div><div style="font-size:20px;font-weight:800;color:#e67e22">1</div><div style="font-size:11px;color:#9aa3c0">대기</div></div>
-              <div><div style="font-size:20px;font-weight:800;color:#27ae60">5</div><div style="font-size:11px;color:#9aa3c0">승인</div></div>
-              <div><div style="font-size:20px;font-weight:800;color:#e74c3c">1</div><div style="font-size:11px;color:#9aa3c0">반려</div></div>
-            </div>
-            <div style="font-size:11.5px;color:#9aa3c0;margin-top:8px">총 문자: 약 28,000자</div>
-          </div>
-          <div class="stat-card" style="background:#f0fdf4">
-            <div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:8px">💡 텍스트 입력 안내</div>
-            <div style="font-size:11.5px;color:#4b7060;line-height:1.6">
-              사용자가 직접 작성·붙여넣기한 텍스트입니다.<br>
-              파일 없이 바로 VectorDB에 임베딩됩니다.
-            </div>
+            <div style="font-size:11.5px;color:#9aa3c0;border-left:1px solid #e4e8f4;padding-left:24px">총 문자: 약 28,000자</div>
           </div>
         </div>
 
         <div class="card">
-          <!-- Agent 필터 탭 -->
-          <div style="margin-bottom:4px">
-            <div style="font-size:11px;font-weight:700;color:#9aa3c0;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px">Agent 선택</div>
-            <div class="agent-filter-bar" id="textAgentFilterBar">
-              <div class="af-tab active" data-agent="all" onclick="filterTextByAgent(this,'all')">
-                전체 <span class="af-count af-pend">1</span>
+          <!-- Agent 필터 드롭다운 -->
+          <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px">
+            <span style="font-size:12px;font-weight:700;color:#6a7090;white-space:nowrap">Agent 선택</span>
+            <div class="cs-wrap" id="textAgentWrap">
+              <div class="cs-trigger" id="textAgentTrigger" onclick="toggleCs('text')">
+                <span id="textAgentLabel">전체</span>
+                <span class="cs-arrow">▾</span>
               </div>
-              <div class="af-tab" data-agent="process-text" onclick="filterTextByAgent(this,'process-text')">
-                🔬 process-defect-agent
-                <span class="af-count af-pend">1</span>
-              </div>
-              <div class="af-tab" data-agent="yield-text" onclick="filterTextByAgent(this,'yield-text')">
-                📈 yield-prediction-agent
-                <span class="af-count af-pend">0</span>
+              <div class="cs-panel" id="textAgentPanel">
+                <div class="cs-option cs-selected" onclick="pickTextAgent(this,'all','전체')">
+                  <span class="cs-option-name">전체</span>
+                  <span class="cs-counts">
+                    <span class="cs-pend">대기 1</span>
+                    <span class="cs-appr">승인 5</span>
+                    <span class="cs-rej">반려 1</span>
+                  </span>
+                </div>
+                <div class="cs-option" onclick="pickTextAgent(this,'process-text','🔬 process-defect-agent')">
+                  <span class="cs-option-name">🔬 process-defect-agent</span>
+                  <span class="cs-counts">
+                    <span class="cs-pend">대기 1</span>
+                    <span class="cs-appr">승인 3</span>
+                    <span class="cs-rej">반려 0</span>
+                  </span>
+                </div>
+                <div class="cs-option" onclick="pickTextAgent(this,'yield-text','📈 yield-prediction-agent')">
+                  <span class="cs-option-name">📈 yield-prediction-agent</span>
+                  <span class="cs-counts">
+                    <span class="cs-pend">대기 0</span>
+                    <span class="cs-appr">승인 2</span>
+                    <span class="cs-rej">반려 1</span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -4370,9 +4366,8 @@ function textApproveTab(el, tabId) {
 }
 
 /* 텍스트 Agent 필터 */
-function filterTextByAgent(el, agent) {
-  document.querySelectorAll('#textAgentFilterBar .af-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
+function filterTextByAgent(agent) {
+  agent = agent || 'all';
   ['tab-text-pending','tab-text-history'].forEach(tabId => {
     document.querySelectorAll('#' + tabId + ' tbody tr').forEach(row => {
       row.style.display = (agent === 'all' || row.dataset.agent === agent) ? '' : 'none';
@@ -4682,27 +4677,62 @@ function submitUpsert() {
   }, 100);
 }
 
-/* Agent 필터 */
-let _currentDocAgent = 'all';
-function filterDocByAgent(el, agent) {
-  _currentDocAgent = agent;
-  document.querySelectorAll('.af-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
+/* ─── 커스텀 Agent 드롭다운 ─── */
+function toggleCs(id) {
+  const panel   = document.getElementById(id + 'AgentPanel');
+  const trigger = document.getElementById(id + 'AgentTrigger');
+  const isOpen  = panel.classList.contains('open');
+  // 모두 닫기
+  ['doc','text'].forEach(i => {
+    document.getElementById(i + 'AgentPanel')?.classList.remove('open');
+    document.getElementById(i + 'AgentTrigger')?.classList.remove('open');
+  });
+  if (!isOpen) {
+    panel.classList.add('open');
+    trigger.classList.add('open');
+  }
+}
 
-  // 두 탭 모두 필터 적용
+function pickDocAgent(el, value, label) {
+  document.getElementById('docAgentLabel').textContent = label;
+  document.querySelectorAll('#docAgentPanel .cs-option').forEach(o => o.classList.remove('cs-selected'));
+  el.classList.add('cs-selected');
+  document.getElementById('docAgentPanel').classList.remove('open');
+  document.getElementById('docAgentTrigger').classList.remove('open');
+  filterDocByAgent(value);
+}
+
+function pickTextAgent(el, value, label) {
+  document.getElementById('textAgentLabel').textContent = label;
+  document.querySelectorAll('#textAgentPanel .cs-option').forEach(o => o.classList.remove('cs-selected'));
+  el.classList.add('cs-selected');
+  document.getElementById('textAgentPanel').classList.remove('open');
+  document.getElementById('textAgentTrigger').classList.remove('open');
+  filterTextByAgent(value);
+}
+
+// 외부 클릭 시 닫기
+document.addEventListener('click', e => {
+  ['doc','text'].forEach(id => {
+    const wrap = document.getElementById(id + 'AgentWrap');
+    if (wrap && !wrap.contains(e.target)) {
+      document.getElementById(id + 'AgentPanel')?.classList.remove('open');
+      document.getElementById(id + 'AgentTrigger')?.classList.remove('open');
+    }
+  });
+});
+
+/* Agent 필터 */
+function filterDocByAgent(agent) {
+  agent = agent || 'all';
   ['tab-pending','tab-history'].forEach(tabId => {
-    const rows = document.querySelectorAll(`#${tabId} tbody tr`);
-    let visible = 0;
-    rows.forEach(row => {
-      const show = agent === 'all' || row.dataset.agent === agent;
-      row.style.display = show ? '' : 'none';
-      if (show) visible++;
+    document.querySelectorAll(`#${tabId} tbody tr`).forEach(row => {
+      if (row.classList.contains('dag-detail-tr')) return;
+      row.style.display = (agent === 'all' || row.dataset.agent === agent) ? '' : 'none';
     });
   });
-
-  // 대기 탭 빈 상태 처리
   const pendingRows = [...document.querySelectorAll('#tab-pending tbody tr')]
-    .filter(r => r.style.display !== 'none');
+    .filter(r => !r.classList.contains('dag-detail-tr') && r.style.display !== 'none');
   const empty = document.getElementById('emptyPending');
   if (empty) empty.style.display = pendingRows.length === 0 ? 'block' : 'none';
 }
@@ -4744,17 +4774,6 @@ function _decreaseBadge() {
       b.textContent = n || '';
     }
   });
-  // Agent 필터 탭 대기 카운트 감소
-  const activeAf = document.querySelector('.af-tab.active .af-pend');
-  if (activeAf) {
-    const n = Math.max(0, (+activeAf.textContent || 1) - 1);
-    activeAf.textContent = n;
-  }
-  const allAf = document.querySelector('.af-tab[data-agent="all"] .af-pend');
-  if (allAf) {
-    const n = Math.max(0, (+allAf.textContent || 1) - 1);
-    allAf.textContent = n;
-  }
 }
 
 function showReqBody(el) {
@@ -5157,7 +5176,7 @@ const _docDagSel = {};
 function renderDocDagAcc(rowId) {
   const wrap = document.getElementById(`dag-acc-${rowId}`);
   if (!wrap) return;
-  const currentDag = _docDagSel[rowId] || document.getElementById(`dag-label-${rowId}`).textContent.trim();
+  const currentDag = _docDagSel[rowId] || '';
   wrap.innerHTML = MOCK_AIRFLOW_DAGS.map((dag, i) => {
     const isSel = currentDag === dag.dag_id;
     return `
@@ -5193,7 +5212,9 @@ function renderDocDagAcc(rowId) {
 function toggleDagDetail(rowId) {
   const tr = document.getElementById(`dag-detail-${rowId}`);
   if (!tr) return;
-  tr.style.display = tr.style.display === 'none' ? '' : 'none';
+  const isHidden = tr.style.display === 'none';
+  tr.style.display = isHidden ? '' : 'none';
+  if (isHidden) renderDocDagAcc(rowId);
 }
 
 function toggleDocDagAcc(rowId, idx) {
@@ -5207,9 +5228,21 @@ function toggleDocDagAcc(rowId, idx) {
 
 function selectDocDag(rowId, dagId, idx) {
   _docDagSel[rowId] = dagId;
-  // 라벨 칩 업데이트
-  const lbl = document.getElementById(`dag-label-${rowId}`);
-  if (lbl) lbl.textContent = dagId;
+  // 칩을 선택 완료 스타일로 업데이트
+  const tag = document.getElementById(`dag-tag-${rowId}`);
+  if (tag) {
+    tag.className = 'dag-cell-tag selectable';
+    tag.title = '';
+    tag.innerHTML = `<span id="dag-label-${rowId}">${dagId}</span><span style="font-size:10px;color:#7a8fd4">✏</span>`;
+  }
+  // 승인 버튼 활성화
+  const approveBtn = document.getElementById(`approve-btn-${rowId}`);
+  if (approveBtn) {
+    approveBtn.disabled = false;
+    approveBtn.style.opacity = '';
+    approveBtn.style.cursor = '';
+    approveBtn.removeAttribute('title');
+  }
   // 아코디언 버튼 상태 초기화 후 선택 항목 표시
   MOCK_AIRFLOW_DAGS.forEach((_, i) => {
     const btn = document.getElementById(`da-btn-${rowId}-${i}`);
@@ -5628,10 +5661,7 @@ function saveKnowledgeEdit() {
   alert('✅ Knowledge 설정이 저장되었습니다.');
 }
 
-// 문서 승인 패널 — 백엔드에서 받아온 DAG 목록으로 아코디언 초기화
-document.addEventListener('DOMContentLoaded', () => {
-  ['r0','r1'].forEach(rowId => renderDocDagAcc(rowId));
-});
+// 문서 승인 패널 — DAG 아코디언은 칩 클릭 시 on-demand 렌더
 
 // Skill 태그 추가
 function addSkillTag(event) {
