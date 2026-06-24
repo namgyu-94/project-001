@@ -2308,12 +2308,6 @@ tbody tr:hover td { background: #f8f9ff; }
                 <option value="yield">📈 수율 예측 Agent</option>
               </select>
             </div>
-            <div class="fg">
-              <label>Vector DB Collection</label>
-              <input type="text" id="collectionDisplay" readonly
-                style="background:#f5f7ff;color:#4a6cff;font-family:monospace;font-size:12.5px"
-                placeholder="Agent 선택 시 자동 표시">
-            </div>
           </div>
 
           <hr class="section-sep">
@@ -2360,29 +2354,11 @@ tbody tr:hover td { background: #f8f9ff; }
           <!-- Step 3: 처리 설정 -->
           <div class="card-title">③ 처리 설정 <span style="font-size:12px;font-weight:400;color:#9aa3c0">— 플랫폼이 자동 처리합니다</span></div>
           <div class="form-grid">
-            <div class="fg">
-              <label>처리 DAG <span style="font-size:11px;color:#9aa3c0;font-weight:400">(Agent 설정 기준 자동)</span></label>
-              <input type="text" id="dagSelect" readonly
-                style="background:#f5f7ff;color:#4a6cff;font-family:monospace;font-size:12.5px"
-                placeholder="Agent 선택 시 자동 표시">
-            </div>
-            <div class="fg">
+            <div class="fg full">
               <label>저장 경로 <span style="font-size:11px;color:#9aa3c0;font-weight:400">(플랫폼 S3 자동 할당)</span></label>
               <input type="text" readonly
                 style="background:#f5f7ff;color:#9aa3c0;font-family:monospace;font-size:11.5px"
                 placeholder="platform-s3/agents/{id}/users/{uid}/{file}">
-            </div>
-            <div class="fg full">
-              <label>임베딩 파라미터 <span style="font-size:11px;color:#9aa3c0;font-weight:400">(선택 — 기본값 사용 가능)</span></label>
-              <textarea class="json-editor" id="reqBody" spellcheck="false">{
-  "chunk_size": 512,
-  "chunk_overlap": 64,
-  "embed_model": "text-embedding-3-large",
-  "metadata": {
-    "source": "agentMarket",
-    "doc_type": "general"
-  }
-}</textarea>
             </div>
           </div>
 
@@ -2428,6 +2404,18 @@ tbody tr:hover td { background: #f8f9ff; }
         <div id="dst-file">
           <div class="card">
             <div class="card-title">📋 업로드 파일 목록</div>
+            <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+              <input type="text" id="dst-file-search" placeholder="🔍 파일명 검색..."
+                oninput="filterDstFile()"
+                style="flex:1;min-width:160px;border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit"
+                onfocus="this.style.borderColor='#7c9fff'" onblur="this.style.borderColor='#e4e8f4'">
+              <select id="dst-file-agent" onchange="filterDstFile()"
+                style="border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit;color:#333;background:#fff;cursor:pointer">
+                <option value="">전체 Agent</option>
+                <option value="공정 불량 분석">🔬 공정 불량 분석</option>
+                <option value="수율 예측">📈 수율 예측</option>
+              </select>
+            </div>
             <div class="tbl-wrap">
               <table>
                 <thead>
@@ -2540,6 +2528,18 @@ tbody tr:hover td { background: #f8f9ff; }
         <div id="dst-text" style="display:none">
           <div class="card">
             <div class="card-title">📝 텍스트 등록 목록</div>
+            <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+              <input type="text" id="dst-text-search" placeholder="🔍 제목 검색..."
+                oninput="filterDstText()"
+                style="flex:1;min-width:160px;border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit"
+                onfocus="this.style.borderColor='#7c9fff'" onblur="this.style.borderColor='#e4e8f4'">
+              <select id="dst-text-agent" onchange="filterDstText()"
+                style="border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit;color:#333;background:#fff;cursor:pointer">
+                <option value="">전체 Agent</option>
+                <option value="공정 불량 분석">🔬 공정 불량 분석</option>
+                <option value="수율 예측">📈 수율 예측</option>
+              </select>
+            </div>
             <div class="tbl-wrap">
               <table>
                 <thead>
@@ -2838,6 +2838,19 @@ tbody tr:hover td { background: #f8f9ff; }
 
         <!-- ── 승인 대기 ── -->
         <div id="tab-pending">
+          <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap">
+            <input type="text" id="pend-search" placeholder="🔍 파일명 / 사용자 검색..."
+              oninput="filterPending()"
+              style="flex:1;min-width:160px;border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit"
+              onfocus="this.style.borderColor='#7c9fff'" onblur="this.style.borderColor='#e4e8f4'">
+            <select id="pend-agent-filter" onchange="filterPending()"
+              style="border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit;color:#333;background:#fff;cursor:pointer">
+              <option value="">전체 Agent</option>
+              <option value="process-defect">🔬 process-defect-agent</option>
+              <option value="yield-prediction">📈 yield-prediction-agent</option>
+              <option value="design-verify">🏗 design-verify-agent</option>
+            </select>
+          </div>
           <div class="tbl-wrap">
             <table>
               <thead>
@@ -2980,6 +2993,24 @@ tbody tr:hover td { background: #f8f9ff; }
 
         <!-- ── 처리 내역 ── -->
         <div id="tab-history" style="display:none">
+          <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap">
+            <input type="text" id="hist-search" placeholder="🔍 파일명 / 사용자 검색..."
+              oninput="filterHistory()"
+              style="flex:1;min-width:160px;border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit"
+              onfocus="this.style.borderColor='#7c9fff'" onblur="this.style.borderColor='#e4e8f4'">
+            <select id="hist-agent-filter" onchange="filterHistory()"
+              style="border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit;color:#333;background:#fff;cursor:pointer">
+              <option value="">전체 Agent</option>
+              <option value="process-defect">🔬 process-defect-agent</option>
+              <option value="yield-prediction">📈 yield-prediction-agent</option>
+            </select>
+            <select id="hist-result-filter" onchange="filterHistory()"
+              style="border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit;color:#333;background:#fff;cursor:pointer">
+              <option value="">전체 결과</option>
+              <option value="승인">✅ 승인</option>
+              <option value="반려">❌ 반려</option>
+            </select>
+          </div>
           <div class="tbl-wrap">
             <table>
               <thead>
@@ -3128,6 +3159,18 @@ tbody tr:hover td { background: #f8f9ff; }
 
           <!-- 텍스트 승인 대기 -->
           <div id="tab-text-pending">
+            <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap">
+              <input type="text" id="text-pend-search" placeholder="🔍 제목 / 사용자 검색..."
+                oninput="filterTextPending()"
+                style="flex:1;min-width:160px;border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit"
+                onfocus="this.style.borderColor='#7c9fff'" onblur="this.style.borderColor='#e4e8f4'">
+              <select id="text-pend-agent-filter" onchange="filterTextPending()"
+                style="border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit;color:#333;background:#fff;cursor:pointer">
+                <option value="">전체 Agent</option>
+                <option value="process-defect">🔬 process-defect-agent</option>
+                <option value="yield-prediction">📈 yield-prediction-agent</option>
+              </select>
+            </div>
             <div class="tbl-wrap">
               <table>
                 <thead>
@@ -3216,6 +3259,24 @@ tbody tr:hover td { background: #f8f9ff; }
 
           <!-- 텍스트 처리 내역 -->
           <div id="tab-text-history" style="display:none">
+            <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap">
+              <input type="text" id="text-hist-search" placeholder="🔍 제목 / 사용자 검색..."
+                oninput="filterTextHistory()"
+                style="flex:1;min-width:160px;border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit"
+                onfocus="this.style.borderColor='#7c9fff'" onblur="this.style.borderColor='#e4e8f4'">
+              <select id="text-hist-agent-filter" onchange="filterTextHistory()"
+                style="border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit;color:#333;background:#fff;cursor:pointer">
+                <option value="">전체 Agent</option>
+                <option value="process-defect">🔬 process-defect-agent</option>
+                <option value="yield-prediction">📈 yield-prediction-agent</option>
+              </select>
+              <select id="text-hist-result-filter" onchange="filterTextHistory()"
+                style="border:1.5px solid #e4e8f4;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit;color:#333;background:#fff;cursor:pointer">
+                <option value="">전체 결과</option>
+                <option value="승인">✅ 승인</option>
+                <option value="반려">❌ 반려</option>
+              </select>
+            </div>
             <div class="tbl-wrap">
               <table>
                 <thead>
@@ -4169,28 +4230,8 @@ document.querySelectorAll('.tog input').forEach(cb => {
 });
 
 /* ─── 문서 업로드 ─── */
-const AGENT_COLLECTIONS = {
-  legal: 'process_defect_corpus',
-  doc:   'yield_prediction_corpus',
-};
-const AGENT_DAGS = {
-  legal: 'legal_doc_embedding_dag',
-  doc:   'general_embedding_dag',
-};
-
 function onAgentSelect(val) {
-  const col = AGENT_COLLECTIONS[val] || '';
-  const dag = AGENT_DAGS[val] || '';
-  document.getElementById('collectionDisplay').value = col;
-  const dagEl = document.getElementById('dagSelect');
-  if (dagEl) dagEl.value = dag;
-  const body = document.getElementById('reqBody');
-  if (col) {
-    try {
-      const obj = JSON.parse(body.value);
-      body.value = JSON.stringify(obj, null, 2);
-    } catch(e) {}
-  }
+  // Agent 선택 시 후속 처리 (저장경로는 백엔드 자동 할당)
 }
 
 function handleFileSelect(files) {
@@ -4379,6 +4420,101 @@ function showTextPreview(content, title) {
   document.getElementById('textPreviewTitle').textContent = '📝 ' + (title || '텍스트 내용 미리보기');
   document.getElementById('textPreviewBody').textContent = content;
   document.getElementById('textPreviewModal').classList.add('open');
+}
+
+/* ─── 내 문서 현황 > 파일 문서 필터 ─── */
+function filterDstFile() {
+  const keyword = (document.getElementById('dst-file-search')?.value || '').toLowerCase();
+  const agent   = (document.getElementById('dst-file-agent')?.value || '');
+  document.querySelectorAll('#dst-file tbody tr').forEach(row => {
+    const name  = row.cells[0]?.textContent.toLowerCase() || '';
+    const agTxt = row.cells[1]?.textContent || '';
+    const show  = name.includes(keyword) && (!agent || agTxt.includes(agent));
+    row.style.display = show ? '' : 'none';
+  });
+}
+
+/* ─── 내 문서 현황 > 텍스트 필터 ─── */
+function filterDstText() {
+  const keyword = (document.getElementById('dst-text-search')?.value || '').toLowerCase();
+  const agent   = (document.getElementById('dst-text-agent')?.value || '');
+  document.querySelectorAll('#dst-text tbody tr').forEach(row => {
+    const title = row.cells[0]?.textContent.toLowerCase() || '';
+    const agTxt = row.cells[1]?.textContent || '';
+    const show  = title.includes(keyword) && (!agent || agTxt.includes(agent));
+    row.style.display = show ? '' : 'none';
+  });
+}
+
+/* ─── 문서 승인 > 승인 대기 필터 ─── */
+function filterPending() {
+  const keyword = (document.getElementById('pend-search')?.value || '').toLowerCase();
+  const agent   = (document.getElementById('pend-agent-filter')?.value || '');
+  document.querySelectorAll('#tab-pending tbody tr').forEach(row => {
+    if (row.classList.contains('dag-detail-tr')) return;
+    const fname = row.cells[0]?.textContent.toLowerCase() || '';
+    const user  = row.cells[1]?.textContent.toLowerCase() || '';
+    const agTxt = row.cells[2]?.textContent || '';
+    const show  = (fname.includes(keyword) || user.includes(keyword))
+                && (!agent || agTxt.includes(agent));
+    row.style.display = show ? '' : 'none';
+  });
+  const visible = [...document.querySelectorAll('#tab-pending tbody tr')]
+    .filter(r => !r.classList.contains('dag-detail-tr') && r.style.display !== 'none');
+  const empty = document.getElementById('emptyPending');
+  if (empty) empty.style.display = visible.length === 0 ? 'block' : 'none';
+}
+
+/* ─── 문서 승인 > 처리 내역 필터 ─── */
+function filterHistory() {
+  const keyword = (document.getElementById('hist-search')?.value || '').toLowerCase();
+  const agent   = (document.getElementById('hist-agent-filter')?.value || '');
+  const result  = (document.getElementById('hist-result-filter')?.value || '');
+  document.querySelectorAll('#tab-history tbody tr').forEach(row => {
+    const fname  = row.cells[0]?.textContent.toLowerCase() || '';
+    const user   = row.cells[1]?.textContent.toLowerCase() || '';
+    const agTxt  = row.cells[2]?.textContent || '';
+    const resTxt = row.cells[5]?.textContent || '';
+    const show   = (fname.includes(keyword) || user.includes(keyword))
+                 && (!agent || agTxt.includes(agent))
+                 && (!result || resTxt.includes(result));
+    row.style.display = show ? '' : 'none';
+  });
+}
+
+/* ─── 텍스트 승인 > 승인 대기 필터 ─── */
+function filterTextPending() {
+  const keyword = (document.getElementById('text-pend-search')?.value || '').toLowerCase();
+  const agent   = (document.getElementById('text-pend-agent-filter')?.value || '');
+  document.querySelectorAll('#tab-text-pending tbody tr').forEach(row => {
+    const title = row.cells[0]?.textContent.toLowerCase() || '';
+    const user  = row.cells[2]?.textContent.toLowerCase() || '';
+    const agTxt = row.cells[3]?.textContent || '';
+    const show  = (title.includes(keyword) || user.includes(keyword))
+                && (!agent || agTxt.includes(agent));
+    row.style.display = show ? '' : 'none';
+  });
+  const visible = [...document.querySelectorAll('#tab-text-pending tbody tr')]
+    .filter(r => r.style.display !== 'none');
+  const empty = document.getElementById('emptyTextPending');
+  if (empty) empty.style.display = visible.length === 0 ? 'block' : 'none';
+}
+
+/* ─── 텍스트 승인 > 처리 내역 필터 ─── */
+function filterTextHistory() {
+  const keyword = (document.getElementById('text-hist-search')?.value || '').toLowerCase();
+  const agent   = (document.getElementById('text-hist-agent-filter')?.value || '');
+  const result  = (document.getElementById('text-hist-result-filter')?.value || '');
+  document.querySelectorAll('#tab-text-history tbody tr').forEach(row => {
+    const title  = row.cells[0]?.textContent.toLowerCase() || '';
+    const user   = row.cells[2]?.textContent.toLowerCase() || '';
+    const agTxt  = row.cells[3]?.textContent || '';
+    const resTxt = row.cells[6]?.textContent || '';
+    const show   = (title.includes(keyword) || user.includes(keyword))
+                 && (!agent || agTxt.includes(agent))
+                 && (!result || resTxt.includes(result));
+    row.style.display = show ? '' : 'none';
+  });
 }
 
 /* ─── MY Knowledge 탭 전환 (업로드 / 내 문서 현황) ─── */
