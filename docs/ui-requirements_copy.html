@@ -676,6 +676,63 @@ tbody tr:hover td { background: #f8f9ff; }
   background: #2a2e5a; color: #7c9fff; border: 1px solid #3a4080;
 }
 
+/* ───────────── Knowledge 관리 Agent 카드 ───────────── */
+.km-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+.km-card {
+  background:#fff; border-radius:14px; padding:22px;
+  border:1.5px solid #e4e8f4; cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  display:flex; flex-direction:column; gap:16px;
+  transition:border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.km-card:hover {
+  border-color:#4a6cff; box-shadow:0 6px 20px rgba(74,108,255,0.13);
+  transform:translateY(-3px);
+}
+.km-card-head { display:flex; align-items:center; gap:12px; }
+.km-card-icon {
+  width:46px; height:46px; border-radius:12px; display:flex;
+  align-items:center; justify-content:center; font-size:22px; flex-shrink:0;
+}
+.km-card-name { font-size:14px; font-weight:800; color:#12132a; margin-bottom:2px; }
+.km-card-team { font-size:11.5px; color:#9aa3c0; }
+.km-stat-box {
+  background:#f8f9ff; border-radius:10px; padding:12px 14px;
+  display:flex; flex-direction:column; gap:9px;
+}
+.km-stat-row { display:flex; align-items:center; justify-content:space-between; }
+.km-stat-lbl { font-size:12px; font-weight:600; color:#6a7090; }
+.km-stat-counts { display:flex; gap:10px; font-size:12px; font-weight:700; }
+.km-card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:2px; }
+.km-card.km-disabled { cursor:default; opacity:0.78; }
+.km-card.km-disabled:hover { transform:none; border-color:#e4e8f4; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.km-agent-status { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:3px 10px; border-radius:20px; }
+.km-status-active   { background:#dcfce7; color:#16a34a; }
+.km-status-pending  { background:#fff7ed; color:#c2410c; }
+.km-status-val      { background:#ede9fe; color:#7c3aed; }
+.km-status-suspend  { background:#f3f4f6; color:#6b7280; }
+
+/* View Toggle */
+.km-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.km-vt-group { display:flex; gap:4px; }
+.km-vt-btn { display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; border:1.5px solid #e4e8f4; background:#fff; cursor:pointer; color:#6a7090; transition:all 0.15s; }
+.km-vt-btn.kv-active { background:#4a6cff; color:#fff; border-color:#4a6cff; }
+.km-vt-btn:hover:not(.kv-active) { border-color:#b0b8e0; background:#f4f6ff; }
+
+/* List View */
+#km-list-view { display:none; }
+.km-lv-table { width:100%; border-collapse:separate; border-spacing:0; border:1.5px solid #e4e8f4; border-radius:12px; overflow:hidden; }
+.km-lv-table thead th { background:#f8f9ff; padding:10px 14px; font-size:12px; font-weight:700; color:#6a7090; text-align:left; border-bottom:1.5px solid #e4e8f4; white-space:nowrap; }
+.km-lv-table tbody td { padding:12px 14px; font-size:13px; border-bottom:1px solid #f3f4f8; vertical-align:middle; }
+.km-lv-table tbody tr:last-child td { border-bottom:none; }
+.km-lv-table tbody tr:hover { background:#f8f9ff; }
+.km-lv-agent-cell { display:flex; align-items:center; gap:10px; }
+.km-lv-icon { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+.km-lv-counts { display:flex; gap:8px; font-size:12px; font-weight:700; white-space:nowrap; }
+.km-lv-dash { color:#ccc; font-size:13px; }
+.km-kn-on  { font-size:11.5px; font-weight:700; color:#16a34a; background:#dcfce7; padding:2px 9px; border-radius:20px; }
+.km-kn-off { font-size:11.5px; font-weight:700; color:#e67e22; background:#fef3e2; padding:2px 9px; border-radius:20px; }
+
 /* ───────────── Knowledge 기능 ───────────── */
 .kb-chip {
   display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700;
@@ -897,10 +954,7 @@ tbody tr:hover td { background: #f8f9ff; }
   <!-- DEVELOPER 아코디언 -->
   <div class="acc-header" id="st-developer">DEVELOPER</div>
   <div class="acc-body" id="stnav-developer">
-    <div class="nav-item" id="nav-developer" onclick="show('developer')">
-      <span class="ni-icon">📊</span> 내 현황
-    </div>
-    <div class="nav-item" id="nav-doc-approve" onclick="show('doc-approve')">
+    <div class="nav-item" id="nav-knowledge-agents" onclick="show('knowledge-agents')">
       <span class="ni-icon">📁</span> Knowledge 관리
       <span class="nav-badge" id="doc-approve-badge">3</span>
     </div>
@@ -1112,8 +1166,8 @@ tbody tr:hover td { background: #f8f9ff; }
     </div><!-- /panel-marketplace -->
 
 
-    <!-- ════════════════ DEVELOPER 대시보드 ════════════════ -->
-    <div class="panel" id="panel-developer">
+    <!-- panel-developer: Knowledge 관리 카드 진입 방식으로 대체하여 숨김 처리 -->
+    <div class="panel" id="panel-developer" style="display:none!important">
 
       <!-- 요약 통계 -->
       <div class="stat-row">
@@ -1828,8 +1882,8 @@ tbody tr:hover td { background: #f8f9ff; }
               <div style="font-size:11.5px;color:#9aa3c0;margin-top:10px">적용 후: <code style="background:#eaeefc;padding:2px 6px;border-radius:4px;font-size:11px">kubectl rollout restart deployment/process-defect-agent</code></div>
             </div>
             <div class="form-footer">
-              <span style="font-size:12px;color:#9aa3c0">재시작 완료 후 Developer 내 현황에서 Validation을 진행하세요</span>
-              <button class="btn btn-primary" onclick="show('developer')">Developer 내 현황으로 이동 ›</button>
+              <span style="font-size:12px;color:#9aa3c0">재시작 완료 후 등록 신청 목록에서 Validation을 진행하세요</span>
+              <button class="btn btn-primary" onclick="show('apply')">등록 신청 목록으로 이동 ›</button>
             </div>
           </div>
         </div>
@@ -2752,8 +2806,308 @@ tbody tr:hover td { background: #f8f9ff; }
     </div><!-- /panel-knowledge -->
 
 
+    <!-- ════════════════ Developer: Knowledge Agent 선택 ════════════════ -->
+    <div class="panel" id="panel-knowledge-agents">
+
+      <!-- 툴바: 뷰 전환 + 요약 -->
+      <div class="km-toolbar">
+        <div style="font-size:13px;color:#6a7090">
+          총 <strong style="color:#12132a">6</strong>개 Agent
+          &nbsp;·&nbsp; 서비스 중 <strong style="color:#16a34a">3</strong>
+          &nbsp;·&nbsp; 승인 대기 <strong style="color:#c2410c">1</strong>
+          &nbsp;·&nbsp; Validation 대기 <strong style="color:#7c3aed">1</strong>
+          &nbsp;·&nbsp; 일시 중단 <strong style="color:#6b7280">1</strong>
+        </div>
+        <div class="km-vt-group">
+          <button class="km-vt-btn kv-active" id="km-btn-card" onclick="toggleKmView('card')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="0" width="6" height="6" rx="1"/><rect x="8" y="0" width="6" height="6" rx="1"/><rect x="0" y="8" width="6" height="6" rx="1"/><rect x="8" y="8" width="6" height="6" rx="1"/></svg>
+            카드형
+          </button>
+          <button class="km-vt-btn" id="km-btn-list" onclick="toggleKmView('list')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="1" width="14" height="2" rx="1"/><rect x="0" y="6" width="14" height="2" rx="1"/><rect x="0" y="11" width="14" height="2" rx="1"/></svg>
+            목록형
+          </button>
+        </div>
+      </div>
+
+      <!-- ── 카드형 뷰 ── -->
+      <div class="km-grid" id="km-card-view">
+
+        <!-- ① process-defect-agent: 서비스 중 + Knowledge 활성 -->
+        <div class="km-card" onclick="openKnowledgeMgmt('legal','process-text','process-defect-agent','🔬')">
+          <div class="km-card-head">
+            <div class="km-card-icon" style="background:#fff0e8">🔬</div>
+            <div style="flex:1;min-width:0">
+              <div class="km-card-name">process-defect-agent</div>
+              <div class="km-card-team">공정개발팀 · 이공정</div>
+            </div>
+            <span class="km-agent-status km-status-active">● 서비스 중</span>
+          </div>
+          <div class="km-stat-box">
+            <div class="km-stat-row">
+              <span class="km-stat-lbl">📄 문서</span>
+              <span class="km-stat-counts"><span class="cs-pend">대기 1</span><span class="cs-appr">승인 8</span><span class="cs-rej">반려 1</span></span>
+            </div>
+            <div class="km-stat-row">
+              <span class="km-stat-lbl">📝 텍스트</span>
+              <span class="km-stat-counts"><span class="cs-pend">대기 1</span><span class="cs-appr">승인 3</span><span class="cs-rej">반려 0</span></span>
+            </div>
+          </div>
+          <div class="km-card-footer">
+            <span class="km-kn-on">🧠 Knowledge 활성</span>
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openKnowledgeMgmt('legal','process-text','process-defect-agent','🔬')">관리하기 →</button>
+          </div>
+        </div>
+
+        <!-- ② yield-prediction-agent: 서비스 중 + Knowledge 활성 -->
+        <div class="km-card" onclick="openKnowledgeMgmt('doc-summary','yield-text','yield-prediction-agent','📈')">
+          <div class="km-card-head">
+            <div class="km-card-icon" style="background:#e8fff0">📈</div>
+            <div style="flex:1;min-width:0">
+              <div class="km-card-name">yield-prediction-agent</div>
+              <div class="km-card-team">수율혁신팀 · 김수율</div>
+            </div>
+            <span class="km-agent-status km-status-active">● 서비스 중</span>
+          </div>
+          <div class="km-stat-box">
+            <div class="km-stat-row">
+              <span class="km-stat-lbl">📄 문서</span>
+              <span class="km-stat-counts"><span class="cs-pend">대기 1</span><span class="cs-appr">승인 6</span><span class="cs-rej">반려 2</span></span>
+            </div>
+            <div class="km-stat-row">
+              <span class="km-stat-lbl">📝 텍스트</span>
+              <span class="km-stat-counts"><span class="cs-pend">대기 0</span><span class="cs-appr">승인 2</span><span class="cs-rej">반려 1</span></span>
+            </div>
+          </div>
+          <div class="km-card-footer">
+            <span class="km-kn-on">🧠 Knowledge 활성</span>
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openKnowledgeMgmt('doc-summary','yield-text','yield-prediction-agent','📈')">관리하기 →</button>
+          </div>
+        </div>
+
+        <!-- ③ design-verify-agent: 서비스 중 + Knowledge 미설정 -->
+        <div class="km-card" onclick="openKnowledgeMgmt('design-verify','','design-verify-agent','🏗')">
+          <div class="km-card-head">
+            <div class="km-card-icon" style="background:#fff4e6">🏗</div>
+            <div style="flex:1;min-width:0">
+              <div class="km-card-name">design-verify-agent</div>
+              <div class="km-card-team">설계검증팀 · 박설계</div>
+            </div>
+            <span class="km-agent-status km-status-active">● 서비스 중</span>
+          </div>
+          <div class="km-stat-box">
+            <div class="km-stat-row">
+              <span class="km-stat-lbl">📄 문서</span>
+              <span class="km-stat-counts"><span class="cs-pend">대기 1</span><span class="cs-appr">승인 0</span><span class="cs-rej">반려 0</span></span>
+            </div>
+            <div class="km-stat-row">
+              <span class="km-stat-lbl">📝 텍스트</span>
+              <span style="font-size:12px;color:#bbb">—</span>
+            </div>
+          </div>
+          <div class="km-card-footer">
+            <span class="km-kn-off">⚠ Knowledge 미설정</span>
+            <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openKnowledgeMgmt('design-verify','','design-verify-agent','🏗')">관리하기 →</button>
+          </div>
+        </div>
+
+        <!-- ④ data-clean-agent: 승인 대기 -->
+        <div class="km-card km-disabled">
+          <div class="km-card-head">
+            <div class="km-card-icon" style="background:#f3f4f6">🤖</div>
+            <div style="flex:1;min-width:0">
+              <div class="km-card-name">data-clean-agent</div>
+              <div class="km-card-team">데이터팀 · 최데이터</div>
+            </div>
+            <span class="km-agent-status km-status-pending">⏳ 승인 대기</span>
+          </div>
+          <div class="km-stat-box" style="background:#fafafa">
+            <div style="text-align:center;padding:8px 0;font-size:12px;color:#9aa3c0">관리자 승인 후 이용 가능합니다</div>
+          </div>
+          <div class="km-card-footer">
+            <span style="font-size:11.5px;color:#9aa3c0">Knowledge 미연동</span>
+            <button class="btn btn-ghost btn-sm" disabled style="opacity:0.4;cursor:not-allowed">승인 대기 중</button>
+          </div>
+        </div>
+
+        <!-- ⑤ stream-processor-agent: Validation 대기 -->
+        <div class="km-card km-disabled">
+          <div class="km-card-head">
+            <div class="km-card-icon" style="background:#ede9fe">🔧</div>
+            <div style="flex:1;min-width:0">
+              <div class="km-card-name">stream-processor-agent</div>
+              <div class="km-card-team">인프라팀 · 이인프라</div>
+            </div>
+            <span class="km-agent-status km-status-val">🔵 Validation 대기</span>
+          </div>
+          <div class="km-stat-box" style="background:#f5f3ff">
+            <div style="text-align:center;padding:8px 0;font-size:12px;color:#7c3aed">Validation 완료 후 서비스가 시작됩니다</div>
+          </div>
+          <div class="km-card-footer">
+            <span style="font-size:11.5px;color:#9aa3c0">Knowledge 미연동</span>
+            <button class="btn btn-ghost btn-sm" disabled style="opacity:0.4;cursor:not-allowed">Validation 필요</button>
+          </div>
+        </div>
+
+        <!-- ⑥ realtime-alert-agent: 일시 중단 + Knowledge 활성 -->
+        <div class="km-card km-disabled" style="border-color:#d1d5db">
+          <div class="km-card-head">
+            <div class="km-card-icon" style="background:#f3f4f6">⚡</div>
+            <div style="flex:1;min-width:0">
+              <div class="km-card-name">realtime-alert-agent</div>
+              <div class="km-card-team">운영팀 · 박운영</div>
+            </div>
+            <span class="km-agent-status km-status-suspend">⏸ 일시 중단</span>
+          </div>
+          <div class="km-stat-box" style="background:#f9fafb">
+            <div class="km-stat-row">
+              <span class="km-stat-lbl" style="color:#9aa3c0">📄 문서</span>
+              <span class="km-stat-counts" style="opacity:0.5"><span class="cs-pend">대기 0</span><span class="cs-appr">승인 12</span><span class="cs-rej">반려 2</span></span>
+            </div>
+            <div class="km-stat-row">
+              <span class="km-stat-lbl" style="color:#9aa3c0">📝 텍스트</span>
+              <span style="font-size:12px;color:#bbb">—</span>
+            </div>
+          </div>
+          <div class="km-card-footer">
+            <span class="km-kn-on" style="opacity:0.5">🧠 Knowledge 활성</span>
+            <button class="btn btn-ghost btn-sm" disabled style="opacity:0.4;cursor:not-allowed">서비스 중단 중</button>
+          </div>
+        </div>
+
+      </div><!-- /km-card-view -->
+
+
+      <!-- ── 목록형 뷰 ── -->
+      <div id="km-list-view">
+        <table class="km-lv-table">
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Agent 상태</th>
+              <th>📄 문서 (대기 / 승인 / 반려)</th>
+              <th>📝 텍스트 (대기 / 승인 / 반려)</th>
+              <th>Knowledge</th>
+              <th>액션</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="km-lv-agent-cell">
+                  <div class="km-lv-icon" style="background:#fff0e8">🔬</div>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;color:#12132a">process-defect-agent</div>
+                    <div style="font-size:11px;color:#9aa3c0">공정개발팀 · 이공정</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="km-agent-status km-status-active">● 서비스 중</span></td>
+              <td><span class="km-lv-counts"><span class="cs-pend">대기 1</span><span class="cs-appr">승인 8</span><span class="cs-rej">반려 1</span></span></td>
+              <td><span class="km-lv-counts"><span class="cs-pend">대기 1</span><span class="cs-appr">승인 3</span><span class="cs-rej">반려 0</span></span></td>
+              <td><span class="km-kn-on">🧠 활성</span></td>
+              <td><button class="btn btn-primary btn-xs" onclick="openKnowledgeMgmt('legal','process-text','process-defect-agent','🔬')">관리하기 →</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="km-lv-agent-cell">
+                  <div class="km-lv-icon" style="background:#e8fff0">📈</div>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;color:#12132a">yield-prediction-agent</div>
+                    <div style="font-size:11px;color:#9aa3c0">수율혁신팀 · 김수율</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="km-agent-status km-status-active">● 서비스 중</span></td>
+              <td><span class="km-lv-counts"><span class="cs-pend">대기 1</span><span class="cs-appr">승인 6</span><span class="cs-rej">반려 2</span></span></td>
+              <td><span class="km-lv-counts"><span class="cs-pend">대기 0</span><span class="cs-appr">승인 2</span><span class="cs-rej">반려 1</span></span></td>
+              <td><span class="km-kn-on">🧠 활성</span></td>
+              <td><button class="btn btn-primary btn-xs" onclick="openKnowledgeMgmt('doc-summary','yield-text','yield-prediction-agent','📈')">관리하기 →</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="km-lv-agent-cell">
+                  <div class="km-lv-icon" style="background:#fff4e6">🏗</div>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;color:#12132a">design-verify-agent</div>
+                    <div style="font-size:11px;color:#9aa3c0">설계검증팀 · 박설계</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="km-agent-status km-status-active">● 서비스 중</span></td>
+              <td><span class="km-lv-counts"><span class="cs-pend">대기 1</span><span class="cs-appr">승인 0</span><span class="cs-rej">반려 0</span></span></td>
+              <td><span class="km-lv-dash">—</span></td>
+              <td><span class="km-kn-off">⚠ 미설정</span></td>
+              <td><button class="btn btn-ghost btn-xs" onclick="openKnowledgeMgmt('design-verify','','design-verify-agent','🏗')">관리하기 →</button></td>
+            </tr>
+            <tr style="background:#fffcfb">
+              <td>
+                <div class="km-lv-agent-cell">
+                  <div class="km-lv-icon" style="background:#f3f4f6">🤖</div>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;color:#12132a">data-clean-agent</div>
+                    <div style="font-size:11px;color:#9aa3c0">데이터팀 · 최데이터</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="km-agent-status km-status-pending">⏳ 승인 대기</span></td>
+              <td><span class="km-lv-dash">—</span></td>
+              <td><span class="km-lv-dash">—</span></td>
+              <td><span style="font-size:11.5px;color:#ccc">미연동</span></td>
+              <td><button class="btn btn-ghost btn-xs" disabled style="opacity:0.4;cursor:not-allowed">승인 대기 중</button></td>
+            </tr>
+            <tr style="background:#fdfcff">
+              <td>
+                <div class="km-lv-agent-cell">
+                  <div class="km-lv-icon" style="background:#ede9fe">🔧</div>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;color:#12132a">stream-processor-agent</div>
+                    <div style="font-size:11px;color:#9aa3c0">인프라팀 · 이인프라</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="km-agent-status km-status-val">🔵 Validation 대기</span></td>
+              <td><span class="km-lv-dash">—</span></td>
+              <td><span class="km-lv-dash">—</span></td>
+              <td><span style="font-size:11.5px;color:#ccc">미연동</span></td>
+              <td><button class="btn btn-ghost btn-xs" disabled style="opacity:0.4;cursor:not-allowed">Validation 필요</button></td>
+            </tr>
+            <tr style="background:#fafafa">
+              <td>
+                <div class="km-lv-agent-cell">
+                  <div class="km-lv-icon" style="background:#f3f4f6">⚡</div>
+                  <div>
+                    <div style="font-size:13px;font-weight:700;color:#6b7280">realtime-alert-agent</div>
+                    <div style="font-size:11px;color:#9aa3c0">운영팀 · 박운영</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="km-agent-status km-status-suspend">⏸ 일시 중단</span></td>
+              <td><span class="km-lv-counts" style="opacity:0.45"><span class="cs-pend">대기 0</span><span class="cs-appr">승인 12</span><span class="cs-rej">반려 2</span></span></td>
+              <td><span class="km-lv-dash">—</span></td>
+              <td><span class="km-kn-on" style="opacity:0.5">🧠 활성</span></td>
+              <td><button class="btn btn-ghost btn-xs" disabled style="opacity:0.4;cursor:not-allowed">서비스 중단 중</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div><!-- /km-list-view -->
+
+    </div><!-- /panel-knowledge-agents -->
+
+
     <!-- ════════════════ Developer: Knowledge 관리 ════════════════ -->
     <div class="panel" id="panel-doc-approve">
+
+      <!-- Agent 컨텍스트 헤더 (카드에서 진입 시 표시) -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:13px 18px;background:#f8f9ff;border-radius:12px;border:1.5px solid #e4e8f4">
+        <button class="btn btn-ghost btn-sm" onclick="show('knowledge-agents')" style="flex-shrink:0;font-size:12px">← 목록으로</button>
+        <div style="font-size:22px;flex-shrink:0" id="km-ctx-icon">🤖</div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#12132a" id="km-ctx-name">—</div>
+          <div style="font-size:11.5px;color:#9aa3c0">Knowledge 관리</div>
+        </div>
+      </div>
+
       <!-- Knowledge 최상위 탭 -->
       <div class="knowledge-type-tabs">
         <div class="kt-tab active" id="kt-doc" onclick="switchKnowledgeTab('doc')">
@@ -2790,50 +3144,6 @@ tbody tr:hover td { background: #f8f9ff; }
 
       <div class="card">
 
-        <!-- Agent 필터 드롭다운 -->
-        <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px">
-          <span style="font-size:12px;font-weight:700;color:#6a7090;white-space:nowrap">Agent 선택</span>
-          <div class="cs-wrap" id="docAgentWrap">
-            <div class="cs-trigger" id="docAgentTrigger" onclick="toggleCs('doc')">
-              <span id="docAgentLabel">전체</span>
-              <span class="cs-arrow">▾</span>
-            </div>
-            <div class="cs-panel" id="docAgentPanel">
-              <div class="cs-option cs-selected" onclick="pickDocAgent(this,'all','전체')">
-                <span class="cs-option-name">전체</span>
-                <span class="cs-counts">
-                  <span class="cs-pend">대기 3</span>
-                  <span class="cs-appr">승인 14</span>
-                  <span class="cs-rej">반려 3</span>
-                </span>
-              </div>
-              <div class="cs-option" onclick="pickDocAgent(this,'legal','🔬 process-defect-agent')">
-                <span class="cs-option-name">🔬 process-defect-agent</span>
-                <span class="cs-counts">
-                  <span class="cs-pend">대기 1</span>
-                  <span class="cs-appr">승인 8</span>
-                  <span class="cs-rej">반려 1</span>
-                </span>
-              </div>
-              <div class="cs-option" onclick="pickDocAgent(this,'doc-summary','📈 yield-prediction-agent')">
-                <span class="cs-option-name">📈 yield-prediction-agent</span>
-                <span class="cs-counts">
-                  <span class="cs-pend">대기 1</span>
-                  <span class="cs-appr">승인 6</span>
-                  <span class="cs-rej">반려 2</span>
-                </span>
-              </div>
-              <div class="cs-option" onclick="pickDocAgent(this,'design-verify','🏗 design-verify-agent')">
-                <span class="cs-option-name">🏗 design-verify-agent</span>
-                <span class="cs-counts">
-                  <span class="cs-pend">대기 1</span>
-                  <span class="cs-appr">승인 0</span>
-                  <span class="cs-rej">반려 0</span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- 승인 대기 / 처리 내역 탭 -->
         <div class="inner-tabs">
@@ -3107,42 +3417,6 @@ tbody tr:hover td { background: #f8f9ff; }
         </div>
 
         <div class="card">
-          <!-- Agent 필터 드롭다운 -->
-          <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px">
-            <span style="font-size:12px;font-weight:700;color:#6a7090;white-space:nowrap">Agent 선택</span>
-            <div class="cs-wrap" id="textAgentWrap">
-              <div class="cs-trigger" id="textAgentTrigger" onclick="toggleCs('text')">
-                <span id="textAgentLabel">전체</span>
-                <span class="cs-arrow">▾</span>
-              </div>
-              <div class="cs-panel" id="textAgentPanel">
-                <div class="cs-option cs-selected" onclick="pickTextAgent(this,'all','전체')">
-                  <span class="cs-option-name">전체</span>
-                  <span class="cs-counts">
-                    <span class="cs-pend">대기 1</span>
-                    <span class="cs-appr">승인 5</span>
-                    <span class="cs-rej">반려 1</span>
-                  </span>
-                </div>
-                <div class="cs-option" onclick="pickTextAgent(this,'process-text','🔬 process-defect-agent')">
-                  <span class="cs-option-name">🔬 process-defect-agent</span>
-                  <span class="cs-counts">
-                    <span class="cs-pend">대기 1</span>
-                    <span class="cs-appr">승인 3</span>
-                    <span class="cs-rej">반려 0</span>
-                  </span>
-                </div>
-                <div class="cs-option" onclick="pickTextAgent(this,'yield-text','📈 yield-prediction-agent')">
-                  <span class="cs-option-name">📈 yield-prediction-agent</span>
-                  <span class="cs-counts">
-                    <span class="cs-pend">대기 0</span>
-                    <span class="cs-appr">승인 2</span>
-                    <span class="cs-rej">반려 1</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <!-- 승인 대기 / 처리 내역 탭 -->
           <div class="inner-tabs">
@@ -4142,6 +4416,7 @@ const META = {
   apply:        { title: '등록 신청',         desc: '관리자 검토 후 승인되면 Gateway Key가 발급됩니다',           crumb: 'agentMarket > 등록 신청' },
   'user-status':{ title: '내 현황',           desc: '구독 중인 Agent별 사용 현황을 확인하세요',                   crumb: 'agentMarket > 내 현황' },
   knowledge:    { title: 'Knowledge',         desc: '문서·텍스트를 업로드하고 처리 현황을 확인합니다',            crumb: 'agentMarket > MY > Knowledge' },
+  'knowledge-agents': { title: 'Knowledge 관리', desc: '내 Agent의 Knowledge 문서·텍스트 승인을 관리합니다', crumb: 'agentMarket > Developer > Knowledge 관리' },
   'doc-approve':{ title: 'Knowledge 관리',    desc: '사용자가 등록한 문서·텍스트를 검토하고 VectorDB 임베딩 여부를 결정합니다', crumb: 'agentMarket > Developer > Knowledge 관리' },
   register:     { title: 'Agent 등록',        desc: '관리자가 직접 Agent를 등록합니다',                           crumb: 'agentMarket > 관리자 > Agent 등록' },
   approve:      { title: '등록 승인',         desc: '개발자가 신청한 Agent를 검토하고 승인·반려합니다',           crumb: 'agentMarket > 관리자 > 등록 승인' },
@@ -4180,7 +4455,7 @@ function switchRole(role) {
   updateUserChip();
 
   if (role === 'admin') show('admin-status');
-  else if (role === 'dev') show('developer');
+  else if (role === 'dev') show('knowledge-agents');
   else show('user-status');
 }
 
@@ -4675,6 +4950,41 @@ function submitUpsert() {
   setTimeout(() => {
     alert('🔄 Upsert 요청이 제출되었습니다.\n\nDeveloper 승인 후 Milvus VectorDB의 기존 벡터가 갱신됩니다.');
   }, 100);
+}
+
+/* ─── Knowledge 관리 뷰 전환 (카드형 / 목록형) ─── */
+function toggleKmView(type) {
+  const cardView = document.getElementById('km-card-view');
+  const listView = document.getElementById('km-list-view');
+  const btnCard  = document.getElementById('km-btn-card');
+  const btnList  = document.getElementById('km-btn-list');
+
+  if (type === 'card') {
+    cardView.style.display = 'grid';
+    listView.style.display = 'none';
+    btnCard.classList.add('kv-active');
+    btnList.classList.remove('kv-active');
+  } else {
+    cardView.style.display = 'none';
+    listView.style.display = 'block';
+    btnCard.classList.remove('kv-active');
+    btnList.classList.add('kv-active');
+  }
+}
+
+/* ─── Knowledge 관리 Agent 선택 → 관리 화면 진입 ─── */
+function openKnowledgeMgmt(docAgent, textAgent, agentName, icon) {
+  document.getElementById('km-ctx-icon').textContent = icon || '🤖';
+  document.getElementById('km-ctx-name').textContent = agentName || '—';
+
+  // breadcrumb용 META desc 동적 갱신
+  const metaEl = META['doc-approve'];
+  if (metaEl) metaEl.desc = agentName + ' Knowledge 관리';
+
+  filterDocByAgent(docAgent || 'all');
+  filterTextByAgent(textAgent || 'all');
+
+  show('doc-approve');
 }
 
 /* ─── 커스텀 Agent 드롭다운 ─── */
